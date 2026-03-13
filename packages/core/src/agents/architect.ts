@@ -1,13 +1,14 @@
 import { BaseAgent } from "./base.js";
-import type { AgentContext } from "./base.js";
 import type { BookConfig } from "../models/book.js";
-import { readFile, writeFile, mkdir } from "node:fs/promises";
+import type { GenreProfile } from "../models/genre-profile.js";
+import { readGenreProfile } from "./rules-reader.js";
+import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 
 export interface ArchitectOutput {
   readonly storyBible: string;
   readonly volumeOutline: string;
-  readonly styleGuide: string;
+  readonly bookRules: string;
   readonly currentState: string;
   readonly pendingHooks: string;
 }
@@ -18,28 +19,97 @@ export class ArchitectAgent extends BaseAgent {
   }
 
   async generateFoundation(book: BookConfig, externalContext?: string): Promise<ArchitectOutput> {
+    const { profile: gp, body: genreBody } =
+      await readGenreProfile(this.ctx.projectRoot, book.genre);
+
     const contextBlock = externalContext
-      ? `\n\n## 外部指令\n以下是来自外部系统（如 OpenClaw）的创作指令，请将其融入设定中：\n\n${externalContext}\n`
+      ? `\n\n## 外部指令\n以下是来自外部系统的创作指令，请将其融入设定中：\n\n${externalContext}\n`
       : "";
 
-    const systemPrompt = `你是一个专业的网络小说架构师。你的任务是为一本新小说生成完整的基础设定。${contextBlock}
+    const numericalBlock = gp.numericalSystem
+      ? `- 有明确的数值/资源体系可追踪
+- 在 book_rules 中定义 numericalSystemOverrides（hardCap、resourceTypes）`
+      : "- 本题材无数值系统，不需要资源账本";
+
+    const powerBlock = gp.powerScaling
+      ? "- 有明确的战力等级体系"
+      : "";
+
+    const eraBlock = gp.eraResearch
+      ? "- 需要年代考据支撑（在 book_rules 中设置 eraConstraints）"
+      : "";
+
+    const systemPrompt = `你是一个专业的网络小说架构师。你的任务是为一本新的${gp.name}小说生成完整的基础设定。${contextBlock}
 
 要求：
 - 平台：${book.platform}
-- 题材：${book.genre}
+- 题材：${gp.name}（${book.genre}）
 - 目标章数：${book.targetChapters}章
 - 每章字数：${book.chapterWordCount}字
+
+## 题材特征
+
+${genreBody}
+
+## 生成要求
 
 你需要生成以下内容，每个部分用 === SECTION: <name> === 分隔：
 
 === SECTION: story_bible ===
-世界观设定、势力分布、核心规则体系、主角设定（身份/金手指/性格底色）、重要配角
+用结构化二级标题组织：
+## 01_世界观
+世界观设定、核心规则体系
+
+## 02_主角
+主角设定（身份/金手指/性格底色/行为边界）
+
+## 03_势力与人物
+势力分布、重要配角（每人：名字、身份、动机、与主角关系、独立目标）
+
+## 04_地理与环境
+地图/场景设定、环境特色
+
+## 05_书名与简介
+- 书名建议：采用"题材+核心爽点+主角行为"的长书名格式，避免文艺化
+- 简介（300字内）：第一句抛困境，第二句亮金手指/核心能力，第三句留悬念
 
 === SECTION: volume_outline ===
 卷纲规划，每卷包含：卷名、章节范围、核心冲突、关键转折、收益目标
 
-=== SECTION: style_guide ===
-文风锁定：叙事视角、语言风格、禁忌清单、爽点回路设计、节奏规则
+### 黄金三章法则（前三章必须遵循）
+- 第1章：抛出核心冲突（主角立即面临困境/危机/选择），禁止大段背景灌输
+- 第2章：展示金手指/核心能力（主角如何应对第1章的困境），让读者看到爽点预期
+- 第3章：明确短期目标（主角确立第一个具体可达成的目标），给读者追读理由
+
+=== SECTION: book_rules ===
+生成 book_rules.md 格式的 YAML frontmatter + 叙事指导，包含：
+\`\`\`
+---
+version: "1.0"
+protagonist:
+  name: (主角名)
+  personalityLock: [(3-5个性格关键词)]
+  behavioralConstraints: [(3-5条行为约束)]
+genreLock:
+  primary: ${book.genre}
+  forbidden: [(2-3种禁止混入的文风)]
+${gp.numericalSystem ? `numericalSystemOverrides:
+  hardCap: (根据设定确定)
+  resourceTypes: [(核心资源类型列表)]` : ""}
+prohibitions:
+  - (3-5条本书禁忌)
+chapterTypesOverride: []
+fatigueWordsOverride: []
+additionalAuditDimensions: []
+enableFullCastTracking: false
+---
+
+## 叙事视角
+(描述本书叙事视角和风格)
+
+## 核心冲突驱动
+(描述本书的核心矛盾和驱动力)
+\`\`\`
 
 === SECTION: current_state ===
 初始状态卡（第0章），包含：
@@ -59,15 +129,19 @@ export class ArchitectAgent extends BaseAgent {
 
 生成内容必须：
 1. 符合${book.platform}平台口味
-2. 主角杀伐果断，不圣母
-3. 有明确的数值/资源体系可追踪
-4. 伏笔前后呼应，不留悬空线`;
+2. 符合${gp.name}题材特征
+${numericalBlock}
+${powerBlock}
+${eraBlock}
+3. 主角人设鲜明，有明确行为边界
+4. 伏笔前后呼应，不留悬空线
+5. 配角有独立动机，不是工具人`;
 
     const response = await this.chat([
       { role: "system", content: systemPrompt },
       {
         role: "user",
-        content: `请为标题为"${book.title}"的${book.genre}小说生成完整基础设定。`,
+        content: `请为标题为"${book.title}"的${gp.name}小说生成完整基础设定。`,
       },
     ], { maxTokens: 16384, temperature: 0.8 });
 
@@ -77,34 +151,30 @@ export class ArchitectAgent extends BaseAgent {
   async writeFoundationFiles(
     bookDir: string,
     output: ArchitectOutput,
+    numericalSystem: boolean = true,
   ): Promise<void> {
     const storyDir = join(bookDir, "story");
     await mkdir(storyDir, { recursive: true });
 
-    await Promise.all([
+    const writes: Array<Promise<void>> = [
       writeFile(join(storyDir, "story_bible.md"), output.storyBible, "utf-8"),
-      writeFile(
-        join(storyDir, "volume_outline.md"),
-        output.volumeOutline,
-        "utf-8",
-      ),
-      writeFile(join(storyDir, "style_guide.md"), output.styleGuide, "utf-8"),
-      writeFile(
-        join(storyDir, "current_state.md"),
-        output.currentState,
-        "utf-8",
-      ),
-      writeFile(
-        join(storyDir, "pending_hooks.md"),
-        output.pendingHooks,
-        "utf-8",
-      ),
-      writeFile(
-        join(storyDir, "particle_ledger.md"),
-        "# 资源账本\n\n| 章节 | 期初值 | 来源 | 完整度 | 增量 | 期末值 | 依据 |\n|------|--------|------|--------|------|--------|------|\n| 0 | 0 | 初始化 | - | 0 | 0 | 开书初始 |\n",
-        "utf-8",
-      ),
-    ]);
+      writeFile(join(storyDir, "volume_outline.md"), output.volumeOutline, "utf-8"),
+      writeFile(join(storyDir, "book_rules.md"), output.bookRules, "utf-8"),
+      writeFile(join(storyDir, "current_state.md"), output.currentState, "utf-8"),
+      writeFile(join(storyDir, "pending_hooks.md"), output.pendingHooks, "utf-8"),
+    ];
+
+    if (numericalSystem) {
+      writes.push(
+        writeFile(
+          join(storyDir, "particle_ledger.md"),
+          "# 资源账本\n\n| 章节 | 期初值 | 来源 | 完整度 | 增量 | 期末值 | 依据 |\n|------|--------|------|--------|------|--------|------|\n| 0 | 0 | 初始化 | - | 0 | 0 | 开书初始 |\n",
+          "utf-8",
+        ),
+      );
+    }
+
+    await Promise.all(writes);
   }
 
   private parseSections(content: string): ArchitectOutput {
@@ -119,7 +189,7 @@ export class ArchitectAgent extends BaseAgent {
     return {
       storyBible: extract("story_bible"),
       volumeOutline: extract("volume_outline"),
-      styleGuide: extract("style_guide"),
+      bookRules: extract("book_rules"),
       currentState: extract("current_state"),
       pendingHooks: extract("pending_hooks"),
     };

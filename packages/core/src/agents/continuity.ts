@@ -1,4 +1,7 @@
 import { BaseAgent } from "./base.js";
+import type { GenreProfile } from "../models/genre-profile.js";
+import type { BookRules } from "../models/book-rules.js";
+import { readGenreProfile, readBookRules } from "./rules-reader.js";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
@@ -15,6 +18,78 @@ export interface AuditIssue {
   readonly suggestion: string;
 }
 
+// Dimension ID → name mapping
+const DIMENSION_MAP: Record<number, string> = {
+  1: "OOC检查",
+  2: "时间线检查",
+  3: "设定冲突",
+  4: "战力崩坏",
+  5: "数值检查",
+  6: "伏笔检查",
+  7: "节奏检查",
+  8: "文风检查",
+  9: "信息越界",
+  10: "词汇疲劳",
+  11: "利益链断裂",
+  12: "年代考据",
+  13: "配角降智",
+  14: "配角工具人化",
+  15: "爽点虚化",
+  16: "台词失真",
+  17: "流水账",
+  18: "知识库污染",
+  19: "视角一致性",
+};
+
+function buildDimensionList(
+  gp: GenreProfile,
+  bookRules: BookRules | null,
+): ReadonlyArray<{ readonly id: number; readonly name: string; readonly note: string }> {
+  const activeIds = new Set(gp.auditDimensions);
+
+  // Add book-level additional dimensions
+  if (bookRules?.additionalAuditDimensions) {
+    for (const d of bookRules.additionalAuditDimensions) {
+      if (typeof d === "number") activeIds.add(d);
+    }
+  }
+
+  // Conditional overrides
+  if (gp.eraResearch || bookRules?.eraConstraints?.enabled) {
+    activeIds.add(12);
+  }
+
+  const dims: Array<{ id: number; name: string; note: string }> = [];
+
+  for (const id of [...activeIds].sort((a, b) => a - b)) {
+    const name = DIMENSION_MAP[id];
+    if (!name) continue;
+
+    let note = "";
+    if (id === 10 && gp.fatigueWords.length > 0) {
+      const words = bookRules?.fatigueWordsOverride && bookRules.fatigueWordsOverride.length > 0
+        ? bookRules.fatigueWordsOverride
+        : gp.fatigueWords;
+      note = `高疲劳词：${words.join("、")}。同时检查AI标记词（仿佛/不禁/宛如/竟然/忽然/猛地）密度，每3000字超过1次即warning`;
+    }
+    if (id === 15 && gp.satisfactionTypes.length > 0) {
+      note = `爽点类型：${gp.satisfactionTypes.join("、")}`;
+    }
+    if (id === 12 && bookRules?.eraConstraints) {
+      const era = bookRules.eraConstraints;
+      const parts = [era.period, era.region].filter(Boolean);
+      if (parts.length > 0) note = `年代：${parts.join("，")}`;
+    }
+    if (id === 19) {
+      note = "检查视角切换是否有过渡、是否与设定视角一致";
+    }
+
+    dims.push({ id, name, note });
+  }
+
+  return dims;
+}
+
 export class ContinuityAuditor extends BaseAgent {
   get name(): string {
     return "continuity-auditor";
@@ -24,27 +99,39 @@ export class ContinuityAuditor extends BaseAgent {
     bookDir: string,
     chapterContent: string,
     chapterNumber: number,
+    genre?: string,
   ): Promise<AuditResult> {
-    const [currentState, ledger, hooks, styleGuide] = await Promise.all([
+    const [currentState, ledger, hooks, styleGuideRaw] = await Promise.all([
       this.readFileSafe(join(bookDir, "story/current_state.md")),
       this.readFileSafe(join(bookDir, "story/particle_ledger.md")),
       this.readFileSafe(join(bookDir, "story/pending_hooks.md")),
       this.readFileSafe(join(bookDir, "story/style_guide.md")),
     ]);
 
-    const systemPrompt = `你是一位严格的网络小说审稿编辑。你的任务是对章节进行连续性、一致性和质量审查。
+    // Load genre profile and book rules
+    const genreId = genre ?? "other";
+    const { profile: gp } = await readGenreProfile(this.ctx.projectRoot, genreId);
+    const parsedRules = await readBookRules(bookDir);
+    const bookRules = parsedRules?.rules ?? null;
+
+    // Fallback: use book_rules body when style_guide.md doesn't exist
+    const styleGuide = styleGuideRaw !== "(文件不存在)"
+      ? styleGuideRaw
+      : (parsedRules?.body ?? "(无文风指南)");
+
+    const dimensions = buildDimensionList(gp, bookRules);
+    const dimList = dimensions
+      .map((d) => `${d.id}. ${d.name}${d.note ? `（${d.note}）` : ""}`)
+      .join("\n");
+
+    const protagonistBlock = bookRules?.protagonist
+      ? `\n主角人设锁定：${bookRules.protagonist.name}，${bookRules.protagonist.personalityLock.join("、")}，行为约束：${bookRules.protagonist.behavioralConstraints.join("、")}`
+      : "";
+
+    const systemPrompt = `你是一位严格的${gp.name}网络小说审稿编辑。你的任务是对章节进行连续性、一致性和质量审查。${protagonistBlock}
 
 审查维度：
-1. OOC检查：角色行为是否符合已确立人设
-2. 时间线检查：时间/地点是否连贯
-3. 设定冲突：是否违反已确立的世界观规则
-4. 战力崩坏：是否出现不合理的实力变化
-5. 数值检查：资源/数值变动是否与账本一致
-6. 伏笔检查：是否有遗漏或矛盾的伏笔
-7. 节奏检查：是否拖沓或跳跃
-8. 文风检查：是否偏离风格指南
-9. 信息越界：角色是否知道了不该知道的信息
-10. 词汇疲劳：是否有过度重复的表达
+${dimList}
 
 输出格式必须为 JSON：
 {
@@ -62,14 +149,15 @@ export class ContinuityAuditor extends BaseAgent {
 
 只有当存在 critical 级别问题时，passed 才为 false。`;
 
+    const ledgerBlock = gp.numericalSystem
+      ? `\n## 资源账本\n${ledger}`
+      : "";
+
     const userPrompt = `请审查第${chapterNumber}章。
 
 ## 当前状态卡
 ${currentState}
-
-## 资源账本
-${ledger}
-
+${ledgerBlock}
 ## 伏笔池
 ${hooks}
 
