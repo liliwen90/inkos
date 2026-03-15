@@ -2,10 +2,14 @@ import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { PipelineAdapter } from '../adapters/pipeline-adapter'
 import { StateAdapter } from '../adapters/state-adapter'
 import { LLMAdapter, type LLMConfigUI } from '../adapters/llm-adapter'
+import { HumanizeAdapter } from '../adapters/humanize-adapter'
+import { DetectionAdapter } from '../adapters/detection-adapter'
 
 const stateAdapter = new StateAdapter()
 const pipelineAdapter = new PipelineAdapter()
 const llmAdapter = new LLMAdapter()
+const humanizeAdapter = new HumanizeAdapter()
+const detectionAdapter = new DetectionAdapter()
 
 export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // ===== 项目管理 =====
@@ -19,6 +23,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     const dirPath = result.filePaths[0]
     if (stateAdapter.isProjectDir(dirPath)) {
       stateAdapter.setProjectRoot(dirPath)
+      humanizeAdapter.setProjectRoot(dirPath)
+      detectionAdapter.setProjectRoot(dirPath)
       return { path: dirPath, isProject: true }
     }
     return { path: dirPath, isProject: false }
@@ -26,6 +32,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('init-project', async (_e, dirPath: string, name: string) => {
     await stateAdapter.initProject(dirPath, name)
+    humanizeAdapter.setProjectRoot(dirPath)
+    detectionAdapter.setProjectRoot(dirPath)
     return true
   })
 
@@ -182,6 +190,129 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     const { writeFile } = await import('fs/promises')
     await writeFile(result.filePath, content, 'utf-8')
     return result.filePath
+  })
+
+  // ===== Phase 3: 人性化引擎 =====
+
+  ipcMain.handle('load-humanize-settings', async (_e, bookId: string) => {
+    return humanizeAdapter.loadSettings(bookId)
+  })
+
+  ipcMain.handle('save-humanize-settings', async (_e, bookId: string, settings: unknown) => {
+    await humanizeAdapter.saveSettings(bookId, settings as never)
+    return true
+  })
+
+  ipcMain.handle('load-voice-cards', async (_e, bookId: string) => {
+    return humanizeAdapter.loadVoiceCards(bookId)
+  })
+
+  ipcMain.handle('save-voice-cards', async (_e, bookId: string, cards: unknown) => {
+    await humanizeAdapter.saveVoiceCards(bookId, cards as never)
+    return true
+  })
+
+  ipcMain.handle('load-scene-beats', async (_e, bookId: string, chapterNumber: number) => {
+    return humanizeAdapter.loadSceneBeats(bookId, chapterNumber)
+  })
+
+  ipcMain.handle('save-scene-beats', async (_e, bookId: string, chapterNumber: number, beats: string[]) => {
+    await humanizeAdapter.saveSceneBeats(bookId, chapterNumber, beats)
+    return true
+  })
+
+  ipcMain.handle('build-style-guidance', async (_e, bookId: string, chapterNumber?: number) => {
+    return humanizeAdapter.buildStyleGuidance(bookId, chapterNumber)
+  })
+
+  // ===== Phase 3: 风格分析 =====
+
+  ipcMain.handle('list-style-books', async (_e, bookId: string) => {
+    return humanizeAdapter.listStyleBooks(bookId)
+  })
+
+  ipcMain.handle('import-style-book', async (_e, bookId: string) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: '导入风格参考书',
+      filters: [{ name: '文本文件', extensions: ['txt'] }],
+      properties: ['openFile', 'multiSelections']
+    })
+    if (result.canceled || !result.filePaths.length) return null
+    const names: string[] = []
+    for (const fp of result.filePaths) {
+      names.push(await humanizeAdapter.addStyleBook(bookId, fp))
+    }
+    return names
+  })
+
+  ipcMain.handle('remove-style-book', async (_e, bookId: string, fileName: string) => {
+    await humanizeAdapter.removeStyleBook(bookId, fileName)
+    return true
+  })
+
+  ipcMain.handle('analyze-style-books', async (_e, bookId: string) => {
+    return humanizeAdapter.analyzeStyleFromBooks(bookId)
+  })
+
+  ipcMain.handle('load-style-profile', async (_e, bookId: string) => {
+    return humanizeAdapter.loadStyleProfile(bookId)
+  })
+
+  // ===== Phase 3: 风格指纹 =====
+
+  ipcMain.handle('load-fingerprint', async (_e, bookId: string) => {
+    return humanizeAdapter.loadFingerprint(bookId)
+  })
+
+  ipcMain.handle('save-fingerprint', async (_e, bookId: string, data: unknown) => {
+    await humanizeAdapter.saveFingerprint(bookId, data as never)
+    return true
+  })
+
+  ipcMain.handle('analyze-deep-fingerprint', async (_e, bookId: string) => {
+    const client = llmAdapter.getClient()
+    const config = llmAdapter.getConfig()
+    if (!client || !config) throw new Error('请先配置LLM连接')
+    return humanizeAdapter.analyzeDeepFingerprint(bookId, client, config.model, (msg, pct) => {
+      mainWindow.webContents.send('pipeline-progress', { stage: msg, detail: `${pct}%`, timestamp: Date.now() })
+    })
+  })
+
+  // ===== Phase 3: AI建议 =====
+
+  ipcMain.handle('generate-suggestions', async (_e, bookId: string) => {
+    const client = llmAdapter.getClient()
+    const config = llmAdapter.getConfig()
+    if (!client || !config) throw new Error('请先配置LLM连接')
+    return humanizeAdapter.generateSuggestions(bookId, client, config.model, (msg, pct) => {
+      mainWindow.webContents.send('pipeline-progress', { stage: msg, detail: `${pct}%`, timestamp: Date.now() })
+    })
+  })
+
+  ipcMain.handle('load-suggestions', async (_e, bookId: string) => {
+    return humanizeAdapter.loadSuggestions(bookId)
+  })
+
+  // ===== Phase 3: AIGC检测 =====
+
+  ipcMain.handle('analyze-ai-tells', async (_e, content: string) => {
+    return detectionAdapter.analyzeAITells(content)
+  })
+
+  ipcMain.handle('analyze-sensitive-words', async (_e, content: string, customWords?: string[]) => {
+    return detectionAdapter.analyzeSensitiveWords(content, customWords)
+  })
+
+  ipcMain.handle('detect-chapter', async (_e, bookId: string, chapterNumber: number, chapterTitle: string, content: string) => {
+    return detectionAdapter.detectChapter(bookId, chapterNumber, chapterTitle, content)
+  })
+
+  ipcMain.handle('load-detection-history', async (_e, bookId: string) => {
+    return detectionAdapter.loadDetectionHistory(bookId)
+  })
+
+  ipcMain.handle('load-detection-record', async (_e, bookId: string, chapterNumber: number) => {
+    return detectionAdapter.loadDetectionRecord(bookId, chapterNumber)
   })
 
   // ===== 进度事件转发 =====

@@ -1,7 +1,8 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, PenTool, BookOpen, ScrollText, Settings,
-  PanelLeftClose, PanelLeftOpen, FolderOpen, Feather, Download
+  PanelLeftClose, PanelLeftOpen, FolderOpen, Feather, Download,
+  BarChart3, ShieldAlert, Sparkles, Lightbulb
 } from 'lucide-react'
 import { useAppStore } from '../../stores/app-store'
 
@@ -10,7 +11,11 @@ const navItems = [
   { to: '/writing', icon: PenTool, label: '写作控制台' },
   { to: '/chapters', icon: BookOpen, label: '章节管理' },
   { to: '/truth-files', icon: ScrollText, label: '真相文件' },
-  { to: '/export', icon: Download, label: '导出' }
+  { to: '/export', icon: Download, label: '导出' },
+  { to: '/style-analysis', icon: BarChart3, label: '风格分析' },
+  { to: '/detection', icon: ShieldAlert, label: 'AIGC 检测' },
+  { to: '/humanize', icon: Sparkles, label: '人性化引擎' },
+  { to: '/suggestions', icon: Lightbulb, label: 'AI 建议' }
 ]
 
 const bottomItems = [

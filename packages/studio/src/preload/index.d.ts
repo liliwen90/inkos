@@ -42,6 +42,80 @@ interface ProgressEvent {
   timestamp: number
 }
 
+interface HumanizeSettings {
+  pov: 'first' | 'third-limited' | 'third-omniscient'
+  tense: 'past' | 'present'
+  creativity: number
+  pacing: 'fast' | 'balanced' | 'slow'
+  mood: 'neutral' | 'tense' | 'warm' | 'dark' | 'humorous' | 'epic'
+  showDontTell: 'low' | 'medium' | 'high'
+  dialogue: 'formal' | 'natural' | 'colloquial'
+  density: 'sparse' | 'medium' | 'rich'
+}
+
+interface VoiceCard {
+  name: string
+  speech: string
+  tone: string
+  quirks: string
+}
+
+interface FingerprintData {
+  fingerprint: string
+  enabled: boolean
+  strength: number
+  analyzedBooks: string[]
+  analyzedAt: string
+}
+
+interface StyleProfile {
+  sentenceLength: { avg: number; median: number; variance: number }
+  paragraphLength: { avg: number; median: number }
+  vocabulary: { uniqueRatio: number; topWords: Array<{ word: string; count: number }> }
+  punctuation: Record<string, number>
+  readability: { fleschKincaid: number; grade: string }
+  sourceName?: string
+  analyzedAt: string
+}
+
+interface AITellResult {
+  paragraphUniformity: { score: number; detail: string }
+  hedgeDensity: { score: number; detail: string }
+  formulaicTransitions: { score: number; detail: string }
+  listStructure: { score: number; detail: string }
+  overallScore: number
+  verdict: string
+}
+
+interface SensitiveWordResult {
+  hits: Array<{ word: string; category: string; position: number; context: string }>
+  totalHits: number
+  categories: Record<string, number>
+}
+
+interface DetectionRecord {
+  chapterNumber: number
+  chapterTitle: string
+  detectedAt: string
+  aiTells: AITellResult
+  sensitiveWords: SensitiveWordResult
+  overallRisk: 'low' | 'medium' | 'high'
+}
+
+interface AISuggestions {
+  storyIdeas?: Array<{ title: string; content: string }>
+  writerRole?: string
+  writingRules?: string
+  humanizeSettings?: HumanizeSettings & { reasons?: Record<string, string> }
+  voiceCards?: VoiceCard[]
+  sceneBeats?: Array<{ title: string; beats: string[] }>
+  storyArc?: { phases: Array<{ name: string; chapters: string; goal: string }> }
+  generatedAt?: string
+  fromBooks?: string[]
+  parseError?: boolean
+  raw?: string
+}
+
 interface InkOSAPI {
   // 项目管理
   selectProjectDir(): Promise<{ path: string; isProject: boolean } | null>
@@ -80,6 +154,38 @@ interface InkOSAPI {
 
   // 导出
   exportBook(bookId: string, format: 'txt' | 'md'): Promise<string | null>
+
+  // 人性化引擎
+  loadHumanizeSettings(bookId: string): Promise<HumanizeSettings>
+  saveHumanizeSettings(bookId: string, settings: HumanizeSettings): Promise<boolean>
+  loadVoiceCards(bookId: string): Promise<VoiceCard[]>
+  saveVoiceCards(bookId: string, cards: VoiceCard[]): Promise<boolean>
+  loadSceneBeats(bookId: string, chapterNumber: number): Promise<string[] | null>
+  saveSceneBeats(bookId: string, chapterNumber: number, beats: string[]): Promise<boolean>
+  buildStyleGuidance(bookId: string, chapterNumber?: number): Promise<string>
+
+  // 风格分析
+  listStyleBooks(bookId: string): Promise<string[]>
+  importStyleBook(bookId: string): Promise<string[] | null>
+  removeStyleBook(bookId: string, fileName: string): Promise<boolean>
+  analyzeStyleBooks(bookId: string): Promise<StyleProfile | null>
+  loadStyleProfile(bookId: string): Promise<StyleProfile | null>
+
+  // 风格指纹
+  loadFingerprint(bookId: string): Promise<FingerprintData | null>
+  saveFingerprint(bookId: string, data: FingerprintData): Promise<boolean>
+  analyzeDeepFingerprint(bookId: string): Promise<FingerprintData>
+
+  // AI建议
+  generateSuggestions(bookId: string): Promise<AISuggestions>
+  loadSuggestions(bookId: string): Promise<AISuggestions | null>
+
+  // AIGC检测
+  analyzeAITells(content: string): Promise<AITellResult>
+  analyzeSensitiveWords(content: string, customWords?: string[]): Promise<SensitiveWordResult>
+  detectChapter(bookId: string, chapterNumber: number, chapterTitle: string, content: string): Promise<DetectionRecord>
+  loadDetectionHistory(bookId: string): Promise<DetectionRecord[]>
+  loadDetectionRecord(bookId: string, chapterNumber: number): Promise<DetectionRecord | null>
 
   // 进度事件
   onProgress(callback: (event: ProgressEvent) => void): () => void

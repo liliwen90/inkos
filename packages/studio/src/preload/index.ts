@@ -52,6 +52,50 @@ const inkosAPI = {
   exportBook: (bookId: string, format: 'txt' | 'md'): Promise<string | null> =>
     ipcRenderer.invoke('export-book', bookId, format),
 
+  // 人性化引擎
+  loadHumanizeSettings: (bookId: string) => ipcRenderer.invoke('load-humanize-settings', bookId),
+  saveHumanizeSettings: (bookId: string, settings: unknown): Promise<boolean> =>
+    ipcRenderer.invoke('save-humanize-settings', bookId, settings),
+  loadVoiceCards: (bookId: string) => ipcRenderer.invoke('load-voice-cards', bookId),
+  saveVoiceCards: (bookId: string, cards: unknown): Promise<boolean> =>
+    ipcRenderer.invoke('save-voice-cards', bookId, cards),
+  loadSceneBeats: (bookId: string, chapterNumber: number) =>
+    ipcRenderer.invoke('load-scene-beats', bookId, chapterNumber),
+  saveSceneBeats: (bookId: string, chapterNumber: number, beats: string[]): Promise<boolean> =>
+    ipcRenderer.invoke('save-scene-beats', bookId, chapterNumber, beats),
+  buildStyleGuidance: (bookId: string, chapterNumber?: number): Promise<string> =>
+    ipcRenderer.invoke('build-style-guidance', bookId, chapterNumber),
+
+  // 风格分析
+  listStyleBooks: (bookId: string): Promise<string[]> =>
+    ipcRenderer.invoke('list-style-books', bookId),
+  importStyleBook: (bookId: string): Promise<string[] | null> =>
+    ipcRenderer.invoke('import-style-book', bookId),
+  removeStyleBook: (bookId: string, fileName: string): Promise<boolean> =>
+    ipcRenderer.invoke('remove-style-book', bookId, fileName),
+  analyzeStyleBooks: (bookId: string) => ipcRenderer.invoke('analyze-style-books', bookId),
+  loadStyleProfile: (bookId: string) => ipcRenderer.invoke('load-style-profile', bookId),
+
+  // 风格指纹
+  loadFingerprint: (bookId: string) => ipcRenderer.invoke('load-fingerprint', bookId),
+  saveFingerprint: (bookId: string, data: unknown): Promise<boolean> =>
+    ipcRenderer.invoke('save-fingerprint', bookId, data),
+  analyzeDeepFingerprint: (bookId: string) => ipcRenderer.invoke('analyze-deep-fingerprint', bookId),
+
+  // AI建议
+  generateSuggestions: (bookId: string) => ipcRenderer.invoke('generate-suggestions', bookId),
+  loadSuggestions: (bookId: string) => ipcRenderer.invoke('load-suggestions', bookId),
+
+  // AIGC检测
+  analyzeAITells: (content: string) => ipcRenderer.invoke('analyze-ai-tells', content),
+  analyzeSensitiveWords: (content: string, customWords?: string[]) =>
+    ipcRenderer.invoke('analyze-sensitive-words', content, customWords),
+  detectChapter: (bookId: string, chapterNumber: number, chapterTitle: string, content: string) =>
+    ipcRenderer.invoke('detect-chapter', bookId, chapterNumber, chapterTitle, content),
+  loadDetectionHistory: (bookId: string) => ipcRenderer.invoke('load-detection-history', bookId),
+  loadDetectionRecord: (bookId: string, chapterNumber: number) =>
+    ipcRenderer.invoke('load-detection-record', bookId, chapterNumber),
+
   // 进度事件
   onProgress: (callback: (event: unknown) => void): (() => void) => {
     const listener = (_: unknown, event: unknown): void => { callback(event) }
