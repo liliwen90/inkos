@@ -1,0 +1,25 @@
+appId: com.inkos.studio
+productName: InkOS Studio
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.*'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+  - '!{.eslintrc.*,.prettierrc.*,README.md}'
+win:
+  executableName: InkOS Studio
+  target:
+    - nsis
+nsis:
+  artifactName: ${name}-${version}-setup.${ext}
+  shortcutName: InkOS Studio
+  uninstallDisplayName: InkOS Studio
+  createDesktopShortcut: always
+mac:
+  target:
+    - dmg
+linux:
+  target:
+    - AppImage
