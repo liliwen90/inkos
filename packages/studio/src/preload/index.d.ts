@@ -69,13 +69,15 @@ interface FingerprintData {
 }
 
 interface StyleProfile {
-  sentenceLength: { avg: number; median: number; variance: number }
-  paragraphLength: { avg: number; median: number }
-  vocabulary: { uniqueRatio: number; topWords: Array<{ word: string; count: number }> }
-  punctuation: Record<string, number>
-  readability: { fleschKincaid: number; grade: string }
+  avgSentenceLength: number
+  sentenceLengthStdDev: number
+  avgParagraphLength: number
+  paragraphLengthRange: { min: number; max: number }
+  vocabularyDiversity: number
+  topPatterns: string[]
+  rhetoricalFeatures: string[]
   sourceName?: string
-  analyzedAt: string
+  analyzedAt?: string
 }
 
 interface AITellResult {
@@ -88,7 +90,7 @@ interface AITellResult {
 }
 
 interface SensitiveWordResult {
-  hits: Array<{ word: string; category: string; position: number; context: string }>
+  hits: Array<{ word: string; category: string; count: number; severity: string }>
   totalHits: number
   categories: Record<string, number>
 }

@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import { readFile, writeFile, readdir, mkdir } from 'fs/promises'
 import { join } from 'path'
 
-// ===== 检测结果类型 =====
+// ===== Studio 检测结果类型（前端使用） =====
 
 export interface AITellResult {
   paragraphUniformity: { score: number; detail: string }
@@ -16,8 +16,8 @@ export interface AITellResult {
 export interface SensitiveWordHit {
   word: string
   category: string
-  position: number
-  context: string
+  count: number
+  severity: string
 }
 
 export interface SensitiveWordResult {
@@ -33,6 +33,63 @@ export interface DetectionRecord {
   aiTells: AITellResult
   sensitiveWords: SensitiveWordResult
   overallRisk: 'low' | 'medium' | 'high'
+}
+
+// ===== Core → Studio 数据转换 =====
+
+// Core 的 analyzeAITells 返回 { issues: Array<{severity, category, description, suggestion}> }
+// 4个 category: "段落等长"(20), "套话密度"(21), "公式化转折"(22), "列表式结构"(23)
+const CATEGORY_MAP: Record<string, keyof Pick<AITellResult, 'paragraphUniformity' | 'hedgeDensity' | 'formulaicTransitions' | 'listStructure'>> = {
+  '段落等长': 'paragraphUniformity',
+  '套话密度': 'hedgeDensity',
+  '公式化转折': 'formulaicTransitions',
+  '列表式结构': 'listStructure'
+}
+
+function transformAITells(coreResult: { issues: ReadonlyArray<{ severity: string; category: string; description: string; suggestion: string }> }): AITellResult {
+  const dims: AITellResult = {
+    paragraphUniformity: { score: 0, detail: '未检出' },
+    hedgeDensity: { score: 0, detail: '未检出' },
+    formulaicTransitions: { score: 0, detail: '未检出' },
+    listStructure: { score: 0, detail: '未检出' },
+    overallScore: 0,
+    verdict: '未检出AI痕迹'
+  }
+
+  for (const issue of coreResult.issues) {
+    const key = CATEGORY_MAP[issue.category]
+    if (key) {
+      const score = issue.severity === 'warning' ? 7 : 3
+      dims[key] = { score, detail: issue.description }
+    }
+  }
+
+  // 加权平均
+  const scores = [dims.paragraphUniformity.score, dims.hedgeDensity.score, dims.formulaicTransitions.score, dims.listStructure.score]
+  dims.overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10
+
+  if (dims.overallScore >= 7) dims.verdict = 'AI特征明显，建议深度改写'
+  else if (dims.overallScore >= 4) dims.verdict = 'AI痕迹中等，建议局部润色'
+  else if (dims.overallScore > 0) dims.verdict = '轻微AI痕迹，可接受'
+  else dims.verdict = '未检出AI痕迹'
+
+  return dims
+}
+
+// Core 的 analyzeSensitiveWords 返回 { issues: AuditIssue[], found: Array<{word, count, severity}> }
+function transformSensitiveWords(coreResult: { issues: ReadonlyArray<unknown>; found: ReadonlyArray<{ word: string; count: number; severity: string }> }): SensitiveWordResult {
+  const hits: SensitiveWordHit[] = []
+  const categories: Record<string, number> = {}
+  let totalHits = 0
+
+  for (const match of coreResult.found) {
+    const category = match.severity === 'block' ? '严重' : '警告'
+    hits.push({ word: match.word, category, count: match.count, severity: match.severity })
+    totalHits += match.count
+    categories[category] = (categories[category] ?? 0) + match.count
+  }
+
+  return { hits, totalHits, categories }
 }
 
 /**
@@ -59,14 +116,16 @@ export class DetectionAdapter {
 
   async analyzeAITells(content: string): Promise<AITellResult> {
     const { analyzeAITells } = await import('@actalk/inkos-core')
-    return analyzeAITells(content)
+    const coreResult = analyzeAITells(content)
+    return transformAITells(coreResult)
   }
 
   // ===== 敏感词检测 =====
 
   async analyzeSensitiveWords(content: string, customWords?: string[]): Promise<SensitiveWordResult> {
     const { analyzeSensitiveWords } = await import('@actalk/inkos-core')
-    return analyzeSensitiveWords(content, customWords)
+    const coreResult = analyzeSensitiveWords(content, customWords)
+    return transformSensitiveWords(coreResult)
   }
 
   // ===== 完整章节检测 =====

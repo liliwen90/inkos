@@ -3,13 +3,15 @@ import { BookOpen, Upload, Trash2, BarChart3, Fingerprint, Loader2 } from 'lucid
 import { useAppStore } from '../stores/app-store'
 
 interface StyleProfile {
-  sentenceLength: { avg: number; median: number; variance: number }
-  paragraphLength: { avg: number; median: number }
-  vocabulary: { uniqueRatio: number; topWords: Array<{ word: string; count: number }> }
-  punctuation: Record<string, number>
-  readability: { fleschKincaid: number; grade: string }
+  avgSentenceLength: number
+  sentenceLengthStdDev: number
+  avgParagraphLength: number
+  paragraphLengthRange: { min: number; max: number }
+  vocabularyDiversity: number
+  topPatterns: string[]
+  rhetoricalFeatures: string[]
   sourceName?: string
-  analyzedAt: string
+  analyzedAt?: string
 }
 
 interface FingerprintData {
@@ -178,28 +180,40 @@ export default function StyleAnalysis(): JSX.Element {
         <section className="bg-zinc-900 rounded-xl border border-zinc-800 p-5">
           <h2 className="text-sm font-semibold text-zinc-200 mb-4">统计画像</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label="平均句长" value={`${profile.sentenceLength.avg.toFixed(1)} 字`} />
-            <StatCard label="句长中位数" value={`${profile.sentenceLength.median.toFixed(1)}`} />
-            <StatCard label="平均段长" value={`${profile.paragraphLength.avg.toFixed(1)} 句`} />
-            <StatCard label="词汇丰富度" value={`${(profile.vocabulary.uniqueRatio * 100).toFixed(1)}%`} />
-            <StatCard label="可读性等级" value={profile.readability.grade} />
-            <StatCard label="Flesch-Kincaid" value={profile.readability.fleschKincaid.toFixed(1)} />
+            <StatCard label="平均句长" value={`${profile.avgSentenceLength.toFixed(1)} 字`} />
+            <StatCard label="句长标准差" value={`${profile.sentenceLengthStdDev.toFixed(1)}`} />
+            <StatCard label="平均段长" value={`${profile.avgParagraphLength.toFixed(1)} 句`} />
+            <StatCard label="段长范围" value={`${profile.paragraphLengthRange.min}–${profile.paragraphLengthRange.max}`} />
+            <StatCard label="词汇多样性(TTR)" value={`${(profile.vocabularyDiversity * 100).toFixed(1)}%`} />
           </div>
-          {profile.vocabulary.topWords.length > 0 && (
+          {profile.topPatterns.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-xs text-zinc-500 mb-2">高频词汇</h3>
+              <h3 className="text-xs text-zinc-500 mb-2">高频句式模式</h3>
               <div className="flex flex-wrap gap-2">
-                {profile.vocabulary.topWords.slice(0, 15).map((w) => (
-                  <span key={w.word}
+                {profile.topPatterns.slice(0, 15).map((p, i) => (
+                  <span key={i}
                     className="px-2 py-0.5 bg-zinc-800 rounded text-xs text-zinc-300">
-                    {w.word} <span className="text-zinc-500">×{w.count}</span>
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {profile.rhetoricalFeatures.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-xs text-zinc-500 mb-2">修辞手法</h3>
+              <div className="flex flex-wrap gap-2">
+                {profile.rhetoricalFeatures.map((f, i) => (
+                  <span key={i}
+                    className="px-2 py-0.5 bg-violet-900/30 border border-violet-700 rounded text-xs text-violet-300">
+                    {f}
                   </span>
                 ))}
               </div>
             </div>
           )}
           <p className="text-[10px] text-zinc-600 mt-3">
-            来源: {profile.sourceName ?? '参考书'} · 分析于 {new Date(profile.analyzedAt).toLocaleString()}
+            来源: {profile.sourceName ?? '参考书'}{profile.analyzedAt ? ` · 分析于 ${new Date(profile.analyzedAt).toLocaleString()}` : ''}
           </p>
         </section>
       )}

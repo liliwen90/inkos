@@ -12,7 +12,7 @@ interface AITellResult {
 }
 
 interface SensitiveWordResult {
-  hits: Array<{ word: string; category: string; position: number; context: string }>
+  hits: Array<{ word: string; category: string; count: number; severity: string }>
   totalHits: number
   categories: Record<string, number>
 }
@@ -245,7 +245,7 @@ function DetectionReport({ record }: { record: DetectionRecord }): JSX.Element {
               <div key={i} className="text-xs text-zinc-400">
                 <span className="text-red-400 font-mono">{h.word}</span>
                 <span className="text-zinc-600 ml-2">({h.category})</span>
-                <span className="text-zinc-500 ml-2">...{h.context}...</span>
+                <span className="text-zinc-500 ml-2">×{h.count}</span>
               </div>
             ))}
           </div>

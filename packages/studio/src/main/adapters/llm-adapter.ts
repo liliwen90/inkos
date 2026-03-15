@@ -1,7 +1,7 @@
 import type { LLMClient } from '@actalk/inkos-core'
 
 export interface LLMConfigUI {
-  provider: 'openai' | 'anthropic'
+  provider: 'openai' | 'anthropic' | 'custom'
   baseUrl: string
   apiKey: string
   model: string
@@ -21,7 +21,10 @@ export class LLMAdapter {
     this.client = createLLMClient({
       provider: config.provider,
       baseUrl: config.baseUrl,
-      apiKey: config.apiKey
+      apiKey: config.apiKey,
+      model: config.model,
+      temperature: config.temperature ?? 0.7,
+      maxTokens: config.maxTokens ?? 8192
     })
     this.currentConfig = config
     return this.client
@@ -41,7 +44,10 @@ export class LLMAdapter {
       const testClient = createLLMClient({
         provider: config.provider,
         baseUrl: config.baseUrl,
-        apiKey: config.apiKey
+        apiKey: config.apiKey,
+        model: config.model,
+        temperature: config.temperature ?? 0.7,
+        maxTokens: config.maxTokens ?? 8192
       })
       const start = Date.now()
       await chatCompletion(testClient, config.model, [

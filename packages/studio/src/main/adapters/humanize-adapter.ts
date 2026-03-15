@@ -1,7 +1,20 @@
 import { existsSync } from 'fs'
 import { readFile, writeFile, readdir, mkdir, copyFile, unlink } from 'fs/promises'
 import { join, basename } from 'path'
-import type { LLMClient, StyleProfile } from '@actalk/inkos-core'
+import type { LLMClient } from '@actalk/inkos-core'
+
+// Studio 用自己的 StyleProfile（从 core 的 StyleProfile 转换而来）
+export interface StudioStyleProfile {
+  avgSentenceLength: number
+  sentenceLengthStdDev: number
+  avgParagraphLength: number
+  paragraphLengthRange: { min: number; max: number }
+  vocabularyDiversity: number
+  topPatterns: string[]
+  rhetoricalFeatures: string[]
+  sourceName?: string
+  analyzedAt?: string
+}
 
 // ===== 人性化设置类型 =====
 
@@ -165,7 +178,7 @@ export class HumanizeAdapter {
 
   // ===== 风格分析（纯文本统计，用 core 的 analyzeStyle） =====
 
-  async analyzeStyleFromBooks(bookId: string): Promise<StyleProfile | null> {
+  async analyzeStyleFromBooks(bookId: string): Promise<StudioStyleProfile | null> {
     const { analyzeStyle } = await import('@actalk/inkos-core')
     const dir = join(this.bookConfigDir(bookId), 'style-books')
     if (!existsSync(dir)) return null
@@ -178,7 +191,19 @@ export class HumanizeAdapter {
       allText += content.substring(0, 10000) + '\n'
     }
 
-    const profile = analyzeStyle(allText, files.join(', '))
+    const coreProfile = analyzeStyle(allText, files.join(', '))
+    // Core StyleProfile 与 Studio StudioStyleProfile 结构一致，直接序列化
+    const profile: StudioStyleProfile = {
+      avgSentenceLength: coreProfile.avgSentenceLength,
+      sentenceLengthStdDev: coreProfile.sentenceLengthStdDev,
+      avgParagraphLength: coreProfile.avgParagraphLength,
+      paragraphLengthRange: { ...coreProfile.paragraphLengthRange },
+      vocabularyDiversity: coreProfile.vocabularyDiversity,
+      topPatterns: [...coreProfile.topPatterns],
+      rhetoricalFeatures: [...coreProfile.rhetoricalFeatures],
+      sourceName: coreProfile.sourceName,
+      analyzedAt: coreProfile.analyzedAt
+    }
     // 保存到 story/style_profile.json（core 读的位置）
     const storyDir = this.bookDataDir(bookId)
     await this.ensureDir(storyDir)
@@ -186,7 +211,7 @@ export class HumanizeAdapter {
     return profile
   }
 
-  async loadStyleProfile(bookId: string): Promise<StyleProfile | null> {
+  async loadStyleProfile(bookId: string): Promise<StudioStyleProfile | null> {
     const p = join(this.bookDataDir(bookId), 'style_profile.json')
     try {
       if (existsSync(p)) return JSON.parse(await readFile(p, 'utf-8'))
