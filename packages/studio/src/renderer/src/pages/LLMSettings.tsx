@@ -76,7 +76,9 @@ export default function LLMSettings(): JSX.Element {
               architect: { ...DEFAULT_SLOT },
               writer: { ...DEFAULT_SLOT },
               auditor: { ...DEFAULT_SLOT },
-              reviser: { ...DEFAULT_SLOT }
+              reviser: { ...DEFAULT_SLOT },
+              'continuity-plus': { ...DEFAULT_SLOT },
+              polisher: { ...DEFAULT_SLOT },
             }
             for (const [name, slot] of Object.entries(r.agents)) {
               if (slot && newSlots[name]) {
@@ -384,11 +386,13 @@ export default function LLMSettings(): JSX.Element {
                   architect: { model: 'deepseek-chat', apiKey: '', baseUrl: '', provider: 'openai', enabled: true },
                   writer: { model: 'deepseek-chat', apiKey: '', baseUrl: '', provider: 'openai', enabled: false },
                   auditor: { model: 'gemini-2.5-flash', apiKey: '', baseUrl: '', provider: 'openai', enabled: true },
-                  reviser: { model: 'claude-sonnet-4-20250514', apiKey: '', baseUrl: '', provider: 'openai', enabled: true }
+                  reviser: { model: 'claude-sonnet-4-20250514', apiKey: '', baseUrl: '', provider: 'openai', enabled: true },
+                  'continuity-plus': { model: 'gemini-2.5-flash', apiKey: '', baseUrl: '', provider: 'openai', enabled: true },
+                  polisher: { model: 'claude-sonnet-4-20250514', apiKey: '', baseUrl: '', provider: 'openai', enabled: true },
                 })
               }}
                 className="text-xs text-violet-400 hover:text-violet-300 transition-colors">
-                ✨ 一键填入推荐配置（建筑师: DeepSeek / 审计: Gemini Flash / 修订: Claude Sonnet）
+                ✨ 一键填入推荐配置（建筑师: DeepSeek / 审计+深度审查: Gemini Flash / 修订+润色: Claude Sonnet）
               </button>
             </div>
           </div>
