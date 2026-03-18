@@ -641,6 +641,26 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   const vaultDir = join(app.getPath('userData'), 'idea-vault')
 
+  // 自动迁移：从旧 inkos-studio 目录迁移 idea-vault 和 app-settings
+  {
+    const oldUserData = join(app.getPath('userData'), '..', 'inkos-studio')
+    if (existsSync(oldUserData)) {
+      const oldVault = join(oldUserData, 'idea-vault')
+      if (existsSync(oldVault) && !existsSync(vaultDir)) {
+        mkdirSync(vaultDir, { recursive: true })
+        for (const f of readdirSync(oldVault).filter(x => x.endsWith('.json'))) {
+          const dest = join(vaultDir, f)
+          if (!existsSync(dest)) copyFileSync(join(oldVault, f), dest)
+        }
+      }
+      const oldSettings = join(oldUserData, 'app-settings.json')
+      const newSettings = getAppSettingsPath()
+      if (existsSync(oldSettings) && !existsSync(newSettings)) {
+        copyFileSync(oldSettings, newSettings)
+      }
+    }
+  }
+
   ipcMain.handle('vault-save', async (_e, entry: { novelCount: number; analysis: string }) => {
     if (!existsSync(vaultDir)) mkdirSync(vaultDir, { recursive: true })
     const id = Date.now().toString()
