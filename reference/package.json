@@ -1,0 +1,57 @@
+{
+  "name": "ai-novel-writer",
+  "version": "1.5.1",
+  "description": "AI智能小说",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "chcp 65001 && electron .",
+    "build": "node build-obfuscate.js",
+    "dist": "electron-builder --win",
+    "dist:dir": "electron-builder --win --dir"
+  },
+  "keywords": [
+    "electron",
+    "ai",
+    "novel",
+    "writer"
+  ],
+  "author": "凡哥",
+  "company": "福州高长网络",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.9.1",
+    "javascript-obfuscator": "^4.1.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  },
+  "build": {
+    "appId": "com.gaochang.ai-novel-writer",
+    "productName": "AI小说生成器",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "!src/**/*.js.bak",
+      "package.json"
+    ],
+    "asar": false,
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "src/logo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "src/logo.ico",
+      "uninstallerIcon": "src/logo.ico",
+      "installerHeaderIcon": "src/logo.ico"
+    }
+  }
+}

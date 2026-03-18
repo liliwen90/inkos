@@ -1,0 +1,18 @@
+{
+  "default": {
+    "provider": "openai",
+    "baseUrl": "https://api.deepseek.com/v1",
+    "apiKey": "sk-8d8bdcd1dcf5486691713f7c520ad795",
+    "model": "deepseek-chat",
+    "temperature": 0.7,
+    "maxTokens": 8192
+  },
+  "agents": {
+    "reviser": {
+      "model": "claude-sonnet-4-20250514",
+      "apiKey": "sk-B4SQ6rHsE013dam1VjAVF2fkfNZZErPinQ1YFopUMZLKSHLM",
+      "baseUrl": "https://yinli.one/v1",
+      "provider": "openai"
+    }
+  }
+}

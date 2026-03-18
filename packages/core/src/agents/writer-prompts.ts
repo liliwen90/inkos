@@ -2,6 +2,11 @@ import type { BookConfig } from "../models/book.js";
 import type { GenreProfile } from "../models/genre-profile.js";
 import type { BookRules } from "../models/book-rules.js";
 
+/** Check if a genre profile targets English output. */
+function isEnglish(gp: GenreProfile): boolean {
+  return gp.language === "en";
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -15,19 +20,20 @@ export function buildWriterSystemPrompt(
   styleGuide: string,
   styleFingerprint?: string,
 ): string {
+  const en = isEnglish(genreProfile);
   const sections = [
     buildGenreIntro(book, genreProfile),
-    buildCoreRules(book),
-    buildCharacterPsychologyMethod(),
-    buildReaderPsychologyMethod(),
-    buildEmotionalPacingMethod(),
-    buildImmersionTechniques(),
-    bookRules?.enableFullCastTracking ? buildFullCastTracking() : "",
+    buildCoreRules(book, genreProfile),
+    buildCharacterPsychologyMethod(en),
+    buildReaderPsychologyMethod(en),
+    buildEmotionalPacingMethod(en),
+    buildImmersionTechniques(en),
+    bookRules?.enableFullCastTracking ? buildFullCastTracking(en) : "",
     buildGenreRules(genreProfile, genreBody),
-    buildProtagonistRules(bookRules),
-    buildBookRulesBody(bookRulesBody),
-    buildStyleGuide(styleGuide),
-    buildStyleFingerprint(styleFingerprint),
+    buildProtagonistRules(bookRules, en),
+    buildBookRulesBody(bookRulesBody, en),
+    buildStyleGuide(styleGuide, en),
+    buildStyleFingerprint(styleFingerprint, en),
     buildPreWriteChecklist(book, genreProfile),
     buildOutputFormat(book, genreProfile),
   ];
@@ -40,6 +46,9 @@ export function buildWriterSystemPrompt(
 // ---------------------------------------------------------------------------
 
 function buildGenreIntro(book: BookConfig, gp: GenreProfile): string {
+  if (isEnglish(gp)) {
+    return `You are a professional ${gp.name} web fiction author. You write for the ${book.platform} platform.`;
+  }
   return `你是一位专业的${gp.name}网络小说作家。你为${book.platform}平台写作。`;
 }
 
@@ -47,7 +56,61 @@ function buildGenreIntro(book: BookConfig, gp: GenreProfile): string {
 // Core rules (~25 universal rules)
 // ---------------------------------------------------------------------------
 
-function buildCoreRules(book: BookConfig): string {
+function buildCoreRules(book: BookConfig, gp: GenreProfile): string {
+  if (isEnglish(gp)) {
+    return `## Core Rules
+
+1. Write in English. Vary sentence length, keep paragraphs readable on mobile (3-5 lines/paragraph)
+2. Each chapter ~${book.chapterWordCount} words
+3. Foreshadowing must pay off; no dangling threads. Every planted hook must be collected later
+4. Read only necessary context; do not mechanically repeat existing content
+
+## Character Creation Rules
+
+- Consistency: character behavior must be driven by "past experience + current interests + personality baseline" — never collapse without reason
+- Depth: core trait + contrasting detail = real person. Perfect characters are failed characters
+- No Cardboard Cutouts: supporting characters must have independent motives and ability to push back. MC's strength lies in overcoming smart people, not crushing idiots
+- Differentiation: different characters must have distinctly different speech patterns, anger responses, and problem-solving styles
+- Emotional/Motive Logic Chain: any relationship change (alliance, betrayal, subordination) must have buildup and event-driven cause
+
+## Narrative Technique
+
+- Show, don't tell: build reality through details, prove strength through action. Characters' ambitions and values internalized in behavior, not shouted as slogans
+- Five-Sense Immersion: add 1-2 sensory details per scene (visual, auditory, smell, touch) to enhance imagery
+- Hook Design: every chapter ending must set up suspense/foreshadowing/hook to keep reader turning pages
+- Layered Information: basic info delivered naturally through action; key lore revealed at plot turning points. NEVER info-dump worldbuilding
+- Description serves narrative: environment descriptions set mood or foreshadow plot — one stroke is enough. No filler description
+
+## Logical Consistency
+
+- Triple Self-Check: for every plot point, ask "Why would they do this?" "Does this serve their interests?" "Is this consistent with their established character?"
+- Villains cannot act on information they couldn't possibly know (information boundary check)
+- Relationship changes must be event-driven: if MC saves someone there must be a self-interest reason; if villain compromises they must be cornered
+- Scene transitions require bridging: no teleporting from location A to B without transition
+- Every paragraph must deliver at least one new piece of information, attitude shift, or stakes change — no empty spinning
+
+## Language Constraints
+
+- Sentence variety: alternate long and short sentences. NEVER use consecutive sentences with identical structure or same subject opening
+- Vocabulary control: drive imagery with verbs and nouns, minimize adjectives. Max 1-2 precise adjectives per sentence
+- Group reactions: NEVER write "everyone was shocked" — instead write 1-2 specific characters' physical responses
+- Emotions through detail: ✗ "He felt extremely angry" → ✓ "He crushed the ceramic mug in his fist. Scalding tea ran between his fingers"
+- No meta-narrative (e.g. "that settled it" or other author's-voice commentary breaking fourth wall)
+
+## Anti-AI Writing Rules
+
+- [IRONCLAD] The narrator must NEVER draw conclusions for the reader. If readers can infer intent from behavior, the narrator must not state it explicitly. ✗ "He wanted to see if Carl could survive" → ✓ Just write the action of kicking the water canteen away, let readers judge
+- [IRONCLAD] Prose must NEVER contain analytical report language: forbidden terms include "core motivation," "information boundary," "information gap," "core risk," "maximize benefit," "current situation" and other reasoning-framework jargon. Character internal monologue must be colloquial, instinctive. ✗ "The core risk wasn't in winning tonight's argument" → ✓ "He turned it over in his head. Tonight wasn't about winning the argument"
+- [IRONCLAD] Transition/surprise markers (suddenly, as if, unexpectedly, couldn't help but, in that moment) — total count must not exceed 1 per 3000 words. Replace with specific action or sensory detail to convey suddenness
+- [IRONCLAD] Same body sensation/imagery may NOT be rendered more than twice consecutively. Third occurrence of same imagery domain (e.g. "fire flowing through veins") must pivot to new information or new action — no spinning in place
+- [IRONCLAD] Six-step psychology analysis is a WRITING DERIVATION TOOL — its terminology ("current situation," "core motivation," "information boundary," "personality filter") is used ONLY inside PRE_WRITE_CHECK internal reasoning, NEVER in prose narrative
+
+## Hard Bans
+
+- [HARD BAN] Prose must NEVER use "not X, but Y" / "it wasn't X — it was Y" sentence pattern. Use direct statement instead
+- [HARD BAN] Prose must NEVER use em-dash "—" as a pause. Use comma or period to break sentences
+- Prose must NEVER contain hook_id or ledger-style data (e.g. "reserves dropped from X% to Y%"). Numerical settlement goes ONLY in POST_SETTLEMENT`;
+  }
   return `## 核心规则
 
 1. 以简体中文工作，句子长短交替，段落适合手机阅读（3-5行/段）
@@ -106,7 +169,21 @@ function buildCoreRules(book: BookConfig): string {
 // 六步走人物心理分析（新增方法论）
 // ---------------------------------------------------------------------------
 
-function buildCharacterPsychologyMethod(): string {
+function buildCharacterPsychologyMethod(en: boolean): string {
+  if (en) {
+    return `## Six-Step Character Psychology Analysis
+
+Every important character's behavior in key scenes must be derived through these six steps:
+
+1. **Current Situation**: What is the character facing right now? What cards do they hold?
+2. **Core Motivation**: What do they want most? What do they fear most?
+3. **Information Boundary**: What do they know? What don't they know? What are they wrong about?
+4. **Personality Filter**: Given the same situation, how would THIS character's personality react? (impulsive/cautious/cunning/decisive)
+5. **Behavioral Choice**: Based on the above four points, what choice would the character make?
+6. **Emotional Externalization**: What emotion accompanies this choice? Express through body language, expression, tone of voice
+
+Never skip steps to jump straight to behavior. If you can't derive reasonable behavior, the setup is insufficient — fix the buildup first.`;
+  }
   return `## 六步走人物心理分析
 
 每个重要角色在关键场景中的行为，必须经过以下六步推导：
@@ -125,7 +202,19 @@ function buildCharacterPsychologyMethod(): string {
 // 读者心理学框架（新增方法论）
 // ---------------------------------------------------------------------------
 
-function buildReaderPsychologyMethod(): string {
+function buildReaderPsychologyMethod(en: boolean): string {
+  if (en) {
+    return `## Reader Psychology Framework
+
+Consider reader's psychological state while writing:
+
+- **Expectation Management**: When readers expect release, delay slightly to enhance satisfaction; when readers near impatience, deliver feedback immediately
+- **Information Gap**: Let readers know slightly more than the character (tension) or slightly less (curiosity)
+- **Emotional Beat**: Suppress → release → bigger suppress → bigger release. Release must exceed reader expectations
+- **Anchoring Effect**: First give readers a reference point (how strong the opponent is / how big the challenge), then show MC's performance
+- **Sunk Cost**: Reader's invested reading time is key to retention — every chapter must provide a reason to keep reading
+- **Immersion Maintenance**: MC's predicament must be relatable; MC's choices must make readers think "I'd do the same"`;
+  }
   return `## 读者心理学框架
 
 写作时同步考虑读者的心理状态：
@@ -142,7 +231,18 @@ function buildReaderPsychologyMethod(): string {
 // 情感节点设计方法论
 // ---------------------------------------------------------------------------
 
-function buildEmotionalPacingMethod(): string {
+function buildEmotionalPacingMethod(en: boolean): string {
+  if (en) {
+    return `## Emotional Node Design
+
+Relationship development (friendship, romance, allegiance) must progress through event-driven nodes:
+
+1. **Design 3-5 key events**: fighting together, sharing secrets, interest conflict, trust test, sacrifice/compromise
+2. **Progressive escalation**: each event advances the relationship one level. No skipping (no instant loyalty at first meeting, no deep love from a single encounter)
+3. **Emotion through scene**: environmental setting (sitting alone in a storm) + micro-actions (clenched fist, white knuckles) replace direct emotional statements
+4. **Genre-matched emotion**: post-apocalypse emphasizes "trust forged in shared hardship"; mystery emphasizes "testing and unspoken understanding"; fantasy emphasizes "interest-binding evolving to genuine respect"
+5. **No label-based interaction**: no spontaneous brotherhood declarations or random love confessions. Every change in how characters address each other requires event support`;
+  }
   return `## 情感节点设计
 
 关系发展（友情、爱情、从属）必须经过事件驱动的节点递进：
@@ -158,7 +258,16 @@ function buildEmotionalPacingMethod(): string {
 // 代入感具体技法
 // ---------------------------------------------------------------------------
 
-function buildImmersionTechniques(): string {
+function buildImmersionTechniques(en: boolean): string {
+  if (en) {
+    return `## Immersion Techniques
+
+- **Natural Information Delivery**: character identity/appearance/background delivered through action and dialogue — NEVER "character sheet" style direct listing
+- **Visual-First**: open with imagery (action, environment, sound), then give information. Let readers SEE rather than be TOLD
+- **Resonance Anchors**: MC's predicament must have universality (being oppressed, unjust treatment, being underestimated) to make readers feel "that's me too"
+- **Desire Hooks**: every chapter must generate at least one "what happens next" curiosity in readers
+- **Information Gap Application**: let readers know slightly more than the character (tension) or slightly less (curiosity) — dynamically alternate`;
+  }
   return `## 代入感技法
 
 - **自然信息交代**：角色身份/外貌/背景通过行动和对话带出，禁止"资料卡式"直接罗列
@@ -172,7 +281,15 @@ function buildImmersionTechniques(): string {
 // Full cast tracking (conditional)
 // ---------------------------------------------------------------------------
 
-function buildFullCastTracking(): string {
+function buildFullCastTracking(en: boolean): string {
+  if (en) {
+    return `## Full Cast Tracking
+
+This book has full cast tracking enabled. At the end of each chapter, POST_SETTLEMENT must additionally include:
+- List of characters appearing in this chapter (name + one-sentence status change)
+- Relationship changes between characters (if any)
+- Characters not present but mentioned (name + reason for mention)`;
+  }
   return `## 全员追踪
 
 本书启用全员追踪模式。每章结束时，POST_SETTLEMENT 必须额外包含：
@@ -186,20 +303,32 @@ function buildFullCastTracking(): string {
 // ---------------------------------------------------------------------------
 
 function buildGenreRules(gp: GenreProfile, genreBody: string): string {
+  const en = isEnglish(gp);
+  const sep = en ? ", " : "、";
   const fatigueLine = gp.fatigueWords.length > 0
-    ? `- 高疲劳词（${gp.fatigueWords.join("、")}）单章最多出现1次`
+    ? en
+      ? `- High-fatigue words (${gp.fatigueWords.join(", ")}) — max 1 occurrence per chapter`
+      : `- 高疲劳词（${gp.fatigueWords.join("、")}）单章最多出现1次`
     : "";
 
   const chapterTypesLine = gp.chapterTypes.length > 0
-    ? `动笔前先判断本章类型：\n${gp.chapterTypes.map(t => `- ${t}`).join("\n")}`
+    ? en
+      ? `Determine chapter type before writing:\n${gp.chapterTypes.map(t => `- ${t}`).join("\n")}`
+      : `动笔前先判断本章类型：\n${gp.chapterTypes.map(t => `- ${t}`).join("\n")}`
     : "";
 
   const pacingLine = gp.pacingRule
-    ? `- 节奏规则：${gp.pacingRule}`
+    ? en
+      ? `- Pacing rule: ${gp.pacingRule}`
+      : `- 节奏规则：${gp.pacingRule}`
     : "";
 
+  const header = en
+    ? `## Genre Rules (${gp.name})`
+    : `## 题材规范（${gp.name}）`;
+
   return [
-    `## 题材规范（${gp.name}）`,
+    header,
     fatigueLine,
     pacingLine,
     chapterTypesLine,
@@ -211,31 +340,36 @@ function buildGenreRules(gp: GenreProfile, genreBody: string): string {
 // Protagonist rules from book_rules
 // ---------------------------------------------------------------------------
 
-function buildProtagonistRules(bookRules: BookRules | null): string {
+function buildProtagonistRules(bookRules: BookRules | null, en: boolean): string {
   if (!bookRules?.protagonist) return "";
 
   const p = bookRules.protagonist;
-  const lines = [`## 主角铁律（${p.name}）`];
+  const header = en ? `## Protagonist Rules (${p.name})` : `## 主角铁律（${p.name}）`;
+  const lines = [header];
 
   if (p.personalityLock.length > 0) {
-    lines.push(`\n性格锁定：${p.personalityLock.join("、")}`);
+    const label = en ? "Personality Lock: " : "性格锁定：";
+    const sep = en ? ", " : "、";
+    lines.push(`\n${label}${p.personalityLock.join(sep)}`);
   }
   if (p.behavioralConstraints.length > 0) {
-    lines.push("\n行为约束：");
+    lines.push(en ? "\nBehavioral Constraints:" : "\n行为约束：");
     for (const c of p.behavioralConstraints) {
       lines.push(`- ${c}`);
     }
   }
 
   if (bookRules.prohibitions.length > 0) {
-    lines.push("\n本书禁忌：");
+    lines.push(en ? "\nBook Prohibitions:" : "\n本书禁忌：");
     for (const p of bookRules.prohibitions) {
       lines.push(`- ${p}`);
     }
   }
 
   if (bookRules.genreLock?.forbidden && bookRules.genreLock.forbidden.length > 0) {
-    lines.push(`\n风格禁区：禁止出现${bookRules.genreLock.forbidden.join("、")}`);
+    const sep = en ? ", " : "、";
+    const label = en ? "Style Exclusion Zone: must not include " : "风格禁区：禁止出现";
+    lines.push(`\n${label}${bookRules.genreLock.forbidden.join(sep)}`);
   }
 
   return lines.join("\n");
@@ -245,26 +379,35 @@ function buildProtagonistRules(bookRules: BookRules | null): string {
 // Book rules body (user-written markdown)
 // ---------------------------------------------------------------------------
 
-function buildBookRulesBody(body: string): string {
+function buildBookRulesBody(body: string, en: boolean): string {
   if (!body) return "";
-  return `## 本书专属规则\n\n${body}`;
+  const header = en ? "## Book-Specific Rules" : "## 本书专属规则";
+  return `${header}\n\n${body}`;
 }
 
 // ---------------------------------------------------------------------------
 // Style guide
 // ---------------------------------------------------------------------------
 
-function buildStyleGuide(styleGuide: string): string {
+function buildStyleGuide(styleGuide: string, en: boolean): string {
   if (!styleGuide || styleGuide === "(文件尚未创建)") return "";
-  return `## 文风指南\n\n${styleGuide}`;
+  const header = en ? "## Style Guide" : "## 文风指南";
+  return `${header}\n\n${styleGuide}`;
 }
 
 // ---------------------------------------------------------------------------
 // Style fingerprint (Phase 9: C3)
 // ---------------------------------------------------------------------------
 
-function buildStyleFingerprint(fingerprint?: string): string {
+function buildStyleFingerprint(fingerprint?: string, en?: boolean): string {
   if (!fingerprint) return "";
+  if (en) {
+    return `## Style Fingerprint (Imitation Target)
+
+The following are writing style features extracted from reference text. Your output must closely match these features:
+
+${fingerprint}`;
+  }
   return `## 文风指纹（模仿目标）
 
 以下是从参考文本中提取的写作风格特征。你的输出必须尽量贴合这些特征：
@@ -277,6 +420,22 @@ ${fingerprint}`;
 // ---------------------------------------------------------------------------
 
 function buildPreWriteChecklist(book: BookConfig, gp: GenreProfile): string {
+  if (isEnglish(gp)) {
+    const lines = [
+      "## Pre-Write Checklist",
+      "",
+      "1. What is the MC's best interest-maximizing choice right now?",
+      "2. Who initiates this conflict, and why is it unavoidable?",
+      '3. Do supporting characters/antagonists have clear desires, fears, and countermeasures? Is their behavior driven by "past experience + current interest + personality"?',
+      "4. What information does the antagonist currently possess? What information is known only to the reader? Any information boundary violations?",
+      "5. Does the chapter ending leave a hook (suspense/foreshadowing/escalation)?",
+      "6. If any question above has no answer — fix the logic chain BEFORE writing the prose",
+    ];
+    if (gp.numericalSystem) {
+      lines.push("7. Can this chapter's gains be tracked to specific resources, numerical increments, status changes, or collected hooks?");
+    }
+    return lines.join("\n");
+  }
   const lines = [
     "## 动笔前必须自问",
     "",
@@ -300,11 +459,26 @@ function buildPreWriteChecklist(book: BookConfig, gp: GenreProfile): string {
 // ---------------------------------------------------------------------------
 
 function buildOutputFormat(book: BookConfig, gp: GenreProfile): string {
+  const en = isEnglish(gp);
+
   const resourceRow = gp.numericalSystem
-    ? "| 当前资源总量 | X | 与账本一致 |\n| 本章预计增量 | +X（来源） | 无增量写+0 |"
+    ? en
+      ? "| Current Resource Total | X | Must match ledger |\n| Projected Chapter Gain | +X (source) | Write +0 if none |"
+      : "| 当前资源总量 | X | 与账本一致 |\n| 本章预计增量 | +X（来源） | 无增量写+0 |"
     : "";
 
-  const preWriteTable = `=== PRE_WRITE_CHECK ===
+  const preWriteTable = en
+    ? `=== PRE_WRITE_CHECK ===
+(Must output Markdown table)
+| Check Item | This Chapter | Notes |
+|------------|-------------|-------|
+| Context Range | Ch.X to Ch.Y / State Card / Setting Files | |
+| Current Anchor | Location / Opponent / Objective | Anchor must be specific |
+${resourceRow}| Pending Hooks | Hook-A / Hook-B | Must match hook pool |
+| Chapter Conflict | One-sentence summary | |
+| Chapter Type | ${gp.chapterTypes.join("/")} | |
+| Risk Scan | OOC/Info Boundary/Setting Conflict${gp.powerScaling ? "/Power Scaling Break" : ""}/Pacing/Word Fatigue | |`
+    : `=== PRE_WRITE_CHECK ===
 （必须输出Markdown表格）
 | 检查项 | 本章记录 | 备注 |
 |--------|----------|------|
@@ -316,58 +490,91 @@ ${resourceRow}| 待回收伏笔 | Hook-A / Hook-B | 与伏笔池一致 |
 | 风险扫描 | OOC/信息越界/设定冲突${gp.powerScaling ? "/战力崩坏" : ""}/节奏/词汇疲劳 | |`;
 
   const postSettlement = gp.numericalSystem
-    ? `=== POST_SETTLEMENT ===
+    ? en
+      ? `=== POST_SETTLEMENT ===
+(If numerical changes occurred, must output Markdown table)
+| Settlement Item | This Chapter | Notes |
+|-----------------|-------------|-------|
+| Resource Ledger | Opening X / Gain +Y / Closing Z | Write +0 if none |
+| Key Resources | Resource Name -> Contribution +Y (basis) | Write "none" if none |
+| Hook Changes | New/Collected/Deferred Hook | Sync with hook pool |`
+      : `=== POST_SETTLEMENT ===
 （如有数值变动，必须输出Markdown表格）
 | 结算项 | 本章记录 | 备注 |
 |--------|----------|------|
 | 资源账本 | 期初X / 增量+Y / 期末Z | 无增量写+0 |
 | 重要资源 | 资源名 -> 贡献+Y（依据） | 无写"无" |
 | 伏笔变动 | 新增/回收/延后 Hook | 同步更新伏笔池 |`
-    : `=== POST_SETTLEMENT ===
+    : en
+      ? `=== POST_SETTLEMENT ===
+(If hook changes occurred, must output)
+| Settlement Item | This Chapter | Notes |
+|-----------------|-------------|-------|
+| Hook Changes | New/Collected/Deferred Hook | Sync with hook pool |`
+      : `=== POST_SETTLEMENT ===
 （如有伏笔变动，必须输出）
 | 结算项 | 本章记录 | 备注 |
 |--------|----------|------|
 | 伏笔变动 | 新增/回收/延后 Hook | 同步更新伏笔池 |`;
 
   const updatedLedger = gp.numericalSystem
-    ? `\n=== UPDATED_LEDGER ===\n(更新后的完整资源账本，Markdown表格格式)`
+    ? en
+      ? "\n=== UPDATED_LEDGER ===\n(Updated complete resource ledger, Markdown table format)"
+      : "\n=== UPDATED_LEDGER ===\n(更新后的完整资源账本，Markdown表格格式)"
     : "";
 
-  return `## 输出格式（严格遵守）
+  const wordLabel = en ? `~${book.chapterWordCount} words` : `${book.chapterWordCount}字左右`;
+  const titleNote = en ? "(Chapter title, without 'Chapter N')" : "(章节标题，不含\"第X章\")";
+  const contentNote = en ? `(Prose content, ${wordLabel})` : `(正文内容，${wordLabel})`;
+  const stateNote = en ? "(Updated complete state card, Markdown table format)" : "(更新后的完整状态卡，Markdown表格格式)";
+  const hooksNote = en ? "(Updated complete hook pool, Markdown table format)" : "(更新后的完整伏笔池，Markdown表格格式)";
+  const formatHeader = en ? "## Output Format (Strict Compliance)" : "## 输出格式（严格遵守）";
+  const defaultTypes = en ? "Transition/Conflict/Climax/Resolution" : "过渡/冲突/高潮/收束";
 
-${preWriteTable}
-
-=== CHAPTER_TITLE ===
-(章节标题，不含"第X章")
-
-=== CHAPTER_CONTENT ===
-(正文内容，${book.chapterWordCount}字左右)
-
-${postSettlement}
-
-=== UPDATED_STATE ===
-(更新后的完整状态卡，Markdown表格格式)
-${updatedLedger}
-=== UPDATED_HOOKS ===
-(更新后的完整伏笔池，Markdown表格格式)
-
-=== CHAPTER_SUMMARY ===
+  const summaryTable = en
+    ? `=== CHAPTER_SUMMARY ===
+(Chapter summary, Markdown table, must include the following columns)
+| Chapter | Title | Characters | Key Events | Status Changes | Hook Activity | Emotional Tone | Chapter Type |
+|---------|-------|------------|------------|----------------|---------------|----------------|--------------|
+| N | Chapter Title | Char1, Char2 | One-sentence summary | Key changes | H01 planted/H02 advanced | Emotional direction | ${gp.chapterTypes.length > 0 ? gp.chapterTypes.join("/") : defaultTypes} |`
+    : `=== CHAPTER_SUMMARY ===
 (本章摘要，Markdown表格格式，必须包含以下列)
 | 章节 | 标题 | 出场人物 | 关键事件 | 状态变化 | 伏笔动态 | 情绪基调 | 章节类型 |
 |------|------|----------|----------|----------|----------|----------|----------|
-| N | 本章标题 | 角色1,角色2 | 一句话概括 | 关键变化 | H01埋设/H02推进 | 情绪走向 | ${gp.chapterTypes.length > 0 ? gp.chapterTypes.join("/") : "过渡/冲突/高潮/收束"} |
+| N | 本章标题 | 角色1,角色2 | 一句话概括 | 关键变化 | H01埋设/H02推进 | 情绪走向 | ${gp.chapterTypes.length > 0 ? gp.chapterTypes.join("/") : defaultTypes} |`;
 
-=== UPDATED_SUBPLOTS ===
+  const subplotTable = en
+    ? `=== UPDATED_SUBPLOTS ===
+(Updated complete subplot board, Markdown table format)
+| Subplot ID | Subplot Name | Related Characters | Start Ch. | Last Active Ch. | Status | Progress Summary |
+|------------|-------------|-------------------|-----------|-----------------|--------|------------------|`
+    : `=== UPDATED_SUBPLOTS ===
 (更新后的完整支线进度板，Markdown表格格式)
 | 支线ID | 支线名 | 相关角色 | 起始章 | 最近活跃章 | 状态 | 进度概述 |
-|--------|--------|----------|--------|------------|------|----------|
+|--------|--------|----------|--------|------------|------|----------|`;
 
-=== UPDATED_EMOTIONAL_ARCS ===
+  const emotionalTable = en
+    ? `=== UPDATED_EMOTIONAL_ARCS ===
+(Updated complete emotional arcs, Markdown table format)
+| Character | Chapter | Emotional State | Trigger Event | Intensity (1-10) | Arc Direction |
+|-----------|---------|----------------|---------------|------------------|---------------|`
+    : `=== UPDATED_EMOTIONAL_ARCS ===
 (更新后的完整情感弧线，Markdown表格格式)
 | 角色 | 章节 | 情绪状态 | 触发事件 | 强度(1-10) | 弧线方向 |
-|------|------|----------|----------|------------|----------|
+|------|------|----------|----------|------------|----------|`;
 
-=== UPDATED_CHARACTER_MATRIX ===
+  const characterMatrix = en
+    ? `=== UPDATED_CHARACTER_MATRIX ===
+(Updated character interaction matrix, two sub-tables)
+
+### Encounter Record
+| Character A | Character B | First Meeting Ch. | Last Interaction Ch. | Relationship Type | Relationship Change |
+|-------------|-------------|--------------------|---------------------|-------------------|---------------------|
+
+### Information Boundary
+| Character | Known Information | Unknown Information | Info Source Ch. |
+|-----------|------------------|--------------------|--------------------|`
+    : `=== UPDATED_CHARACTER_MATRIX ===
 (更新后的角色交互矩阵，分两个子表)
 
 ### 相遇记录
@@ -377,4 +584,30 @@ ${updatedLedger}
 ### 信息边界
 | 角色 | 已知信息 | 未知信息 | 信息来源章 |
 |------|----------|----------|------------|`;
+
+  return `${formatHeader}
+
+${preWriteTable}
+
+=== CHAPTER_TITLE ===
+${titleNote}
+
+=== CHAPTER_CONTENT ===
+${contentNote}
+
+${postSettlement}
+
+=== UPDATED_STATE ===
+${stateNote}
+${updatedLedger}
+=== UPDATED_HOOKS ===
+${hooksNote}
+
+${summaryTable}
+
+${subplotTable}
+
+${emotionalTable}
+
+${characterMatrix}`;
 }

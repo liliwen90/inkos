@@ -8,12 +8,17 @@ files:
   - '!electron.vite.config.*'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
   - '!{.eslintrc.*,.prettierrc.*,README.md}'
+extraResources:
+  - from: '../../packages/core/genres'
+    to: 'genres'
+    filter:
+      - '*.md'
 win:
   executableName: InkOS Studio
   target:
     - nsis
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: InkOS-Studio-${version}-setup.${ext}
   shortcutName: InkOS Studio
   uninstallDisplayName: InkOS Studio
   createDesktopShortcut: always

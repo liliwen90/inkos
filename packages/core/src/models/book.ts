@@ -1,15 +1,9 @@
 import { z } from "zod";
 
-export const PlatformSchema = z.enum(["tomato", "feilu", "qidian", "other"]);
+export const PlatformSchema = z.string().min(1);
 export type Platform = z.infer<typeof PlatformSchema>;
 
-export const GenreSchema = z.enum([
-  "xuanhuan",
-  "xianxia",
-  "urban",
-  "horror",
-  "other",
-]);
+export const GenreSchema = z.string().min(1);
 export type Genre = z.infer<typeof GenreSchema>;
 
 export const BookStatusSchema = z.enum([

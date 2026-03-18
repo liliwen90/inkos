@@ -1,0 +1,109 @@
+{
+  "currentProvider": "custom_openai",
+  "taskRouting": {
+    "generation": { "provider": "", "apiKey": "", "baseUrl": "https://api.example.com/v1", "model": "deepseek-chat" },
+    "expansion": { "provider": "", "apiKey": "", "baseUrl": "https://api.example.com/v1", "model": "deepseek-chat" },
+    "rewrite": { "provider": "", "apiKey": "", "baseUrl": "https://api.example.com/v1", "model": "claude-sonnet-4-20250514" },
+    "analysis": { "provider": "", "apiKey": "", "baseUrl": "https://api.example.com/v1", "model": "gemini-2.5-flash" }
+  },
+  "providers": {
+    "deepseek_chat": {
+      "name": "DeepSeek Chat",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://api.deepseek.com/v1",
+      "model": "deepseek-chat",
+      "temperature": 0.7
+    },
+    "deepseek_reasoner": {
+      "name": "DeepSeek Reasoner",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://api.deepseek.com/v1",
+      "model": "deepseek-reasoner",
+      "temperature": 0.7
+    },
+    "openai_gpt4": {
+      "name": "OpenAI GPT-4",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://api.openai.com/v1",
+      "model": "gpt-4",
+      "temperature": 0.7
+    },
+    "openai_gpt35": {
+      "name": "OpenAI GPT-3.5",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://api.openai.com/v1",
+      "model": "gpt-3.5-turbo",
+      "temperature": 0.7
+    },
+    "claude_sonnet": {
+      "name": "Claude Sonnet (需OpenAI兼容中转)",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "model": "anthropic/claude-sonnet-4",
+      "temperature": 0.7
+    },
+    "claude_haiku": {
+      "name": "Claude Haiku (需OpenAI兼容中转)",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "model": "anthropic/claude-haiku",
+      "temperature": 0.7
+    },
+    "gemini": {
+      "name": "Google Gemini",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
+      "model": "gemini-2.5-flash",
+      "temperature": 0.7
+    },
+    "qwen": {
+      "name": "通义千问 Qwen",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "model": "qwen-plus",
+      "temperature": 0.7
+    },
+    "openrouter": {
+      "name": "OpenRouter (300+模型)",
+      "type": "openai",
+      "enabled": false,
+      "apiKey": "",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "model": "anthropic/claude-sonnet-4",
+      "temperature": 0.7
+    },
+    "custom_openai": {
+      "name": "自定义OpenAI兼容",
+      "type": "openai",
+      "enabled": true,
+      "apiKey": "",
+      "baseUrl": "",
+      "model": "deepseek-chat",
+      "temperature": 0.7
+    },
+    "ollama": {
+      "name": "Ollama本地模型",
+      "type": "ollama",
+      "enabled": true,
+      "baseUrl": "http://localhost:11434",
+      "model": "deepseek-r1:8b",
+      "temperature": 0.7
+    }
+  }
+}

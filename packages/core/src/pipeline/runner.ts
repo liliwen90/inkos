@@ -6,6 +6,8 @@ import type { GenreProfile } from "../models/genre-profile.js";
 import { ArchitectAgent } from "../agents/architect.js";
 import { WriterAgent } from "../agents/writer.js";
 import { ContinuityAuditor } from "../agents/continuity.js";
+import { ContinuityPlusAgent, type ContinuityPlusResult } from "../agents/continuity-plus.js";
+import { PolisherAgent, type PolishResult } from "../agents/polisher.js";
 import { ReviserAgent, type ReviseMode } from "../agents/reviser.js";
 import { RadarAgent } from "../agents/radar.js";
 import type { RadarSource } from "../agents/radar-source.js";
@@ -120,14 +122,23 @@ export class PipelineRunner {
     return radar.scan();
   }
 
-  async initBook(book: BookConfig): Promise<void> {
+  async initBook(book: BookConfig, externalContext?: string): Promise<void> {
     const architect = new ArchitectAgent(this.agentCtxFor("architect", book.id));
     const bookDir = this.state.bookDir(book.id);
 
     await this.state.saveBookConfig(book.id, book);
 
     const { profile: gp } = await this.loadGenreProfile(book.genre);
-    const foundation = await architect.generateFoundation(book, this.config.externalContext);
+    const foundation = await architect.generateFoundation(book, externalContext ?? this.config.externalContext);
+
+    // 验证所有核心 section 都被成功生成（非占位符）
+    const sections = ['storyBible', 'volumeOutline', 'bookRules', 'currentState', 'pendingHooks'] as const;
+    for (const s of sections) {
+      if (foundation[s].startsWith('[') && foundation[s].includes('生成失败')) {
+        throw new Error(`建筑师生成 ${s} 失败，请重试。可能是 LLM 返回格式异常。`);
+      }
+    }
+
     await architect.writeFoundationFiles(bookDir, foundation, gp.numericalSystem);
     await this.state.saveChapterIndex(book.id, []);
   }
@@ -158,10 +169,15 @@ export class PipelineRunner {
       const filename = `${paddedNum}_${sanitized}.md`;
       const filePath = join(chaptersDir, filename);
 
-      await writeFile(filePath, `# 第${chapterNumber}章 ${output.title}\n\n${output.content}`, "utf-8");
+      const en = gp.language === "en";
+      const chapterHeader = en
+        ? `# Chapter ${chapterNumber}: ${output.title}`
+        : `# 第${chapterNumber}章 ${output.title}`;
+
+      await writeFile(filePath, `${chapterHeader}\n\n${output.content}`, "utf-8");
 
       // Save truth files
-      await writer.saveChapter(bookDir, output, gp.numericalSystem);
+      await writer.saveChapter(bookDir, output, gp.numericalSystem, en);
       await writer.saveNewTruthFiles(bookDir, output);
 
       // Update index
@@ -205,8 +221,9 @@ export class PipelineRunner {
     const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
     const llmResult = await auditor.auditChapter(bookDir, content, targetChapter, book.genre);
 
-    // Merge rule-based AI-tell detection
-    const aiTells = analyzeAITells(content);
+    // Merge rule-based AI-tell detection (language-aware)
+    const { profile: gpForTells } = await this.loadGenreProfile(book.genre);
+    const aiTells = analyzeAITells(content, gpForTells.language);
     // Merge sensitive word detection
     const sensitiveResult = analyzeSensitiveWords(content);
     const hasBlockedWords = sensitiveResult.found.some((f) => f.severity === "block");
@@ -339,6 +356,63 @@ export class PipelineRunner {
     }
   }
 
+  /** Deep continuity audit (ContinuityPlus) — 7 narrative dimensions. Read-only. */
+  async checkContinuityPlus(bookId: string, chapterNumber?: number): Promise<ContinuityPlusResult & { readonly chapterNumber: number }> {
+    const book = await this.state.loadBookConfig(bookId);
+    const bookDir = this.state.bookDir(bookId);
+    const targetChapter = chapterNumber ?? (await this.state.getNextChapterNumber(bookId)) - 1;
+    if (targetChapter < 1) throw new Error(`No chapters to check for "${bookId}"`);
+
+    const content = await this.readChapterContent(bookDir, targetChapter);
+    const agent = new ContinuityPlusAgent(this.agentCtxFor("continuity-plus", bookId));
+    const result = await agent.check(bookDir, content, targetChapter, book.genre);
+    return { ...result, chapterNumber: targetChapter };
+  }
+
+  /** Polish the latest (or specified) chapter for literary quality. Saves polished content. */
+  async polishDraft(bookId: string, chapterNumber?: number): Promise<PolishResult & { readonly chapterNumber: number }> {
+    const releaseLock = await this.state.acquireBookLock(bookId);
+    try {
+      const book = await this.state.loadBookConfig(bookId);
+      const bookDir = this.state.bookDir(bookId);
+      const targetChapter = chapterNumber ?? (await this.state.getNextChapterNumber(bookId)) - 1;
+      if (targetChapter < 1) throw new Error(`No chapters to polish for "${bookId}"`);
+
+      const content = await this.readChapterContent(bookDir, targetChapter);
+      const agent = new PolisherAgent(this.agentCtxFor("polisher", bookId));
+      const result = await agent.polish(bookDir, content, targetChapter, book.genre);
+
+      // Save polished content back
+      const chaptersDir = join(bookDir, "chapters");
+      const files = await readdir(chaptersDir);
+      const paddedNum = String(targetChapter).padStart(4, "0");
+      const existingFile = files.find((f) => f.startsWith(paddedNum) && f.endsWith(".md"));
+      if (existingFile) {
+        const { profile: gp } = await this.loadGenreProfile(book.genre);
+        const index = await this.state.loadChapterIndex(bookId);
+        const chapterMeta = index.find((ch) => ch.number === targetChapter);
+        const title = chapterMeta?.title ?? `Chapter ${targetChapter}`;
+        const en = gp.language === "en";
+        const header = en
+          ? `# Chapter ${targetChapter}: ${title}`
+          : `# 第${targetChapter}章 ${title}`;
+        await writeFile(join(chaptersDir, existingFile), `${header}\n\n${result.polishedContent}`, "utf-8");
+
+        // Update index word count
+        const updatedIndex = index.map((ch) =>
+          ch.number === targetChapter
+            ? { ...ch, wordCount: result.wordCount, updatedAt: new Date().toISOString() }
+            : ch,
+        );
+        await this.state.saveChapterIndex(bookId, updatedIndex);
+      }
+
+      return { ...result, chapterNumber: targetChapter };
+    } finally {
+      await releaseLock();
+    }
+  }
+
   /** Read all truth files for a book. */
   async readTruthFiles(bookId: string): Promise<TruthFiles> {
     const bookDir = this.state.bookDir(bookId);
@@ -422,7 +496,7 @@ export class PipelineRunner {
       chapterNumber,
       book.genre,
     );
-    const aiTellsResult = analyzeAITells(output.content);
+    const aiTellsResult = analyzeAITells(output.content, gp.language);
     const sensitiveWriteResult = analyzeSensitiveWords(output.content);
     const hasBlockedWriteWords = sensitiveWriteResult.found.some((f) => f.severity === "block");
     let auditResult: AuditResult = {
@@ -435,79 +509,99 @@ export class PipelineRunner {
     let finalWordCount = output.wordCount;
     let revised = false;
 
-    // 3. If audit fails, try auto-revise once
-    if (!auditResult.passed) {
-      const criticalIssues = auditResult.issues.filter(
-        (i) => i.severity === "critical",
+    // 3. Deep continuity check (ContinuityPlus — 7 narrative dimensions)
+    const cpAgent = new ContinuityPlusAgent(this.agentCtxFor("continuity-plus", bookId));
+    const cpResult = await cpAgent.check(bookDir, finalContent, chapterNumber, book.genre);
+    // Merge ContinuityPlus issues into audit result for Reviser
+    const allIssues: AuditIssue[] = [...auditResult.issues, ...cpResult.issues];
+    const hasCritical = allIssues.some((i) => i.severity === "critical");
+    auditResult = {
+      passed: auditResult.passed && cpResult.issues.length === 0,
+      issues: allIssues,
+      summary: auditResult.summary + (cpResult.summary ? `\n[ContinuityPlus] ${cpResult.summary}` : ""),
+    };
+
+    // 4. If audit fails, try auto-revise once (with merged issues)
+    if (!auditResult.passed && hasCritical) {
+      const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId));
+      const reviseOutput = await reviser.reviseChapter(
+        bookDir,
+        output.content,
+        chapterNumber,
+        auditResult.issues,
+        "rewrite",
+        book.genre,
       );
-      if (criticalIssues.length > 0) {
-        const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId));
-        const reviseOutput = await reviser.reviseChapter(
+
+      if (reviseOutput.revisedContent.length > 0) {
+        finalContent = reviseOutput.revisedContent;
+        finalWordCount = reviseOutput.wordCount;
+        revised = true;
+
+        // Re-audit the revised content
+        const reAudit = await auditor.auditChapter(
           bookDir,
-          output.content,
+          finalContent,
           chapterNumber,
-          auditResult.issues,
-          "rewrite",
           book.genre,
         );
+        const reAITells = analyzeAITells(finalContent, gp.language);
+        const reSensitive = analyzeSensitiveWords(finalContent);
+        const reHasBlocked = reSensitive.found.some((f) => f.severity === "block");
+        auditResult = {
+          passed: reHasBlocked ? false : reAudit.passed,
+          issues: [...reAudit.issues, ...reAITells.issues, ...reSensitive.issues],
+          summary: reAudit.summary,
+        };
 
-        if (reviseOutput.revisedContent.length > 0) {
-          finalContent = reviseOutput.revisedContent;
-          finalWordCount = reviseOutput.wordCount;
-          revised = true;
-
-          // Re-audit the revised content
-          const reAudit = await auditor.auditChapter(
-            bookDir,
-            finalContent,
-            chapterNumber,
-            book.genre,
-          );
-          const reAITells = analyzeAITells(finalContent);
-          const reSensitive = analyzeSensitiveWords(finalContent);
-          const reHasBlocked = reSensitive.found.some((f) => f.severity === "block");
-          auditResult = {
-            passed: reHasBlocked ? false : reAudit.passed,
-            issues: [...reAudit.issues, ...reAITells.issues, ...reSensitive.issues],
-            summary: reAudit.summary,
-          };
-
-          // Update state files from revision
-          const storyDir = join(bookDir, "story");
-          if (reviseOutput.updatedState !== "(状态卡未更新)") {
-            await writeFile(join(storyDir, "current_state.md"), reviseOutput.updatedState, "utf-8");
-          }
-          if (gp.numericalSystem && reviseOutput.updatedLedger && reviseOutput.updatedLedger !== "(账本未更新)") {
-            await writeFile(join(storyDir, "particle_ledger.md"), reviseOutput.updatedLedger, "utf-8");
-          }
-          if (reviseOutput.updatedHooks !== "(伏笔池未更新)") {
-            await writeFile(join(storyDir, "pending_hooks.md"), reviseOutput.updatedHooks, "utf-8");
-          }
+        // Update state files from revision
+        const storyDir = join(bookDir, "story");
+        if (reviseOutput.updatedState !== "(状态卡未更新)") {
+          await writeFile(join(storyDir, "current_state.md"), reviseOutput.updatedState, "utf-8");
+        }
+        if (gp.numericalSystem && reviseOutput.updatedLedger && reviseOutput.updatedLedger !== "(账本未更新)") {
+          await writeFile(join(storyDir, "particle_ledger.md"), reviseOutput.updatedLedger, "utf-8");
+        }
+        if (reviseOutput.updatedHooks !== "(伏笔池未更新)") {
+          await writeFile(join(storyDir, "pending_hooks.md"), reviseOutput.updatedHooks, "utf-8");
         }
       }
     }
 
-    // 4. Save chapter (original or revised)
+    // 5. Polish for literary quality (always runs — final pass)
+    const polisher = new PolisherAgent(this.agentCtxFor("polisher", bookId));
+    const polishResult = await polisher.polish(bookDir, finalContent, chapterNumber, book.genre);
+    if (polishResult.polishedContent.length > 0 && polishResult.polishedContent !== finalContent) {
+      finalContent = polishResult.polishedContent;
+      finalWordCount = polishResult.wordCount;
+    }
+
+    // 6. Save chapter (original / revised / polished)
     const chaptersDir = join(bookDir, "chapters");
     const paddedNum = String(chapterNumber).padStart(4, "0");
     const title = output.title;
     const filename = `${paddedNum}_${title.replace(/[/\\?%*:|"<>]/g, "").replace(/\s+/g, "_").slice(0, 50)}.md`;
 
+    const en2 = gp.language === "en";
+    const chHeader = en2
+      ? `# Chapter ${chapterNumber}: ${title}`
+      : `# 第${chapterNumber}章 ${title}`;
+
     await writeFile(
       join(chaptersDir, filename),
-      `# 第${chapterNumber}章 ${title}\n\n${finalContent}`,
+      `${chHeader}\n\n${finalContent}`,
       "utf-8",
     );
 
     // Save original state files if not revised
     if (!revised) {
-      await writer.saveChapter(bookDir, output, gp.numericalSystem);
+      await writer.saveChapter(bookDir, output, gp.numericalSystem, en2);
     }
 
     // Save new truth files (summaries, subplots, emotional arcs, character matrix)
     await writer.saveNewTruthFiles(bookDir, output);
 
-    // 5. Update chapter index
+    // 7. Update chapter index
     const existingIndex = await this.state.loadChapterIndex(bookId);
     const now = new Date().toISOString();
     const newEntry: ChapterMeta = {
@@ -523,10 +617,10 @@ export class PipelineRunner {
     };
     await this.state.saveChapterIndex(bookId, [...existingIndex, newEntry]);
 
-    // 5.5 Snapshot state for rollback support
+    // 7.5 Snapshot state for rollback support
     await this.state.snapshotState(bookId, chapterNumber);
 
-    // 6. Send notification
+    // 8. Send notification
     if (this.config.notifyChannels && this.config.notifyChannels.length > 0) {
       const statusEmoji = auditResult.passed ? "✅" : "⚠️";
       await dispatchNotification(this.config.notifyChannels, {
