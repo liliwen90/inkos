@@ -31,6 +31,8 @@ export interface PipelineConfig {
   readonly radarSources?: ReadonlyArray<RadarSource>;
   readonly externalContext?: string;
   readonly modelOverrides?: Record<string, string>;
+  /** Optional progress callback — called at each pipeline sub-stage */
+  readonly onProgress?: (stage: string, detail: string) => void;
 }
 
 export interface ChapterPipelineResult {
@@ -106,6 +108,10 @@ export class PipelineRunner {
       projectRoot: this.config.projectRoot,
       bookId,
     };
+  }
+
+  private progress(stage: string, detail: string): void {
+    this.config.onProgress?.(stage, detail);
   }
 
   private async loadGenreProfile(genre: string): Promise<{ profile: GenreProfile }> {
@@ -482,6 +488,7 @@ export class PipelineRunner {
     const { profile: gp } = await this.loadGenreProfile(book.genre);
 
     // 1. Write chapter
+    this.progress("writer", "写手Agent正在创作...");
     const writer = new WriterAgent(this.agentCtxFor("writer", bookId));
     const output = await writer.writeChapter({
       book,
@@ -492,7 +499,10 @@ export class PipelineRunner {
       ...(temperatureOverride ? { temperatureOverride } : {}),
     });
 
+    this.progress("writer-done", `草稿完成: ${output.title} ${output.wordCount}字`);
+
     // 2. Audit chapter
+    this.progress("auditor", "连续性审计中...");
     const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
     const llmAudit = await auditor.auditChapter(
       bookDir,
@@ -513,7 +523,10 @@ export class PipelineRunner {
     let finalWordCount = output.wordCount;
     let revised = false;
 
+    this.progress("auditor-done", `审计完成，${auditResult.issues.length}个问题`);
+
     // 3. Deep continuity check (ContinuityPlus — 7 narrative dimensions)
+    this.progress("continuity-plus", "深度连续性审查中(7维度)...");
     const cpAgent = new ContinuityPlusAgent(this.agentCtxFor("continuity-plus", bookId));
     const cpResult = await cpAgent.check(bookDir, finalContent, chapterNumber, book.genre);
     // Merge ContinuityPlus issues into audit result for Reviser
@@ -525,8 +538,11 @@ export class PipelineRunner {
       summary: auditResult.summary + (cpResult.summary ? `\n[ContinuityPlus] ${cpResult.summary}` : ""),
     };
 
+    this.progress("continuity-plus-done", `深度审查完成，${cpResult.issues.length}个问题`);
+
     // 4. If audit fails, try auto-revise once (with merged issues)
     if (!auditResult.passed && hasCritical) {
+      this.progress("reviser", "修订Agent修改中...");
       const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId));
       const reviseOutput = await reviser.reviseChapter(
         bookDir,
@@ -572,13 +588,18 @@ export class PipelineRunner {
       }
     }
 
+    if (revised) this.progress("reviser-done", "修订完成");
+
     // 5. Polish for literary quality (always runs — final pass)
+    this.progress("polisher", "文学润色中(7维度)...");
     const polisher = new PolisherAgent(this.agentCtxFor("polisher", bookId));
     const polishResult = await polisher.polish(bookDir, finalContent, chapterNumber, book.genre);
     if (polishResult.polishedContent.length > 0 && polishResult.polishedContent !== finalContent) {
       finalContent = polishResult.polishedContent;
       finalWordCount = polishResult.wordCount;
     }
+
+    this.progress("polisher-done", `润色完成，${polishResult.changes.length}处修改`);
 
     // 6. Save chapter (original / revised / polished)
     const chaptersDir = join(bookDir, "chapters");
