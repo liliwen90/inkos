@@ -36,10 +36,10 @@ const sections: TutorialSection[] = [
     title: '快速开始',
     badge: '必读',
     content: [
-      { type: 'text', content: 'InkOS Studio 是一个多 Agent 协作的 AI 小说生产系统。四个 AI Agent（建筑师、写手、审计员、修订者）接力完成小说的创作、质量审核与自动修订，你只需要动动鼠标。' },
+      { type: 'text', content: 'HintOS Studio 是一个多 Agent 协作的 AI 小说生产系统。四个 AI Agent（建筑师、写手、审计员、修订者）接力完成小说的创作、质量审核与自动修订，你只需要动动鼠标。' },
       { type: 'heading', content: '从零开始写第一章' },
       { type: 'steps', items: [
-        '打开项目 — 点击左下角「打开项目」按钮，选择一个空文件夹（系统会自动初始化为 InkOS 项目），或选择已有的 inkos.json 所在目录。',
+        '打开项目 — 点击左下角「打开项目」按钮，选择一个空文件夹（系统会自动初始化为 HintOS 项目），或选择已有的 HintOS.json 所在目录。',
         '配置 LLM — 进入左侧「LLM 配置」页面，填写 API 地址、密钥和模型名称，点击「测试连接」确认可用，然后点击「初始化管线」。',
         '创建书籍 — 回到「仪表盘」，点击右上角「创建书籍」，填写书名、选择题材和平台，设置每章字数和目标章数，可选填创作指导。',
         '开始写作 — 进入「写作控制台」，选择刚创建的书籍，设置字数和连续写章数，点击「写下一章」。系统会依次经过：建筑师规划 → 写手创作 → 审计员审查 → 修订者修复，全自动完成。',
@@ -55,11 +55,11 @@ const sections: TutorialSection[] = [
     icon: <FolderOpen className="w-4 h-4" />,
     title: '项目管理',
     content: [
-      { type: 'heading', content: '什么是 InkOS 项目' },
-      { type: 'text', content: '一个 InkOS 项目就是一个文件夹，其中包含 inkos.json 配置文件。一个项目下可以有多本书，每本书有独立的章节、真相文件和规则。' },
+      { type: 'heading', content: '什么是 HintOS 项目' },
+      { type: 'text', content: '一个 HintOS 项目就是一个文件夹，其中包含 HintOS.json 配置文件。一个项目下可以有多本书，每本书有独立的章节、真相文件和规则。' },
       { type: 'heading', content: '项目结构' },
       { type: 'table', headers: ['路径', '说明'], rows: [
-        ['inkos.json', '项目配置文件（项目名称等）'],
+        ['HintOS.json', '项目配置文件（项目名称等）'],
         ['.env', '项目级环境变量（LLM API 密钥等）'],
         ['books/{书籍ID}/', '每本书的独立目录'],
         ['books/{书籍ID}/book.json', '书籍配置（题材/平台/字数等）'],
@@ -68,8 +68,8 @@ const sections: TutorialSection[] = [
       ]},
       { type: 'heading', content: '打开 / 初始化项目' },
       { type: 'steps', items: [
-        '点击左下角「打开项目」或仪表盘欢迎页的「打开 InkOS 项目」按钮。',
-        '如果选择的目录已包含 inkos.json，将直接加载。',
+        '点击左下角「打开项目」或仪表盘欢迎页的「打开 HintOS 项目」按钮。',
+        '如果选择的目录已包含 HintOS.json，将直接加载。',
         '如果选择的是空目录，系统会询问是否初始化为新项目，并要求输入项目名称。',
       ]},
       { type: 'heading', content: '切换项目' },
@@ -84,7 +84,7 @@ const sections: TutorialSection[] = [
     title: 'LLM 配置',
     badge: '关键',
     content: [
-      { type: 'text', content: 'LLM（大语言模型）是整个系统的大脑。所有 Agent 的规划、创作、审计、修订都依赖 LLM API 调用。配置正确的 LLM 连接是使用 InkOS Studio 的前提。' },
+      { type: 'text', content: 'LLM（大语言模型）是整个系统的大脑。所有 Agent 的规划、创作、审计、修订都依赖 LLM API 调用。配置正确的 LLM 连接是使用 HintOS Studio 的前提。' },
       { type: 'heading', content: '配置项详解' },
       { type: 'keyvalue', items: [
         { key: 'Provider', value: '选择 OpenAI 兼容接口（支持大多数国产模型中转站）或 Anthropic 原生接口。如果使用 DeepSeek、通义千问、月之暗面等国产模型的 API，选择「OpenAI 兼容」。' },
@@ -120,7 +120,7 @@ const sections: TutorialSection[] = [
     title: '任务路由（多模型协作）',
     badge: '高级',
     content: [
-      { type: 'text', content: 'InkOS 的写作管线包含多个 Agent（建筑师、写手、审计员、修订者），各自擅长不同任务。任务路由功能允许你为每个 Agent 分配不同的 LLM 模型，实现成本和质量的最优配比。' },
+      { type: 'text', content: 'HintOS 的写作管线包含多个 Agent（建筑师、写手、审计员、修订者），各自擅长不同任务。任务路由功能允许你为每个 Agent 分配不同的 LLM 模型，实现成本和质量的最优配比。' },
       { type: 'heading', content: '为什么要用任务路由？' },
       { type: 'keyvalue', items: [
         { key: '省钱', value: '写手 Agent 调用量最大，用便宜的 DeepSeek 就够了；审计和修订对理解力要求高，用 Claude/Gemini 效果更好。' },
@@ -143,7 +143,7 @@ const sections: TutorialSection[] = [
         ['✏️ 修订者', 'claude-sonnet-4', '修订需要理解上下文并保持文学性，Claude 表现最佳'],
       ]},
       { type: 'tip', content: '可以点击「✨ 一键填入推荐配置」快速设置。路由配置保存在项目的 task-routing.json 中，不同项目可以有不同的路由策略。' },
-      { type: 'warning', content: '任务路由完全在 Adapter 层实现，不修改 InkOS Core。上游版本更新时路由功能不受影响。' },
+      { type: 'warning', content: '任务路由完全在 Adapter 层实现，不修改 HintOS Core。上游版本更新时路由功能不受影响。' },
     ]
   },
 
@@ -177,7 +177,7 @@ const sections: TutorialSection[] = [
     title: '写作控制台',
     badge: '核心',
     content: [
-      { type: 'text', content: '写作控制台是 InkOS Studio 的核心页面。一键驱动「写→审→改」完整管线。' },
+      { type: 'text', content: '写作控制台是 HintOS Studio 的核心页面。一键驱动「写→审→改」完整管线。' },
       { type: 'heading', content: '操作步骤' },
       { type: 'steps', items: [
         '从顶部下拉菜单选择要写作的书籍。',
@@ -240,7 +240,7 @@ const sections: TutorialSection[] = [
     icon: <ScrollText className="w-4 h-4" />,
     title: '真相文件系统',
     content: [
-      { type: 'text', content: '真相文件是 InkOS 的核心创新。它们是小说世界的唯一事实来源，每章写完后自动更新，确保长篇小说的连续性。' },
+      { type: 'text', content: '真相文件是 HintOS 的核心创新。它们是小说世界的唯一事实来源，每章写完后自动更新，确保长篇小说的连续性。' },
       { type: 'heading', content: '10 个真相文件' },
       { type: 'table', headers: ['文件', '内容', '用途'], rows: [
         ['当前状态', '角色位置、关系网络、已知信息、情感弧线', '写手参考世界当前状态'],
@@ -268,7 +268,7 @@ const sections: TutorialSection[] = [
     icon: <CheckCircle2 className="w-4 h-4" />,
     title: '26 维度审计系统',
     content: [
-      { type: 'text', content: 'InkOS 独有的 26 维度审计系统，由连续性审计员 Agent 在每章写完后自动执行。这是保证长篇小说质量的关键。' },
+      { type: 'text', content: 'HintOS 独有的 26 维度审计系统，由连续性审计员 Agent 在每章写完后自动执行。这是保证长篇小说质量的关键。' },
       { type: 'heading', content: '审计维度一览' },
       { type: 'table', headers: ['维度', '检查内容'], rows: [
         ['OOC 检查', '角色是否做出不符合人设的行为'],
@@ -308,7 +308,7 @@ const sections: TutorialSection[] = [
     icon: <BookOpen className="w-4 h-4" />,
     title: '题材 & 规则体系',
     content: [
-      { type: 'text', content: 'InkOS 内置 5 种题材，每种自带完整的创作规则。规则体系分三层：通用规则 → 题材规则 → 单本书规则。' },
+      { type: 'text', content: 'HintOS 内置 5 种题材，每种自带完整的创作规则。规则体系分三层：通用规则 → 题材规则 → 单本书规则。' },
       { type: 'heading', content: '三层规则体系' },
       { type: 'table', headers: ['层级', '范围', '示例'], rows: [
         ['通用规则 (~25条)', '所有题材都执行', '人物塑造、叙事技法、逻辑自洽、去AI味'],
@@ -492,7 +492,7 @@ const sections: TutorialSection[] = [
     title: '发布平台',
     badge: '英文供稿',
     content: [
-      { type: 'text', content: '使用 InkOS 生成英文小说后，推荐按以下路线发布到海外平台变现。核心策略是「三段火箭」：Royal Road 养粉 → Patreon 提前章节变现 → Amazon KDP 打包出书。' },
+      { type: 'text', content: '使用 HintOS 生成英文小说后，推荐按以下路线发布到海外平台变现。核心策略是「三段火箭」：Royal Road 养粉 → Patreon 提前章节变现 → Amazon KDP 打包出书。' },
 
       { type: 'heading', content: '平台总览' },
       { type: 'table', headers: ['平台', '定位', 'AI 政策', '变现方式', '优先级'],
@@ -551,7 +551,7 @@ const sections: TutorialSection[] = [
       { type: 'heading', content: '三段火箭执行策略' },
       { type: 'table', headers: ['阶段', '时间', '动作', '预期收入'],
         rows: [
-          ['蓄力期', '第 1-3 个月', 'InkOS 生产 → RR + ScribbleHub 同步发，每周 3-5 章', '$0'],
+          ['蓄力期', '第 1-3 个月', 'HintOS 生产 → RR + ScribbleHub 同步发，每周 3-5 章', '$0'],
           ['引爆期', '第 4-8 个月', 'RR 500+ follower → 开 Patreon 提前章 + Vol.1 上 KDP Stub', '$100-500/月'],
           ['规模化', '第 9 个月+', '多书并行批量走管线，累积 KU 被动收入', '$500-3,000+/月'],
         ]
@@ -584,7 +584,7 @@ const sections: TutorialSection[] = [
       ]},
 
       { type: 'divider' },
-      { type: 'heading', content: 'InkOS 已就绪 vs 待补齐' },
+      { type: 'heading', content: 'HintOS 已就绪 vs 待补齐' },
       { type: 'table', headers: ['能力', '状态', '说明'],
         rows: [
           ['英文题材 (litrpg / system-apocalypse)', '✅', '已配置完整 genre 文件'],
@@ -597,7 +597,7 @@ const sections: TutorialSection[] = [
           ['批量 KDP 格式化', '✅', '章节编号/扉页/版权页/目录自动生成'],
         ]
       },
-      { type: 'warning', content: 'Royal Road 要求 AI 生成的内容必须打标签且保证质量。InkOS 的 26 维审计 + AIGC 检测 + 5 模式修订就是为此设计的，但你仍需人工通读确认质量，低质量 AI 内容会被举报删除。' },
+      { type: 'warning', content: 'Royal Road 要求 AI 生成的内容必须打标签且保证质量。HintOS 的 26 维审计 + AIGC 检测 + 5 模式修订就是为此设计的，但你仍需人工通读确认质量，低质量 AI 内容会被举报删除。' },
     ]
   },
 
@@ -675,7 +675,7 @@ export default function Tutorial(): JSX.Element {
             使用教程
           </h1>
           <p className="text-zinc-500 text-sm mt-1">
-            从零开始掌握 InkOS Studio 的全部功能
+            从零开始掌握 HintOS Studio 的全部功能
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs">
@@ -742,7 +742,7 @@ export default function Tutorial(): JSX.Element {
       {/* 页脚 */}
       <div className="border-t border-zinc-800 pt-6 pb-8 text-center">
         <p className="text-zinc-600 text-xs">
-          InkOS Studio v0.1.0 · 基于 InkOS v0.3.6 · MIT License
+          HintOS Studio v0.1.0 · 基于 HintOS v0.3.6 · MIT License
         </p>
       </div>
     </div>

@@ -54,8 +54,8 @@ export default function AIGCDetection(): JSX.Element {
     if (!bookId) return
     try {
       const [chaps, hist] = await Promise.all([
-        window.inkos.loadChapterIndex(bookId),
-        window.inkos.loadDetectionHistory(bookId)
+        window.hintos.loadChapterIndex(bookId),
+        window.hintos.loadDetectionHistory(bookId)
       ])
       setChapters(chaps ?? [])
       setHistory(hist)
@@ -74,10 +74,10 @@ export default function AIGCDetection(): JSX.Element {
     setDetecting(true)
     setError(null)
     try {
-      const filename = await window.inkos.resolveChapterFilename(bookId, ch.number)
+      const filename = await window.hintos.resolveChapterFilename(bookId, ch.number)
       if (!filename) throw new Error(`章节 ${ch.number} 文件未找到`)
-      const content = await window.inkos.loadChapterContent(bookId, filename)
-      const result = await window.inkos.detectChapter(bookId, ch.number, ch.title, content)
+      const content = await window.hintos.loadChapterContent(bookId, filename)
+      const result = await window.hintos.detectChapter(bookId, ch.number, ch.title, content)
       setCurrentResult(result)
       setHistory((prev) => {
         const filtered = prev.filter((r) => r.chapterNumber !== ch.number)
@@ -96,10 +96,10 @@ export default function AIGCDetection(): JSX.Element {
     setError(null)
     try {
       for (const ch of chapters) {
-        const filename = await window.inkos.resolveChapterFilename(bookId, ch.number)
+        const filename = await window.hintos.resolveChapterFilename(bookId, ch.number)
         if (!filename) continue
-        const content = await window.inkos.loadChapterContent(bookId, filename)
-        const result = await window.inkos.detectChapter(bookId, ch.number, ch.title, content)
+        const content = await window.hintos.loadChapterContent(bookId, filename)
+        const result = await window.hintos.detectChapter(bookId, ch.number, ch.title, content)
         setHistory((prev) => {
           const filtered = prev.filter((r) => r.chapterNumber !== ch.number)
           return [...filtered, result].sort((a, b) => a.chapterNumber - b.chapterNumber)

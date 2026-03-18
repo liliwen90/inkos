@@ -88,8 +88,8 @@ export default function HumanizeEngine(): JSX.Element {
     if (!bookId) return
     try {
       const [s, vc] = await Promise.all([
-        window.inkos.loadHumanizeSettings(bookId),
-        window.inkos.loadVoiceCards(bookId)
+        window.hintos.loadHumanizeSettings(bookId),
+        window.hintos.loadVoiceCards(bookId)
       ])
       if (s) setSettings(s)
       if (vc) setVoiceCards(vc)
@@ -102,7 +102,7 @@ export default function HumanizeEngine(): JSX.Element {
 
   const loadBeats = useCallback(async () => {
     if (!bookId) return
-    const beats = await window.inkos.loadSceneBeats(bookId, editingChapter)
+    const beats = await window.hintos.loadSceneBeats(bookId, editingChapter)
     setSceneBeats(beats ?? [])
   }, [bookId, editingChapter])
 
@@ -113,9 +113,9 @@ export default function HumanizeEngine(): JSX.Element {
     setSaving(true)
     try {
       await Promise.all([
-        window.inkos.saveHumanizeSettings(bookId, settings),
-        window.inkos.saveVoiceCards(bookId, voiceCards),
-        window.inkos.saveSceneBeats(bookId, editingChapter, sceneBeats)
+        window.hintos.saveHumanizeSettings(bookId, settings),
+        window.hintos.saveVoiceCards(bookId, voiceCards),
+        window.hintos.saveSceneBeats(bookId, editingChapter, sceneBeats)
       ])
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
@@ -129,7 +129,7 @@ export default function HumanizeEngine(): JSX.Element {
   const handlePreview = async (): Promise<void> => {
     if (!bookId) return
     try {
-      const text = await window.inkos.buildStyleGuidance(bookId, editingChapter)
+      const text = await window.hintos.buildStyleGuidance(bookId, editingChapter)
       setPreview(text)
       setTab('preview')
     } catch (e) {

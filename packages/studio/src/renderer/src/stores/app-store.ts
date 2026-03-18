@@ -101,7 +101,7 @@ export const useAppStore = create<AppState>((set) => ({
   progressEvents: [],
   isWriting: false,
   sidebarCollapsed: false,
-  theme: (typeof window !== 'undefined' && localStorage.getItem('inkos-theme')) || 'twilight',
+  theme: (typeof window !== 'undefined' && localStorage.getItem('HintOS-theme')) || 'twilight',
   pendingBookDraft: null,
 
   setProjectPath: (path) => set({ projectPath: path }),
@@ -117,7 +117,7 @@ export const useAppStore = create<AppState>((set) => ({
   setIsWriting: (writing) => set({ isWriting: writing }),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   setTheme: (theme) => {
-    localStorage.setItem('inkos-theme', theme)
+    localStorage.setItem('HintOS-theme', theme)
     document.documentElement.setAttribute('data-theme', theme)
     set({ theme })
   },

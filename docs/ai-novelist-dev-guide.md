@@ -30,14 +30,14 @@
 cd "f:\011 Projects\008 Ai-Novelist"
 npm start        # 或 npx electron .
 
-# InkOS Studio (新工具)
-cd "F:\011 Projects\009-InkOS\packages\studio"
+# HintOS Studio (新工具)
+cd "F:\011 Projects\009-HintOS\packages\studio"
 pnpm dev         # electron-vite dev
 pnpm build       # 构建 (main+preload+renderer)
 ```
 
-## InkOS Studio 开发规范
-- **路径**: `F:\011 Projects\009-InkOS\packages\studio/`
+## HintOS Studio 开发规范
+- **路径**: `F:\011 Projects\009-HintOS\packages\studio/`
 - **技术栈**: Electron 31 + React 18 + TypeScript + Tailwind 3 + Vite 7 + Zustand + electron-vite
 - **安全模型**: `contextIsolation:true` + `nodeIntegration:false` + preload contextBridge
 - **架构**: Adapter层(不改core) → IPC handlers → Preload bridge → React Renderer

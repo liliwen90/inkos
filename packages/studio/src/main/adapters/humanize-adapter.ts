@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import { readFile, writeFile, readdir, mkdir, copyFile, unlink } from 'fs/promises'
 import { join, basename } from 'path'
-import type { LLMClient } from '@actalk/inkos-core'
+import type { LLMClient } from '@actalk/hintos-core'
 
 // Studio 用自己的 StyleProfile（从 core 的 StyleProfile 转换而来）
 export interface StudioStyleProfile {
@@ -97,7 +97,7 @@ export class HumanizeAdapter {
       const bookConfig = JSON.parse(await readFile(bookJsonPath, 'utf-8'))
       const genre: string = bookConfig?.genre
       if (genre) {
-        const { readGenreProfile } = await import('@actalk/inkos-core')
+        const { readGenreProfile } = await import('@actalk/hintos-core')
         const { profile } = await readGenreProfile(this.getRoot(), genre)
         return profile.language ?? 'zh'
       }
@@ -194,7 +194,7 @@ export class HumanizeAdapter {
   // ===== 风格分析（纯文本统计，用 core 的 analyzeStyle） =====
 
   async analyzeStyleFromBooks(bookId: string): Promise<StudioStyleProfile | null> {
-    const { analyzeStyle } = await import('@actalk/inkos-core')
+    const { analyzeStyle } = await import('@actalk/hintos-core')
     const dir = join(this.bookConfigDir(bookId), 'style-books')
     if (!existsSync(dir)) return null
     const files = (await readdir(dir)).filter(f => f.endsWith('.txt'))
@@ -242,7 +242,7 @@ export class HumanizeAdapter {
     model: string,
     onProgress?: (msg: string, pct: number) => void
   ): Promise<FingerprintData> {
-    const { chatCompletion } = await import('@actalk/inkos-core')
+    const { chatCompletion } = await import('@actalk/hintos-core')
     const lang = await this.resolveLanguage(bookId)
     const en = lang === 'en'
     const dir = join(this.bookConfigDir(bookId), 'style-books')
@@ -336,7 +336,7 @@ ${samples}`
     model: string,
     onProgress?: (msg: string, pct: number) => void
   ): Promise<AISuggestions> {
-    const { chatCompletion } = await import('@actalk/inkos-core')
+    const { chatCompletion } = await import('@actalk/hintos-core')
     const lang = await this.resolveLanguage(bookId)
     const en = lang === 'en'
     const dir = join(this.bookConfigDir(bookId), 'style-books')

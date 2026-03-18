@@ -133,7 +133,7 @@ interface ScrapeResult {
   savedPath: string
 }
 
-interface InkOSAPI {
+interface HintOSAPI {
   // 项目管理
   selectProjectDir(): Promise<{ path: string; isProject: boolean } | null>
   initProject(dirPath: string, name: string): Promise<boolean>
@@ -279,6 +279,6 @@ interface InkOSAPI {
 declare global {
   interface Window {
     electron: ElectronAPI
-    inkos: InkOSAPI
+    hintos: HintOSAPI
   }
 }

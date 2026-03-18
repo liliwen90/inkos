@@ -2,9 +2,9 @@
 
 ## ⚠️ 项目状态说明 (2026-03-16)
 本项目 (AI小说生成器 v1.5.1) 已功能完整，继续作为**参考实现**保留。
-新一代产品 InkOS Studio 已完成 Phase 3 → 详见 `/memories/repo/inkos-gui-plan.md`
+新一代产品 HintOS Studio 已完成 Phase 3 → 详见 `/memories/repo/hintos-gui-plan.md`
 Phase 3 commit: 79f4a46 (1953行新增) | 构建: main 40KB + preload 5KB + renderer 427KB + CSS 31KB
-✅ 人性化引擎、风格分析、AIGC检测、AI建议系统 — 全部移植完成到 InkOS Studio。
+✅ 人性化引擎、风格分析、AIGC检测、AI建议系统 — 全部移植完成到 HintOS Studio。
 
 ## v1.5.1 (2026-03-14) — 最终版本 [53项测试全通过]
 - ✅ 项目删除功能: NovelManager.deleteProject() + 双重确认UI

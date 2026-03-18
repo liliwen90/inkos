@@ -114,7 +114,7 @@ export default function LLMSettings(): JSX.Element {
 
   useEffect(() => {
     if (projectLoaded) {
-      window.inkos.loadLLMConfig().then((config: LLMConfig | null) => {
+      window.hintos.loadLLMConfig().then((config: LLMConfig | null) => {
         if (config) {
           setProvider(config.provider)
           setBaseUrl(config.baseUrl)
@@ -124,7 +124,7 @@ export default function LLMSettings(): JSX.Element {
           setMaxTokens(config.maxTokens)
         }
       })
-      window.inkos.loadTaskRouting().then((routing: unknown) => {
+      window.hintos.loadTaskRouting().then((routing: unknown) => {
         if (routing && typeof routing === 'object') {
           const r = routing as { agents?: Record<string, AgentSlot> }
           if (r.agents && Object.keys(r.agents).length > 0) {
@@ -153,7 +153,7 @@ export default function LLMSettings(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
         <Settings className="w-8 h-8 mb-2" />
-        <p>请先打开 InkOS 项目</p>
+        <p>请先打开 HintOS 项目</p>
       </div>
     )
   }
@@ -189,10 +189,10 @@ export default function LLMSettings(): JSX.Element {
     setSaving(true)
     setSaved(false)
     try {
-      await window.inkos.saveLLMConfig(getConfig())
+      await window.hintos.saveLLMConfig(getConfig())
       setLLMConfig(getConfig())
       if (routingEnabled) {
-        await window.inkos.saveTaskRouting(buildRoutingPayload())
+        await window.hintos.saveTaskRouting(buildRoutingPayload())
       }
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
@@ -207,7 +207,7 @@ export default function LLMSettings(): JSX.Element {
     try {
       const results: { label: string; ok: boolean; error?: string; latencyMs?: number }[] = []
       // 测试默认连接
-      const defaultResult = await window.inkos.testLLMConnection(getConfig())
+      const defaultResult = await window.hintos.testLLMConnection(getConfig())
       results.push({ label: `默认 (${model})`, ...defaultResult })
       // 测试已启用的 Agent 独立连接
       if (routingEnabled) {
@@ -222,7 +222,7 @@ export default function LLMSettings(): JSX.Element {
               temperature,
               maxTokens
             }
-            const r = await window.inkos.testLLMConnection(agentConfig)
+            const r = await window.hintos.testLLMConnection(agentConfig)
             results.push({ label: `${AGENT_LABELS[name].emoji} ${AGENT_LABELS[name].label} (${slot.model})`, ...r })
           }
         }
@@ -236,16 +236,16 @@ export default function LLMSettings(): JSX.Element {
   const handleInitPipeline = async (): Promise<void> => {
     setInitializing(true)
     try {
-      await window.inkos.saveLLMConfig(getConfig())
+      await window.hintos.saveLLMConfig(getConfig())
       setLLMConfig(getConfig())
 
       const hasRouting = routingEnabled && AGENT_NAMES.some((n) => agentSlots[n].enabled && agentSlots[n].model)
       if (hasRouting) {
         const routing = buildRoutingPayload()
-        await window.inkos.saveTaskRouting(routing)
-        await window.inkos.initPipelineRouting(routing)
+        await window.hintos.saveTaskRouting(routing)
+        await window.hintos.initPipelineRouting(routing)
       } else {
-        await window.inkos.initPipeline(getConfig())
+        await window.hintos.initPipeline(getConfig())
       }
       setPipelineReady(true)
       const routedAgents = hasRouting
@@ -522,7 +522,7 @@ export default function LLMSettings(): JSX.Element {
       <div className="border-t border-zinc-800 pt-4">
         <p className="text-zinc-600 text-xs leading-relaxed">
           配置保存到项目的 .env（密钥）和 task-routing.json（路由规则）。<br />
-          「初始化管线」会创建 LLM 客户端并启动写作功能。多模型路由完全在 Adapter 层实现，不修改 InkOS Core。<br />
+          「初始化管线」会创建 LLM 客户端并启动写作功能。多模型路由完全在 Adapter 层实现，不修改 HintOS Core。<br />
           上游升级时路由功能不受影响。
         </p>
       </div>

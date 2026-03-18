@@ -37,7 +37,7 @@ export default function AISuggestionsPage(): JSX.Element {
   const load = useCallback(async () => {
     if (!bookId) return
     try {
-      const data = await window.inkos.loadSuggestions(bookId)
+      const data = await window.hintos.loadSuggestions(bookId)
       setSuggestions(data)
     } catch (e) {
       setError((e as Error).message)
@@ -52,7 +52,7 @@ export default function AISuggestionsPage(): JSX.Element {
     setError(null)
     setApplied(false)
     try {
-      const result = await window.inkos.generateSuggestions(bookId)
+      const result = await window.hintos.generateSuggestions(bookId)
       setSuggestions(result)
     } catch (e) {
       setError((e as Error).message)
@@ -66,7 +66,7 @@ export default function AISuggestionsPage(): JSX.Element {
     setApplying(true)
     setError(null)
     try {
-      await window.inkos.applySuggestions(bookId)
+      await window.hintos.applySuggestions(bookId)
       setApplied(true)
       setTimeout(() => setApplied(false), 3000)
     } catch (e) {

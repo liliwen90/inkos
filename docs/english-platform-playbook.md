@@ -1,6 +1,6 @@
 # 英文小说平台全流程闭环手册 (2026-03-17)
 
-> InkOS Studio 重点供稿目标平台深度调研：注册 → 发布 → 变现 → 提现
+> HintOS Studio 重点供稿目标平台深度调研：注册 → 发布 → 变现 → 提现
 
 ---
 
@@ -26,7 +26,7 @@
 
 ### 2.1 为什么是第一站
 - **西方网文的起点中文网**：LitRPG/Progression Fantasy 最大聚集地
-- **我们的 genre 完美匹配**：litrpg、system-apocalypse 已在 InkOS 配好
+- **我们的 genre 完美匹配**：litrpg、system-apocalypse 已在 HintOS 配好
 - **AI 内容友好**：允许 AI-Generated，只需打标签
 - **零门槛起步**：免费注册，无国籍限制
 - **自带变现体系**：读者打赏（Reader Support）+ 章节 Stub
@@ -69,13 +69,13 @@ Royal Road 2023-06 发布正式 AI 文本政策，三级分类：
 2. **AI-Assisted** (人写内容 + AI 润色/改写) → 需打 `AI-Assisted` 标签
 3. **AI-Generated** (AI 生成 + 人类引导编辑) → 需打 `AI-Generated` 标签
 
-**InkOS 策略**：
-- InkOS 管线生成属于第 3 类（AI-Generated）
+**HintOS 策略**：
+- HintOS 管线生成属于第 3 类（AI-Generated）
 - **必须**打 `AI-Generated` 标签 + 在简介说明
 - 好消息：RR 明确表示**不会因为 AI 标签歧视排名**，靠质量说话
 - 他们承认 AI 检测不可靠（最高准确率仅 84%），不搞检测封号
 - **但质量必须高**：低质量 AI 内容会被举报删除
-- InkOS 的 26 维审计 + AIGC 检测 + 5 模式修订是核心竞争力
+- HintOS 的 26 维审计 + AIGC 检测 + 5 模式修订是核心竞争力
 
 ### 2.5 变现路径
 
@@ -143,7 +143,7 @@ Royal Road 2023-06 发布正式 AI 文本政策，三级分类：
 - 唯一方式：个人主页放 **Patreon / Ko-fi / PayPal.me** 链接
 - 本质上是一个**流量获取渠道**，引流到 Patreon/Amazon
 
-### 3.4 InkOS 策略
+### 3.4 HintOS 策略
 - **同步发**到 ScribbleHub（和 RR 相同内容）
 - 在 profile 里放 Patreon 链接
 - 增加一个曝光渠道，零成本运维
@@ -288,7 +288,7 @@ Royal Road 2023-06 发布正式 AI 文本政策，三级分类：
 
 ### 第一阶段：蓄力期（第 1-3 个月）
 ```
-InkOS Studio 生产 → 同时发布 Royal Road + ScribbleHub
+HintOS Studio 生产 → 同时发布 Royal Road + ScribbleHub
                    → 每周 3-5 章
                    → 积累 50-100 follower
                    → 建立 Patreon 页面（先不推）
@@ -308,7 +308,7 @@ RR 连续更新 → follower 500+
 
 ### 第三阶段：规模化（第 9 个月+）
 ```
-多本书并行 → InkOS 批量生产
+多本书并行 → HintOS 批量生产
            → 每本走 RR→Patreon→KDP 通道
            → 累积 KU 页读被动收入
            → 建立 Discord 社区
@@ -335,7 +335,7 @@ RR 连续更新 → follower 500+
 
 ---
 
-## 十、InkOS Studio 对接清单
+## 十、HintOS Studio 对接清单
 
 | 任务 | 状态 | 说明 |
 |------|------|------|

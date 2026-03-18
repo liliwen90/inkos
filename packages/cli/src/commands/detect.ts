@@ -5,7 +5,7 @@ import {
   loadDetectionHistory,
   analyzeDetectionInsights,
   type DetectionConfig,
-} from "@actalk/inkos-core";
+} from "@actalk/hintos-core";
 import { loadConfig, findProjectRoot, resolveBookId, log, logError } from "../utils.js";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -23,7 +23,7 @@ export const detectCommand = new Command("detect")
       const root = findProjectRoot();
 
       if (!config.detection?.enabled) {
-        logError("AIGC detection is not enabled. Add detection config to inkos.json.");
+        logError("AIGC detection is not enabled. Add detection config to hintos.json.");
         process.exit(1);
       }
 

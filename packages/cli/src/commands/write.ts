@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { PipelineRunner, StateManager } from "@actalk/inkos-core";
+import { PipelineRunner, StateManager } from "@actalk/hintos-core";
 import { readdir, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
@@ -102,7 +102,7 @@ writeCommand
         if (isNaN(chapter)) throw new Error(`Expected chapter number, got "${args[1]}"`);
         bookId = await resolveBookId(args[0], root);
       } else {
-        throw new Error("Usage: inkos write rewrite [book-id] <chapter>");
+        throw new Error("Usage: hintos write rewrite [book-id] <chapter>");
       }
 
       if (!opts.force) {

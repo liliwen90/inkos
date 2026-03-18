@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="assets/logo.svg" width="120" height="120" alt="InkOS Logo">
-  <img src="assets/inkos-text.svg" width="240" height="65" alt="InkOS">
+  <img src="assets/logo.svg" width="120" height="120" alt="HintOS Logo">
+  <img src="assets/hintos-text.svg" width="240" height="65" alt="HintOS">
 </p>
 
 <h1 align="center">Multi-Agent Novel Production System</h1>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@actalk/inkos"><img src="https://img.shields.io/npm/v/@actalk/inkos.svg?color=cb3837&logo=npm" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@actalk/hintos"><img src="https://img.shields.io/npm/v/@actalk/hintos.svg?color=cb3837&logo=npm" alt="npm version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg" alt="Node.js"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-3178C6.svg?logo=typescript&logoColor=white" alt="TypeScript"></a>
@@ -40,16 +40,16 @@ The Writer auto-generates chapter summaries, updates subplot/emotion/character m
 | Feature | Description |
 |---------|-------------|
 | AI-Tell Audit | Pure rule-based detection (no LLM): paragraph uniformity, hedge word density, formulaic transitions, list-like structure — auto-merged into audit results |
-| AIGC Detection API | External API integration (GPTZero / Originality / custom endpoints), `inkos detect` command |
+| AIGC Detection API | External API integration (GPTZero / Originality / custom endpoints), `hintos detect` command |
 | Style Fingerprint | Extract StyleProfile from reference text (sentence length, TTR, rhetorical features), inject into Writer prompt |
 | Anti-Detect Rewrite | ReviserAgent `anti-detect` mode, detect → rewrite → re-detect loop |
-| Detection Feedback Loop | `detection_history.json` records each detection/rewrite result, `inkos detect --stats` for statistics |
+| Detection Feedback Loop | `detection_history.json` records each detection/rewrite result, `hintos detect --stats` for statistics |
 
 ```bash
-inkos style analyze reference.txt           # Analyze reference text style
-inkos style import reference.txt my-book    # Import style into book
-inkos detect my-book --all                  # Detect all chapters
-inkos detect --stats                        # Detection statistics
+hintos style analyze reference.txt           # Analyze reference text style
+hintos style import reference.txt my-book    # Import style into book
+hintos detect my-book --all                  # Detect all chapters
+hintos detect --stats                        # Detection statistics
 ```
 
 ### Webhook + Smart Scheduler
@@ -71,16 +71,16 @@ Pipeline events POST JSON to configured URLs (HMAC-SHA256 signed), with event fi
 Specify a genre when creating a book and matching rules activate automatically:
 
 ```bash
-inkos book create --title "Devouring Emperor" --genre xuanhuan
+hintos book create --title "Devouring Emperor" --genre xuanhuan
 ```
 
 View, copy, or create genre rules:
 
 ```bash
-inkos genre list                      # List all genres
-inkos genre show xuanhuan             # View full xuanhuan rules
-inkos genre copy xuanhuan             # Copy to project for customization
-inkos genre create wuxia --name Wuxia # Create a new genre from scratch
+hintos genre list                      # List all genres
+hintos genre show xuanhuan             # View full xuanhuan rules
+hintos genre copy xuanhuan             # Copy to project for customization
+hintos genre create wuxia --name Wuxia # Create a new genre from scratch
 ```
 
 After copying to your project, add/remove prohibitions, adjust fatigue words, modify pacing rules, customize language rules — changes take effect on the next chapter.
@@ -139,14 +139,14 @@ Vocabulary fatigue audit + AI-tell audit (dims 20-23) provide dual detection. St
 - Genres without numerical systems skip resource ledger generation
 - All commands support `--json` structured output for OpenClaw / external agent integration
 - Auto-detect book-id when project has only one book
-- `inkos update` for self-updating, `inkos init` supports current directory
-- API errors include diagnostic hints, `inkos doctor` includes connectivity test
+- `hintos update` for self-updating, `hintos init` supports current directory
+- API errors include diagnostic hints, `hintos doctor` includes connectivity test
 
 ---
 
-## Why InkOS?
+## Why HintOS?
 
-Writing a novel with AI isn't just "prompt and paste." Long-form fiction breaks down fast: characters forget things, items appear from nowhere, the same adjectives repeat every paragraph, and plot threads silently die. InkOS treats these as engineering problems.
+Writing a novel with AI isn't just "prompt and paste." Long-form fiction breaks down fast: characters forget things, items appear from nowhere, the same adjectives repeat every paragraph, and plot threads silently die. HintOS treats these as engineering problems.
 
 - **Canonical truth files** — track the real state of the world, not what the LLM hallucinates
 - **Anti-information-leaking** — characters only know what they've actually witnessed
@@ -202,21 +202,21 @@ See [v0.3 Update](#v03-update-2026-03-13) for details.
 
 ## Three Usage Modes
 
-InkOS provides three interaction modes, all sharing the same atomic operations:
+HintOS provides three interaction modes, all sharing the same atomic operations:
 
 ### 1. Full Pipeline (One Command)
 
 ```bash
-inkos write next my-book              # Draft → audit → auto-revise, all in one
-inkos write next my-book --count 5    # Write 5 chapters in sequence
+hintos write next my-book              # Draft → audit → auto-revise, all in one
+hintos write next my-book --count 5    # Write 5 chapters in sequence
 ```
 
 ### 2. Atomic Commands (Composable, External Agent Friendly)
 
 ```bash
-inkos draft my-book --context "Focus on master-disciple conflict" --json
-inkos audit my-book 31 --json
-inkos revise my-book 31 --json
+hintos draft my-book --context "Focus on master-disciple conflict" --json
+hintos audit my-book 31 --json
+hintos revise my-book 31 --json
 ```
 
 Each command performs a single operation independently. `--json` outputs structured data. Can be called by OpenClaw or other AI agents via `exec`, or used in scripts.
@@ -224,9 +224,9 @@ Each command performs a single operation independently. `--json` outputs structu
 ### 3. Natural Language Agent Mode
 
 ```bash
-inkos agent "Write an urban cultivation novel with a programmer protagonist"
-inkos agent "Write the next chapter, focus on master-disciple conflict"
-inkos agent "Scan market trends first, then create a new book based on results"
+hintos agent "Write an urban cultivation novel with a programmer protagonist"
+hintos agent "Write the next chapter, focus on master-disciple conflict"
+hintos agent "Scan market trends first, then create a new book based on results"
 ```
 
 9 built-in tools (write_draft, audit_chapter, revise_chapter, scan_market, create_book, get_book_status, read_truth_files, list_books, write_full_pipeline), with the LLM deciding call order via tool-use.
@@ -236,7 +236,7 @@ inkos agent "Scan market trends first, then create a new book based on results"
 ### Install
 
 ```bash
-npm i -g @actalk/inkos
+npm i -g @actalk/hintos
 ```
 
 ### Configure
@@ -244,19 +244,19 @@ npm i -g @actalk/inkos
 **Option 1: Global config (recommended, one-time setup)**
 
 ```bash
-inkos config set-global \
+hintos config set-global \
   --provider openai \
   --base-url https://api.openai.com/v1 \
   --api-key sk-xxx \
   --model gpt-4o
 ```
 
-Saved to `~/.inkos/.env`, shared by all projects. New projects just work without extra config.
+Saved to `~/.hintos/.env`, shared by all projects. New projects just work without extra config.
 
 **Option 2: Per-project `.env`**
 
 ```bash
-inkos init my-novel     # Initialize project
+hintos init my-novel     # Initialize project
 # Edit my-novel/.env
 ```
 
@@ -278,12 +278,12 @@ Project `.env` overrides global config. Skip it if no override needed.
 ### Usage
 
 ```bash
-inkos book create --title "Devouring Emperor" --genre xuanhuan  # Create a book
-inkos write next my-book          # Write next chapter (full pipeline)
-inkos status                      # Check status
-inkos review list my-book         # Review drafts
-inkos export my-book              # Export full book
-inkos up                          # Daemon mode
+hintos book create --title "Devouring Emperor" --genre xuanhuan  # Create a book
+hintos write next my-book          # Write next chapter (full pipeline)
+hintos status                      # Check status
+hintos review list my-book         # Review drafts
+hintos export my-book              # Export full book
+hintos up                          # Daemon mode
 ```
 
 <p align="center">
@@ -294,31 +294,31 @@ inkos up                          # Daemon mode
 
 | Command | Description |
 |---------|-------------|
-| `inkos init [name]` | Initialize project (omit name to init current directory) |
-| `inkos book create` | Create a new book (`--chapter-words` to set word count) |
-| `inkos book update [id]` | Update book settings (`--chapter-words`, `--target-chapters`, `--status`) |
-| `inkos book list` | List all books |
-| `inkos genre list/show/copy/create` | View, copy, or create genres |
-| `inkos write next [id]` | Full pipeline: write next chapter (`--words` to override, `--count` for batch) |
-| `inkos write rewrite [id] <n>` | Rewrite chapter N (restores state snapshot, requires confirmation) |
-| `inkos draft [id]` | Write draft only (`--words` to override word count) |
-| `inkos audit [id] [n]` | Audit a specific chapter |
-| `inkos revise [id] [n]` | Revise a specific chapter |
-| `inkos agent <instruction>` | Natural language agent mode |
-| `inkos review list [id]` | Review drafts |
-| `inkos review approve-all [id]` | Batch approve |
-| `inkos status [id]` | Project status |
-| `inkos export [id]` | Export book to txt/md |
-| `inkos radar scan` | Scan platform trends |
-| `inkos config set-global` | Set global LLM config (~/.inkos/.env) |
-| `inkos config show-global` | Show global config |
-| `inkos config set/show` | View/update project config |
-| `inkos doctor` | Diagnose setup issues (includes API connectivity test) |
-| `inkos detect [id] [n]` | AIGC detection (`--all` for all chapters, `--stats` for statistics) |
-| `inkos style analyze <file>` | Analyze reference text to extract style fingerprint |
-| `inkos style import <file> [id]` | Import style fingerprint into a book |
-| `inkos update` | Update to latest version |
-| `inkos up / down` | Start/stop daemon |
+| `hintos init [name]` | Initialize project (omit name to init current directory) |
+| `hintos book create` | Create a new book (`--chapter-words` to set word count) |
+| `hintos book update [id]` | Update book settings (`--chapter-words`, `--target-chapters`, `--status`) |
+| `hintos book list` | List all books |
+| `hintos genre list/show/copy/create` | View, copy, or create genres |
+| `hintos write next [id]` | Full pipeline: write next chapter (`--words` to override, `--count` for batch) |
+| `hintos write rewrite [id] <n>` | Rewrite chapter N (restores state snapshot, requires confirmation) |
+| `hintos draft [id]` | Write draft only (`--words` to override word count) |
+| `hintos audit [id] [n]` | Audit a specific chapter |
+| `hintos revise [id] [n]` | Revise a specific chapter |
+| `hintos agent <instruction>` | Natural language agent mode |
+| `hintos review list [id]` | Review drafts |
+| `hintos review approve-all [id]` | Batch approve |
+| `hintos status [id]` | Project status |
+| `hintos export [id]` | Export book to txt/md |
+| `hintos radar scan` | Scan platform trends |
+| `hintos config set-global` | Set global LLM config (~/.hintos/.env) |
+| `hintos config show-global` | Show global config |
+| `hintos config set/show` | View/update project config |
+| `hintos doctor` | Diagnose setup issues (includes API connectivity test) |
+| `hintos detect [id] [n]` | AIGC detection (`--all` for all chapters, `--stats` for statistics) |
+| `hintos style analyze <file>` | Analyze reference text to extract style fingerprint |
+| `hintos style import <file> [id]` | Import style fingerprint into a book |
+| `hintos update` | Update to latest version |
+| `hintos up / down` | Start/stop daemon |
 
 `[id]` is auto-detected when the project has only one book. All commands support `--json` for structured output. `draft`/`write next`/`book create` support `--context` for writing guidance and `--words` to override per-chapter word count (OpenClaw can dynamically control this per chapter).
 
@@ -326,7 +326,7 @@ inkos up                          # Daemon mode
 
 ### State Snapshots + Chapter Rewrite
 
-Every chapter automatically creates a state snapshot. Use `inkos write rewrite <id> <n>` to roll back and regenerate any chapter — world state, resource ledger, and plot hooks all restore to the pre-chapter state.
+Every chapter automatically creates a state snapshot. Use `hintos write rewrite <id> <n>` to roll back and regenerate any chapter — world state, resource ledger, and plot hooks all restore to the pre-chapter state.
 
 ### Write Lock
 
@@ -342,7 +342,7 @@ Radar data sources are pluggable via the `RadarSource` interface. Built-in sourc
 
 ### Daemon Mode
 
-`inkos up` starts an autonomous background loop that writes chapters on a schedule. The pipeline runs fully unattended for non-critical issues, but pauses for human review when the auditor flags problems it cannot auto-fix.
+`hintos up` starts an autonomous background loop that writes chapters on a schedule. The pipeline runs fully unattended for non-critical issues, but pauses for human review when the auditor flags problems it cannot auto-fix.
 
 ### Notifications
 
@@ -350,12 +350,12 @@ Telegram, Feishu, WeCom, and Webhook. In daemon mode, get notified on your phone
 
 ### External Agent Integration
 
-Atomic commands + `--json` output make InkOS callable by OpenClaw and other AI agents. OpenClaw executes `inkos draft`/`audit`/`revise` via `exec`, reads JSON results, and decides next steps.
+Atomic commands + `--json` output make HintOS callable by OpenClaw and other AI agents. OpenClaw executes `hintos draft`/`audit`/`revise` via `exec`, reads JSON results, and decides next steps.
 
 ## Architecture
 
 ```
-inkos/
+hintos/
 ├── packages/
 │   ├── core/              # Agent runtime, pipeline, state management
 │   │   ├── agents/        # architect, writer, continuity, reviser, radar, ai-tells, detector, style-analyzer

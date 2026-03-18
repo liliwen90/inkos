@@ -24,8 +24,8 @@ import { analyticsCommand } from "./commands/analytics.js";
 const program = new Command();
 
 program
-  .name("inkos")
-  .description("InkOS — Multi-agent novel production system")
+  .name("hintos")
+  .description("HintOS — Multi-agent novel production system")
   .version("0.3.6");
 
 program.addCommand(initCommand);

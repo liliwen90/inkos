@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { StateManager } from "@actalk/inkos-core";
+import { StateManager } from "@actalk/hintos-core";
 import { findProjectRoot, log, logError } from "../utils.js";
 
 export const statusCommand = new Command("status")
@@ -23,7 +23,7 @@ export const statusCommand = new Command("status")
       const booksData = [];
 
       if (!opts.json) {
-        log(`InkOS Project: ${root}`);
+        log(`HintOS Project: ${root}`);
         log(`Books: ${allBookIds.length}`);
         log("");
       }

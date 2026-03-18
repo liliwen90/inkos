@@ -1,5 +1,5 @@
-appId: com.inkos.studio
-productName: InkOS Studio
+appId: com.hintos.studio
+productName: HintOS Studio
 directories:
   buildResources: build
 files:
@@ -14,13 +14,13 @@ extraResources:
     filter:
       - '*.md'
 win:
-  executableName: InkOS Studio
+  executableName: HintOS Studio
   target:
     - nsis
 nsis:
-  artifactName: InkOS-Studio-${version}-setup.${ext}
-  shortcutName: InkOS Studio
-  uninstallDisplayName: InkOS Studio
+  artifactName: HintOS-Studio-${version}-setup.${ext}
+  shortcutName: HintOS Studio
+  uninstallDisplayName: HintOS Studio
   createDesktopShortcut: always
 mac:
   target:

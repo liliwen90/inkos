@@ -10,7 +10,7 @@ importers:
 
   packages/cli:
     dependencies:
-      '@actalk/inkos-core':
+      '@actalk/hintos-core':
         specifier: workspace:*
         version: link:../core
       commander:
@@ -57,7 +57,7 @@ importers:
 
   packages/studio:
     dependencies:
-      '@actalk/inkos-core':
+      '@actalk/hintos-core':
         specifier: workspace:*
         version: link:../core
       '@electron-toolkit/preload':

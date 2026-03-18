@@ -45,9 +45,9 @@ export default function StyleAnalysis(): JSX.Element {
     if (!bookId) return
     try {
       const [books, prof, fp] = await Promise.all([
-        window.inkos.listStyleBooks(bookId),
-        window.inkos.loadStyleProfile(bookId),
-        window.inkos.loadFingerprint(bookId)
+        window.hintos.listStyleBooks(bookId),
+        window.hintos.loadStyleProfile(bookId),
+        window.hintos.loadFingerprint(bookId)
       ])
       setStyleBooks(books)
       setProfile(prof)
@@ -61,7 +61,7 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleImport = async (): Promise<void> => {
     if (!bookId) return
-    const names = await window.inkos.importStyleBook(bookId)
+    const names = await window.hintos.importStyleBook(bookId)
     if (names) {
       setStyleBooks((prev) => [...prev, ...names])
     }
@@ -69,7 +69,7 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleRemove = async (fileName: string): Promise<void> => {
     if (!bookId) return
-    await window.inkos.removeStyleBook(bookId, fileName)
+    await window.hintos.removeStyleBook(bookId, fileName)
     setStyleBooks((prev) => prev.filter((f) => f !== fileName))
   }
 
@@ -78,7 +78,7 @@ export default function StyleAnalysis(): JSX.Element {
     setAnalyzing(true)
     setError(null)
     try {
-      const result = await window.inkos.analyzeStyleBooks(bookId)
+      const result = await window.hintos.analyzeStyleBooks(bookId)
       setProfile(result)
     } catch (e) {
       setError((e as Error).message)
@@ -92,7 +92,7 @@ export default function StyleAnalysis(): JSX.Element {
     setAnalyzingFp(true)
     setError(null)
     try {
-      const result = await window.inkos.analyzeDeepFingerprint(bookId)
+      const result = await window.hintos.analyzeDeepFingerprint(bookId)
       setFingerprint(result)
     } catch (e) {
       setError((e as Error).message)
@@ -105,7 +105,7 @@ export default function StyleAnalysis(): JSX.Element {
     if (!bookId || !fingerprint) return
     const updated = { ...fingerprint, strength }
     setFingerprint(updated)
-    await window.inkos.saveFingerprint(bookId, updated)
+    await window.hintos.saveFingerprint(bookId, updated)
   }
 
   const handleOnlineScrape = async (): Promise<void> => {
@@ -115,18 +115,18 @@ export default function StyleAnalysis(): JSX.Element {
     setScrapeStatus(en ? 'Connecting...' : '连接中...')
 
     // Listen for progress events
-    const unsub = window.inkos.onProgress((evt: { stage: string }) => {
+    const unsub = window.hintos.onProgress((evt: { stage: string }) => {
       setScrapeStatus(evt.stage)
     })
 
     try {
       // Extract title from URL for naming
       const urlTitle = scrapeUrl.replace(/https?:\/\//, '').split('/').filter(Boolean).slice(0, 3).join('-').slice(0, 40)
-      const result = await window.inkos.scraperScrapeForAnalysis(bookId, scrapeUrl.trim(), urlTitle)
+      const result = await window.hintos.scraperScrapeForAnalysis(bookId, scrapeUrl.trim(), urlTitle)
       setScrapeStatus('')
       setScrapeUrl('')
       // Refresh style books list
-      const books = await window.inkos.listStyleBooks(bookId)
+      const books = await window.hintos.listStyleBooks(bookId)
       setStyleBooks(books)
       setScrapeStatus(en
         ? `Done! Sampled ${result.chaptersSampled}/${result.chaptersTotal} chapters from ${result.platform}`
@@ -145,7 +145,7 @@ export default function StyleAnalysis(): JSX.Element {
     if (!bookId || !fingerprint) return
     const updated = { ...fingerprint, enabled: !fingerprint.enabled }
     setFingerprint(updated)
-    await window.inkos.saveFingerprint(bookId, updated)
+    await window.hintos.saveFingerprint(bookId, updated)
   }
 
   if (!bookId) {

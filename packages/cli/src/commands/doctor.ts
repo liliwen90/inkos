@@ -18,12 +18,12 @@ export const doctorCommand = new Command("doctor")
       detail: nodeVersion,
     });
 
-    // 2. Check inkos.json exists
+    // 2. Check hintos.json exists
     try {
-      await readFile(join(root, "inkos.json"), "utf-8");
-      checks.push({ name: "inkos.json", ok: true, detail: "Found" });
+      await readFile(join(root, "hintos.json"), "utf-8");
+      checks.push({ name: "hintos.json", ok: true, detail: "Found" });
     } catch {
-      checks.push({ name: "inkos.json", ok: false, detail: "Not found. Run 'inkos init'" });
+      checks.push({ name: "hintos.json", ok: false, detail: "Not found. Run 'hintos init'" });
     }
 
     // 3. Check .env exists
@@ -39,12 +39,12 @@ export const doctorCommand = new Command("doctor")
       let hasGlobal = false;
       try {
         const globalContent = await readFile(GLOBAL_ENV_PATH, "utf-8");
-        hasGlobal = globalContent.includes("INKOS_LLM_API_KEY=") && !globalContent.includes("your-api-key-here");
+        hasGlobal = globalContent.includes("HINTOS_LLM_API_KEY=") && !globalContent.includes("your-api-key-here");
       } catch { /* no global config */ }
       checks.push({
         name: "Global Config",
         ok: hasGlobal,
-        detail: hasGlobal ? `Found (${GLOBAL_ENV_PATH})` : "Not set. Run 'inkos config set-global'",
+        detail: hasGlobal ? `Found (${GLOBAL_ENV_PATH})` : "Not set. Run 'hintos config set-global'",
       });
     }
 
@@ -53,18 +53,18 @@ export const doctorCommand = new Command("doctor")
       const { config: loadDotenv } = await import("dotenv");
       loadDotenv({ path: GLOBAL_ENV_PATH });
       loadDotenv({ path: join(root, ".env"), override: true });
-      const apiKey = process.env.INKOS_LLM_API_KEY;
+      const apiKey = process.env.HINTOS_LLM_API_KEY;
       const hasKey = !!apiKey && apiKey.length > 10 && apiKey !== "your-api-key-here";
       checks.push({
         name: "LLM API Key",
         ok: hasKey,
-        detail: hasKey ? "Configured" : "Missing — run 'inkos config set-global' or add to project .env",
+        detail: hasKey ? "Configured" : "Missing — run 'hintos config set-global' or add to project .env",
       });
     }
 
     // 5. Check books directory
     try {
-      const { StateManager } = await import("@actalk/inkos-core");
+      const { StateManager } = await import("@actalk/hintos-core");
       const state = new StateManager(root);
       const books = await state.listBooks();
       checks.push({
@@ -78,7 +78,7 @@ export const doctorCommand = new Command("doctor")
 
     // 6. API connectivity test
     try {
-      const { createLLMClient, chatCompletion } = await import("@actalk/inkos-core");
+      const { createLLMClient, chatCompletion } = await import("@actalk/hintos-core");
       const { loadConfig } = await import("../utils.js");
       const config = await loadConfig();
       const client = createLLMClient(config.llm);
@@ -102,7 +102,7 @@ export const doctorCommand = new Command("doctor")
     }
 
     // Output
-    log("\nInkOS Doctor\n");
+    log("\nHintOS Doctor\n");
     for (const check of checks) {
       const icon = check.ok ? "[OK]" : "[!!]";
       log(`  ${icon} ${check.name}: ${check.detail}`);

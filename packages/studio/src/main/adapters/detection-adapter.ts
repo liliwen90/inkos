@@ -125,7 +125,7 @@ export class DetectionAdapter {
       const bookConfig = JSON.parse(await readFile(bookJsonPath, 'utf-8'))
       const genre: string = bookConfig?.genre
       if (genre) {
-        const { readGenreProfile } = await import('@actalk/inkos-core')
+        const { readGenreProfile } = await import('@actalk/hintos-core')
         const { profile } = await readGenreProfile(this.getRoot(), genre)
         return profile.language ?? 'zh'
       }
@@ -136,7 +136,7 @@ export class DetectionAdapter {
   // ===== AI痕迹分析（纯规则，无需LLM） =====
 
   async analyzeAITells(content: string, language?: 'zh' | 'en'): Promise<AITellResult> {
-    const { analyzeAITells } = await import('@actalk/inkos-core')
+    const { analyzeAITells } = await import('@actalk/hintos-core')
     const coreResult = analyzeAITells(content, language)
     return transformAITells(coreResult)
   }
@@ -144,7 +144,7 @@ export class DetectionAdapter {
   // ===== 敏感词检测 =====
 
   async analyzeSensitiveWords(content: string, customWords?: string[]): Promise<SensitiveWordResult> {
-    const { analyzeSensitiveWords } = await import('@actalk/inkos-core')
+    const { analyzeSensitiveWords } = await import('@actalk/hintos-core')
     const coreResult = analyzeSensitiveWords(content, customWords)
     return transformSensitiveWords(coreResult)
   }

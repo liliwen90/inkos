@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import { readFile, readdir, writeFile, mkdir, rm } from 'fs/promises'
 import { join } from 'path'
-import type { BookConfig, ChapterMeta } from '@actalk/inkos-core'
+import type { BookConfig, ChapterMeta } from '@actalk/hintos-core'
 import { buildEpub, type EpubChapter, type EpubMetadata, type KDPFormatOptions } from './epub-adapter'
 
 export interface BookSummary {
@@ -40,20 +40,20 @@ export class StateAdapter {
   }
 
   isProjectDir(dirPath: string): boolean {
-    return existsSync(join(dirPath, 'inkos.json'))
+    return existsSync(join(dirPath, 'hintos.json'))
   }
 
   // ===== 项目配置 =====
 
   async loadProjectConfig(): Promise<Record<string, unknown> | null> {
-    const configPath = join(this.getRoot(), 'inkos.json')
+    const configPath = join(this.getRoot(), 'hintos.json')
     if (!existsSync(configPath)) return null
     return JSON.parse(await readFile(configPath, 'utf-8'))
   }
 
   async saveProjectConfig(config: Record<string, unknown>): Promise<void> {
     await writeFile(
-      join(this.getRoot(), 'inkos.json'),
+      join(this.getRoot(), 'hintos.json'),
       JSON.stringify(config, null, 2),
       'utf-8'
     )
@@ -65,7 +65,7 @@ export class StateAdapter {
     const books = await this.listBooks()
     const llm = (config.llm ?? {}) as Record<string, string>
     return {
-      name: (config.name as string) ?? 'InkOS项目',
+      name: (config.name as string) ?? 'HintOS项目',
       llm: {
         provider: llm.provider ?? 'openai',
         baseUrl: llm.baseUrl ?? '',
@@ -95,7 +95,7 @@ export class StateAdapter {
 
   async saveEnvConfig(values: Record<string, string>): Promise<void> {
     const lines = [
-      '# InkOS LLM 配置 (由 InkOS Studio 管理)',
+      '# HintOS LLM 配置 (由 HintOS Studio 管理)',
       ...Object.entries(values).map(([k, v]) => `${k}=${v}`)
     ]
     await writeFile(join(this.getRoot(), '.env'), lines.join('\n'), 'utf-8')
@@ -133,13 +133,13 @@ export class StateAdapter {
         qualityGates: { maxAuditRetries: 2, pauseAfterConsecutiveFailures: 3, retryTemperatureStep: 0.1 }
       }
     }
-    await writeFile(join(dirPath, 'inkos.json'), JSON.stringify(config, null, 2), 'utf-8')
+    await writeFile(join(dirPath, 'hintos.json'), JSON.stringify(config, null, 2), 'utf-8')
     await writeFile(join(dirPath, '.env'), [
-      '# InkOS LLM 配置',
-      'INKOS_LLM_PROVIDER=openai',
-      'INKOS_LLM_BASE_URL=https://api.openai.com/v1',
-      'INKOS_LLM_API_KEY=your-api-key-here',
-      'INKOS_LLM_MODEL=gpt-4o'
+      '# HintOS LLM 配置',
+      'HINTOS_LLM_PROVIDER=openai',
+      'HINTOS_LLM_BASE_URL=https://api.openai.com/v1',
+      'HINTOS_LLM_API_KEY=your-api-key-here',
+      'HINTOS_LLM_MODEL=gpt-4o'
     ].join('\n'), 'utf-8')
     await writeFile(join(dirPath, '.gitignore'), '.env\nnode_modules/\n.DS_Store', 'utf-8')
     this.setProjectRoot(dirPath)
@@ -303,7 +303,7 @@ export class StateAdapter {
       const bookConfig = await this.loadBookConfig(bookId)
       const genre = bookConfig?.genre
       if (genre) {
-        const { readGenreProfile } = await import('@actalk/inkos-core')
+        const { readGenreProfile } = await import('@actalk/hintos-core')
         const { profile } = await readGenreProfile(this.getRoot(), genre as string)
         return profile.language ?? 'zh'
       }

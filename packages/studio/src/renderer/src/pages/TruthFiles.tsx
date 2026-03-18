@@ -28,7 +28,7 @@ export default function TruthFiles(): JSX.Element {
 
   useEffect(() => {
     if (projectLoaded) {
-      window.inkos.listBooks().then((data) => setBooks(data as BookSummary[]))
+      window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
     }
   }, [projectLoaded, setBooks])
 
@@ -37,7 +37,7 @@ export default function TruthFiles(): JSX.Element {
     setActiveFile(filename)
     setLoading(true)
     try {
-      const text = await window.inkos.loadTruthFile(currentBookId, filename)
+      const text = await window.hintos.loadTruthFile(currentBookId, filename)
       setContent(text || '（文件尚未创建，请先在仪表盘创建书籍或写一章后自动生成）')
     } catch {
       setContent('（加载失败）')
@@ -50,7 +50,7 @@ export default function TruthFiles(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
         <ScrollText className="w-8 h-8 mb-2" />
-        <p>请先打开 InkOS 项目</p>
+        <p>请先打开 HintOS 项目</p>
       </div>
     )
   }

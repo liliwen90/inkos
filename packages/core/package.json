@@ -1,7 +1,7 @@
 {
-  "name": "@actalk/inkos-core",
+  "name": "@actalk/hintos-core",
   "version": "0.3.6",
-  "description": "InkOS core: models, agents, pipeline, LLM integration",
+  "description": "HintOS core: models, agents, pipeline, LLM integration",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Narcooo/inkos.git",
+    "url": "https://github.com/Narcooo/hintos.git",
     "directory": "packages/core"
   },
   "scripts": {
