@@ -165,7 +165,7 @@ export class ContinuityAuditor extends BaseAgent {
     chapterNumber: number,
     genre?: string,
   ): Promise<AuditResult> {
-    const [currentState, ledger, hooks, styleGuideRaw, subplotBoard, emotionalArcs, characterMatrix, chapterSummaries] =
+    const [currentState, ledger, hooks, styleGuideRaw, subplotBoard, emotionalArcs, characterMatrix, chapterSummaries, entityRegistry] =
       await Promise.all([
         this.readFileSafe(join(bookDir, "story/current_state.md")),
         this.readFileSafe(join(bookDir, "story/particle_ledger.md")),
@@ -175,6 +175,7 @@ export class ContinuityAuditor extends BaseAgent {
         this.readFileSafe(join(bookDir, "story/emotional_arcs.md")),
         this.readFileSafe(join(bookDir, "story/character_matrix.md")),
         this.readFileSafe(join(bookDir, "story/chapter_summaries.md")),
+        this.readFileSafe(join(bookDir, "story/entity_registry.md")),
       ]);
 
     // Load genre profile and book rules
@@ -281,6 +282,9 @@ ${dimList}
     const summariesBlock = chapterSummaries !== noFile
       ? en ? `\n## Chapter Summaries (for pacing check)\n${chapterSummaries}\n` : `\n## 章节摘要（用于节奏检查）\n${chapterSummaries}\n`
       : "";
+    const entityBlock = entityRegistry !== noFile
+      ? en ? `\n## Entity Registry (immutable facts — flag ANY contradiction)\n${entityRegistry}\n` : `\n## 实体注册表（不可变事实——任何矛盾必须标记）\n${entityRegistry}\n`
+      : "";
 
     const userPrompt = en
       ? `Please audit Chapter ${chapterNumber}.
@@ -290,7 +294,7 @@ ${currentState}
 ${ledgerBlock}
 ## Hook Pool
 ${hooks}
-${subplotBlock}${emotionalBlock}${matrixBlock}${summariesBlock}
+${subplotBlock}${emotionalBlock}${matrixBlock}${summariesBlock}${entityBlock}
 ## Style Guide
 ${styleGuide}
 
@@ -303,7 +307,7 @@ ${currentState}
 ${ledgerBlock}
 ## 伏笔池
 ${hooks}
-${subplotBlock}${emotionalBlock}${matrixBlock}${summariesBlock}
+${subplotBlock}${emotionalBlock}${matrixBlock}${summariesBlock}${entityBlock}
 ## 文风指南
 ${styleGuide}
 

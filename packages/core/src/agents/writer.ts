@@ -43,6 +43,7 @@ export class WriterAgent extends BaseAgent {
     const [
       storyBible, volumeOutline, styleGuide, currentState, ledger, hooks,
       chapterSummaries, subplotBoard, emotionalArcs, characterMatrix, styleProfileRaw,
+      entityRegistry,
     ] = await Promise.all([
         this.readFileOrDefault(join(bookDir, "story/story_bible.md")),
         this.readFileOrDefault(join(bookDir, "story/volume_outline.md")),
@@ -55,6 +56,7 @@ export class WriterAgent extends BaseAgent {
         this.readFileOrDefault(join(bookDir, "story/emotional_arcs.md")),
         this.readFileOrDefault(join(bookDir, "story/character_matrix.md")),
         this.readFileOrDefault(join(bookDir, "story/style_profile.json")),
+        this.readFileOrDefault(join(bookDir, "story/entity_registry.md")),
       ]);
 
     const recentChapters = await this.loadRecentChapters(bookDir, chapterNumber);
@@ -89,6 +91,7 @@ export class WriterAgent extends BaseAgent {
       subplotBoard,
       emotionalArcs,
       characterMatrix,
+      entityRegistry,
       dialogueFingerprints,
       relevantSummaries,
       en: genreProfile.language === "en",
@@ -165,6 +168,7 @@ export class WriterAgent extends BaseAgent {
     readonly subplotBoard: string;
     readonly emotionalArcs: string;
     readonly characterMatrix: string;
+    readonly entityRegistry: string;
     readonly dialogueFingerprints?: string;
     readonly relevantSummaries?: string;
     readonly en?: boolean;
@@ -200,6 +204,12 @@ export class WriterAgent extends BaseAgent {
       ? en ? `\n## Character Interaction Matrix\n${params.characterMatrix}\n` : `\n## 角色交互矩阵\n${params.characterMatrix}\n`
       : "";
 
+    const entityRegistryBlock = params.entityRegistry !== notCreated
+      ? en
+        ? `\n## Entity Registry (character/place/object facts — DO NOT contradict)\n${params.entityRegistry}\n`
+        : `\n## 实体注册表（人物/地点/物品事实——不得矛盾）\n${params.entityRegistry}\n`
+      : "";
+
     const fingerprintBlock = params.dialogueFingerprints
       ? en ? `\n## Character Dialogue Fingerprints\n${params.dialogueFingerprints}\n` : `\n## 角色对话指纹\n${params.dialogueFingerprints}\n`
       : "";
@@ -217,7 +227,7 @@ ${params.currentState}
 ${ledgerBlock}
 ## Hook Pool
 ${params.hooks}
-${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}${fingerprintBlock}${relevantBlock}
+${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}${entityRegistryBlock}${fingerprintBlock}${relevantBlock}
 ## Recent Chapters
 ${noRecent}
 
@@ -241,7 +251,7 @@ ${params.currentState}
 ${ledgerBlock}
 ## 伏笔池
 ${params.hooks}
-${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}${fingerprintBlock}${relevantBlock}
+${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}${entityRegistryBlock}${fingerprintBlock}${relevantBlock}
 ## 最近章节
 ${params.recentChapters || "(这是第一章，无前文)"}
 
