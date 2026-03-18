@@ -28,7 +28,10 @@ export class PipelineAdapter extends EventEmitter {
 
   async initialize(client: LLMClient, model: string, projectRoot: string, modelOverrides?: Record<string, string>): Promise<void> {
     const { PipelineRunner } = await import('@actalk/inkos-core')
-    this.runner = new PipelineRunner({ client, model, projectRoot, modelOverrides })
+    this.runner = new PipelineRunner({
+      client, model, projectRoot, modelOverrides,
+      onProgress: (stage, detail) => this.emitProgress(stage, detail),
+    })
     this.interceptMethods()
   }
 
