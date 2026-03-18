@@ -38,6 +38,7 @@ export default function WritingConsole(): JSX.Element {
   const isWriting = useAppStore((s) => s.isWriting)
   const setIsWriting = useAppStore((s) => s.setIsWriting)
   const setBooks = useAppStore((s) => s.setBooks)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [wordCount, setWordCount] = useState(3000)
   const [batchCount, setBatchCount] = useState(1)
@@ -82,6 +83,7 @@ export default function WritingConsole(): JSX.Element {
     setResult(null)
     setError('')
     setCompletedChapters(0)
+    let hadError = false
 
     try {
       for (let i = 0; i < batchCount; i++) {
@@ -90,12 +92,15 @@ export default function WritingConsole(): JSX.Element {
           setResult(res)
           setCompletedChapters(i + 1)
         } catch (chapterErr) {
+          hadError = true
           setError(`第${i + 1}章失败: ${(chapterErr as Error).message}${i > 0 ? `（已成功${i}章）` : ''}`)
+          addToast('error', `写作失败: ${(chapterErr as Error).message}`)
           break
         }
       }
       // 刷新书籍列表
       window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
+      if (!hadError) addToast('success', `✓ ${batchCount > 1 ? batchCount + '章' : '一章'}写作完成`)
     } catch (err) {
       setError((err as Error).message)
     } finally {

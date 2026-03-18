@@ -40,6 +40,12 @@ interface ProgressEvent {
   stage: string
   detail: string
   timestamp: number
+  tokenUsage?: {
+    input: number
+    output: number
+    model: string
+    operation: string
+  }
 }
 
 interface HumanizeSettings {
@@ -312,6 +318,10 @@ interface HintOSAPI {
   detectChapter(bookId: string, chapterNumber: number, chapterTitle: string, content: string): Promise<DetectionRecord>
   loadDetectionHistory(bookId: string): Promise<DetectionRecord[]>
   loadDetectionRecord(bookId: string, chapterNumber: number): Promise<DetectionRecord | null>
+
+  // 活动日志
+  appendActivityLog(type: string, message: string): Promise<void>
+  openExternal(url: string): Promise<void>
 
   // 进度事件
   onProgress(callback: (event: ProgressEvent) => void): () => void

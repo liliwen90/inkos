@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import {
   Download, FileText, FileCode, CheckCircle2, BookOpen, Image,
-  Package, ChevronDown, ChevronRight, Palette
+  Package, ChevronDown, ChevronRight, Palette, Loader2
 } from 'lucide-react'
 import { useAppStore, type BookSummary } from '../stores/app-store'
 
@@ -152,6 +152,9 @@ export default function ExportPage(): JSX.Element {
   const currentBookId = useAppStore((s) => s.currentBookId)
   const setCurrentBookId = useAppStore((s) => s.setCurrentBookId)
   const setBooks = useAppStore((s) => s.setBooks)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [exporting, setExporting] = useState(false)
   const [exportedPath, setExportedPath] = useState<string | null>(null)
@@ -206,11 +209,16 @@ export default function ExportPage(): JSX.Element {
   // 基础导出
   const handleExport = async (format: 'txt' | 'md'): Promise<void> => {
     if (!currentBookId) return
+    const actId = startActivity(`导出 ${format.toUpperCase()}`)
     setExporting(true)
     setExportedPath(null)
     try {
       const path = await window.hintos.exportBook(currentBookId, format)
-      if (path) setExportedPath(path)
+      if (path) { setExportedPath(path); addToast('success', `${format.toUpperCase()} 导出完成`) }
+      finishActivity(actId)
+    } catch (e) {
+      finishActivity(actId, (e as Error).message)
+      addToast('error', `导出失败: ${(e as Error).message}`)
     } finally {
       setExporting(false)
     }
@@ -219,6 +227,7 @@ export default function ExportPage(): JSX.Element {
   // EPUB 导出
   const handleExportEpub = async (): Promise<void> => {
     if (!currentBookId) return
+    const actId = startActivity('导出 EPUB')
     setExporting(true)
     setExportedPath(null)
     try {
@@ -240,7 +249,11 @@ export default function ExportPage(): JSX.Element {
         chapterHeadingStyle: headingStyle,
       }
       const path = await window.hintos.exportEpub(currentBookId, metadata, options)
-      if (path) setExportedPath(path)
+      if (path) { setExportedPath(path); addToast('success', 'EPUB 导出完成') }
+      finishActivity(actId)
+    } catch (e) {
+      finishActivity(actId, (e as Error).message)
+      addToast('error', `EPUB 导出失败: ${(e as Error).message}`)
     } finally {
       setExporting(false)
     }
@@ -249,8 +262,14 @@ export default function ExportPage(): JSX.Element {
   // 保存封面
   const handleSaveCover = async (): Promise<void> => {
     if (!coverDataUrl) return
-    const path = await window.hintos.saveCoverImage(coverDataUrl)
-    if (path) setExportedPath(path)
+    const actId = startActivity('保存封面')
+    try {
+      const path = await window.hintos.saveCoverImage(coverDataUrl)
+      if (path) { setExportedPath(path); addToast('success', '封面已保存') }
+      finishActivity(actId)
+    } catch (e) {
+      finishActivity(actId, (e as Error).message)
+    }
   }
 
   if (!projectLoaded) {
@@ -290,13 +309,13 @@ export default function ExportPage(): JSX.Element {
         <div className="grid grid-cols-2 gap-4 max-w-sm">
           <button onClick={() => handleExport('md')} disabled={exporting || !canExport}
             className="flex flex-col items-center gap-3 p-5 border border-zinc-800 rounded-lg hover:border-violet-600/50 hover:bg-zinc-900/50 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-            <FileCode className="w-7 h-7 text-violet-400" />
-            <span className="text-sm text-zinc-200 font-medium">Markdown</span>
+            {exporting ? <Loader2 className="w-7 h-7 text-violet-400 animate-spin" /> : <FileCode className="w-7 h-7 text-violet-400" />}
+            <span className="text-sm text-zinc-200 font-medium">{exporting ? '导出中…' : 'Markdown'}</span>
           </button>
           <button onClick={() => handleExport('txt')} disabled={exporting || !canExport}
             className="flex flex-col items-center gap-3 p-5 border border-zinc-800 rounded-lg hover:border-violet-600/50 hover:bg-zinc-900/50 transition-all disabled:opacity-40 disabled:cursor-not-allowed">
-            <FileText className="w-7 h-7 text-violet-400" />
-            <span className="text-sm text-zinc-200 font-medium">纯文本</span>
+            {exporting ? <Loader2 className="w-7 h-7 text-violet-400 animate-spin" /> : <FileText className="w-7 h-7 text-violet-400" />}
+            <span className="text-sm text-zinc-200 font-medium">{exporting ? '导出中…' : '纯文本'}</span>
           </button>
         </div>
       </Section>

@@ -1,6 +1,6 @@
-import { ipcMain, dialog, BrowserWindow, app } from 'electron'
+import { ipcMain, dialog, BrowserWindow, app, shell } from 'electron'
 import { join } from 'path'
-import { readFileSync, writeFileSync, existsSync, readdirSync, copyFileSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, readdirSync, copyFileSync, mkdirSync, appendFileSync } from 'fs'
 import { PipelineAdapter } from '../adapters/pipeline-adapter'
 import { StateAdapter } from '../adapters/state-adapter'
 import { LLMAdapter, type LLMConfigUI, type TaskRoutingConfig } from '../adapters/llm-adapter'
@@ -95,6 +95,45 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // vault 路径（多处 handler 引用，需提前定义）
   const vaultDir = join(app.getPath('userData'), 'idea-vault')
 
+  // 当前操作标识（Token 追踪用）
+  let currentOperation = '未知操作'
+
+  // === 日志系统 ===
+  const logDir = join(app.getPath('userData'), 'activity-logs')
+  if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true })
+
+  function appendLog(type: 'ACTIVITY' | 'TOKEN' | 'ERROR', message: string): void {
+    const now = new Date()
+    const dateStr = now.toISOString().slice(0, 10) // YYYY-MM-DD
+    const timeStr = now.toTimeString().slice(0, 8) // HH:MM:SS
+    const line = `[${timeStr}] [${type}] ${message}\n`
+    const logFile = join(logDir, `${dateStr}.log`)
+    try { appendFileSync(logFile, line, 'utf-8') } catch { /* ignore */ }
+  }
+
+  // Token 回调注册（所有 init 路径共享）
+  function registerTokenCallback(): void {
+    llmAdapter.setTokenUsageCallback((model, input, output) => {
+      mainWindow.webContents.send('pipeline-progress', {
+        stage: '', detail: '', timestamp: Date.now(),
+        tokenUsage: { input, output, model, operation: currentOperation }
+      })
+      appendLog('TOKEN', `${currentOperation} | model=${model} in=${input} out=${output}`)
+    })
+  }
+
+  // 日志 IPC — 前端可直接写日志
+  ipcMain.handle('append-activity-log', (_e, type: string, message: string) => {
+    appendLog(type as 'ACTIVITY' | 'TOKEN' | 'ERROR', message)
+  })
+
+  // 在默认浏览器打开链接（安全校验：仅允许 https）
+  ipcMain.handle('open-external', (_e, url: string) => {
+    if (typeof url === 'string' && url.startsWith('https://')) {
+      return shell.openExternal(url)
+    }
+  })
+
   // ===== 项目管理 =====
 
   ipcMain.handle('select-project-dir', async () => {
@@ -178,9 +217,11 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
         const r = routing as TaskRoutingConfig
         r.default = llmConfig
         const { client, modelOverrides } = await llmAdapter.createRoutingClient(r)
+        registerTokenCallback()
         await pipelineAdapter.initialize(client, llmConfig.model, root, modelOverrides)
       } else {
         const client = await llmAdapter.createClient(llmConfig)
+        registerTokenCallback()
         await pipelineAdapter.initialize(client, llmConfig.model, root)
       }
       return { ok: true }
@@ -238,6 +279,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     const root = stateAdapter.getProjectRoot()
     if (!root) throw new Error('请先打开项目')
     const client = await llmAdapter.createClient(config)
+    registerTokenCallback()
     await pipelineAdapter.initialize(client, config.model, root)
     return true
   })
@@ -247,6 +289,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     const root = stateAdapter.getProjectRoot()
     if (!root) throw new Error('请先打开项目')
     const { client, modelOverrides } = await llmAdapter.createRoutingClient(routing)
+    // 注册 Token 使用回调 → 通过 pipeline-progress 通道推送给前端
+    registerTokenCallback()
     await pipelineAdapter.initialize(client, routing.default.model, root, modelOverrides)
     return true
   })
@@ -281,6 +325,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     targetChapters: number; chapterWordCount: number;
     context?: string; styleBookPaths?: string[]
   }) => {
+    currentOperation = '创建书籍'
     if (!pipelineAdapter.isInitialized()) throw new Error('请先配置LLM连接')
     // 确保题材文件可用（electron-vite 打包后 Core 内置路径偏移）
     const projectRoot = stateAdapter.getProjectRoot()
@@ -491,32 +536,39 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // ===== 写作管线 =====
 
   ipcMain.handle('write-next', async (_e, bookId: string, wordCount?: number) => {
+    currentOperation = '写作'
     return pipelineAdapter.writeNext(bookId, wordCount)
   })
 
   ipcMain.handle('audit-chapter', async (_e, bookId: string, chapterNumber?: number) => {
+    currentOperation = '审计'
     return pipelineAdapter.auditDraft(bookId, chapterNumber)
   })
 
   ipcMain.handle('revise-chapter', async (_e, bookId: string, chapterNumber?: number, mode?: string) => {
+    currentOperation = '修订'
     return pipelineAdapter.reviseDraft(bookId, chapterNumber, mode as 'rewrite' | 'polish' | 'minimal')
   })
 
   ipcMain.handle('check-continuity-plus', async (_e, bookId: string, chapterNumber?: number) => {
+    currentOperation = '深度审查'
     return pipelineAdapter.checkContinuityPlus(bookId, chapterNumber)
   })
 
   ipcMain.handle('polish-chapter', async (_e, bookId: string, chapterNumber?: number) => {
+    currentOperation = '润色'
     return pipelineAdapter.polishDraft(bookId, chapterNumber)
   })
 
   // ===== 章节大纲规划 =====
 
   ipcMain.handle('plan-next', async (_e, bookId: string) => {
+    currentOperation = '章节规划'
     return pipelineAdapter.planNextChapter(bookId)
   })
 
   ipcMain.handle('plan-replan', async (_e, bookId: string, chapter: number, feedback: string) => {
+    currentOperation = '重新规划'
     return pipelineAdapter.replanChapter(bookId, chapter, feedback)
   })
 
@@ -558,6 +610,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // ===== 导出 =====
 
   ipcMain.handle('export-book', async (_e, bookId: string, format: 'txt' | 'md') => {
+    currentOperation = `导出${format.toUpperCase()}`
+    mainWindow.webContents.send('pipeline-progress', { stage: `📦 正在导出 ${format.toUpperCase()}...`, detail: '', timestamp: Date.now() })
     const content = await stateAdapter.exportBook(bookId, format)
     const result = await dialog.showSaveDialog(mainWindow, {
       title: '导出书籍',
@@ -567,15 +621,19 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     if (result.canceled || !result.filePath) return null
     const { writeFile } = await import('fs/promises')
     await writeFile(result.filePath, content, 'utf-8')
+    mainWindow.webContents.send('pipeline-progress', { stage: `✅ ${format.toUpperCase()} 导出完成`, detail: result.filePath, timestamp: Date.now() })
     return result.filePath
   })
 
   ipcMain.handle('export-epub', async (_e, bookId: string, metadata: unknown, options: unknown) => {
+    currentOperation = '导出EPUB'
+    mainWindow.webContents.send('pipeline-progress', { stage: '📦 正在生成 EPUB...', detail: '打包章节中', timestamp: Date.now() })
     const buf = await stateAdapter.exportBookEpub(
       bookId,
       metadata as Parameters<typeof stateAdapter.exportBookEpub>[1],
       options as Parameters<typeof stateAdapter.exportBookEpub>[2]
     )
+    mainWindow.webContents.send('pipeline-progress', { stage: '📦 EPUB 生成完成，选择保存位置...', detail: '', timestamp: Date.now() })
     const config = await stateAdapter.loadBookConfig(bookId)
     const defaultName = (config?.title ?? bookId).replace(/[<>:"/\\|?*]/g, '_')
     const result = await dialog.showSaveDialog(mainWindow, {
@@ -586,6 +644,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     if (result.canceled || !result.filePath) return null
     const { writeFile } = await import('fs/promises')
     await writeFile(result.filePath, buf)
+    mainWindow.webContents.send('pipeline-progress', { stage: '✅ EPUB 导出完成', detail: result.filePath, timestamp: Date.now() })
     return result.filePath
   })
 
@@ -689,6 +748,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   })
 
   ipcMain.handle('analyze-deep-fingerprint', async (_e, bookId: string) => {
+    currentOperation = 'AI深度指纹'
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
     if (!client || !config) throw new Error('请先配置LLM连接')
@@ -700,6 +760,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // ===== Phase 3: AI建议 =====
 
   ipcMain.handle('generate-suggestions', async (_e, bookId: string) => {
+    currentOperation = 'AI建议生成'
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
     if (!client || !config) throw new Error('请先配置LLM连接')
@@ -723,7 +784,11 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   })
 
   ipcMain.handle('detect-chapter', async (_e, bookId: string, chapterNumber: number, chapterTitle: string, content: string) => {
-    return detectionAdapter.detectChapter(bookId, chapterNumber, chapterTitle, content)
+    currentOperation = 'AIGC检测'
+    mainWindow.webContents.send('pipeline-progress', { stage: '🔍 正在检测 AI 痕迹 + 敏感词...', detail: `第${chapterNumber}章`, timestamp: Date.now() })
+    const record = await detectionAdapter.detectChapter(bookId, chapterNumber, chapterTitle, content)
+    mainWindow.webContents.send('pipeline-progress', { stage: '✅ AIGC 检测完成', detail: `风险: ${record.overallRisk}`, timestamp: Date.now() })
+    return record
   })
 
   ipcMain.handle('load-detection-history', async (_e, bookId: string) => {
@@ -746,6 +811,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   })
 
   ipcMain.handle('fetch-trending', async (_e, platformId: string, listType: string, translate: boolean) => {
+    currentOperation = '抓取热榜'
+    mainWindow.webContents.send('pipeline-progress', { stage: `📡 正在抓取 ${platformId} · ${listType}...`, detail: '', timestamp: Date.now() })
     // 尝试连接 LLM 用于翻译
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
@@ -760,6 +827,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   })
 
   ipcMain.handle('analyze-trending', async (_e, novels: unknown[]) => {
+    currentOperation = 'AI选题分析'
+    mainWindow.webContents.send('pipeline-progress', { stage: '🤖 AI 正在分析选题趋势...', detail: `基于 ${(novels as unknown[]).length} 部小说`, timestamp: Date.now() })
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
     if (!client || !config) throw new Error('请先在设置中配置 LLM')
@@ -768,7 +837,9 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       const res = await chatCompletion(client, config.model, messages as never, { maxTokens: 8192, temperature: 0.7 })
       return res.content
     })
-    return trendingAdapter.analyzeTrending(novels as never)
+    const result = await trendingAdapter.analyzeTrending(novels as never)
+    mainWindow.webContents.send('pipeline-progress', { stage: '✅ AI 选题分析完成', detail: '', timestamp: Date.now() })
+    return result
   })
 
   // ===== 创意库 =====

@@ -125,6 +125,113 @@ export function parseIdeaFromSection(text: string): ParsedIdea {
   return { title, genre, platform, targetChapters, chapterWords, context }
 }
 
+/** 已知的题材关键词集（用于高亮） */
+const KNOWN_GENRES = new Set(Object.keys(GENRE_KEYWORDS))
+
+/**
+ * 将纯文本拆分为富文本 JSX 片段：
+ * - **加粗** → <strong>
+ * - 《书名》 → 紫色高亮
+ * - 数字/百分比 → 橙色
+ * - 题材关键词 → 小标签
+ */
+function renderRichInline(text: string): (string | JSX.Element)[] {
+  // 正则顺序：加粗 → 书名号 → 百分比/数字(含万/亿/章/字) → 题材关键词
+  const genreAlt = [...KNOWN_GENRES].sort((a, b) => b.length - a.length).join('|')
+  const pattern = new RegExp(
+    `(\\*\\*(.+?)\\*\\*)|` +                                   // group 1,2: bold
+    `(《([^》]+)》)|` +                                         // group 3,4: book title
+    `(\\d[\\d,.]*\\s*[%％万亿章字个篇部本条次]+)|` +            // group 5: number+unit
+    `((?:${genreAlt})(?=[，、。\\s）)\\]」】]|$))`,              // group 6: genre keyword
+    'g',
+  )
+
+  const parts: (string | JSX.Element)[] = []
+  let last = 0
+  let key = 0
+  let match: RegExpExecArray | null
+
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > last) parts.push(text.slice(last, match.index))
+
+    if (match[1]) {
+      // **bold**
+      parts.push(<strong key={key++} className="text-zinc-100 font-semibold">{match[2]}</strong>)
+    } else if (match[3]) {
+      // 《书名》
+      parts.push(
+        <span key={key++} className="text-violet-400 font-semibold">《{match[4]}》</span>,
+      )
+    } else if (match[5]) {
+      // 数字+单位
+      parts.push(<span key={key++} className="text-amber-400 font-medium">{match[5]}</span>)
+    } else if (match[6]) {
+      // 题材关键词 badge
+      parts.push(
+        <span key={key++} className="inline-block px-1.5 py-0.5 rounded text-[11px] leading-none bg-violet-900/60 text-violet-300 font-medium align-middle">
+          {match[6]}
+        </span>,
+      )
+    }
+    last = match.index + match[0].length
+  }
+
+  if (last < text.length) parts.push(text.slice(last))
+  return parts
+}
+
+/** 将一段文本按行渲染，并识别字段标签（如 **核心卖点**：） */
+function renderRichBlock(text: string, baseKey: string): JSX.Element {
+  const lines = text.split('\n')
+  return (
+    <div className="space-y-1">
+      {lines.map((line, i) => {
+        const trimmed = line.trim()
+        if (!trimmed) return <div key={`${baseKey}-${i}`} className="h-2" />
+
+        // 检测字段标签行：**字段名**：内容  或  字段名：内容
+        const labelMatch = trimmed.match(/^\*{0,2}([\u4e00-\u9fff\w]+)\*{0,2}[：:]\s*(.*)/)
+        if (labelMatch) {
+          return (
+            <div key={`${baseKey}-${i}`} className="text-sm leading-relaxed">
+              <span className="text-emerald-400 font-semibold">{labelMatch[1]}：</span>
+              <span className="text-zinc-300">{renderRichInline(labelMatch[2])}</span>
+            </div>
+          )
+        }
+
+        // 检测列表项 - / •
+        if (/^[-•]\s/.test(trimmed)) {
+          return (
+            <div key={`${baseKey}-${i}`} className="text-sm leading-relaxed pl-3 text-zinc-300 flex gap-1.5">
+              <span className="text-zinc-600 shrink-0">•</span>
+              <span>{renderRichInline(trimmed.replace(/^[-•]\s*/, ''))}</span>
+            </div>
+          )
+        }
+
+        // 检测数字列表 1. 2. 等
+        const numListMatch = trimmed.match(/^(\d+)[.、]\s*(.*)/)
+        if (numListMatch) {
+          return (
+            <div key={`${baseKey}-${i}`} className="text-sm leading-relaxed pl-3 text-zinc-300 flex gap-1.5">
+              <span className="text-zinc-500 shrink-0 font-mono text-xs">{numListMatch[1]}.</span>
+              <span>{renderRichInline(numListMatch[2])}</span>
+            </div>
+          )
+        }
+
+        // 普通文本行
+        return (
+          <div key={`${baseKey}-${i}`} className="text-sm leading-relaxed text-zinc-300">
+            {renderRichInline(trimmed)}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 /** 渲染 AI 分析结果，每个选题带独立的「发送到创建新书」按钮 */
 export function AnalysisRenderer({
   analysis,
@@ -137,20 +244,12 @@ export function AnalysisRenderer({
 
   // 如果无法拆分成选题（格式不匹配），整体显示
   if (ideas.length === 0) {
-    return (
-      <div className="prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap leading-relaxed">
-        {analysis}
-      </div>
-    )
+    return renderRichBlock(analysis, 'fallback')
   }
 
   return (
     <div className="space-y-4">
-      {intro && (
-        <div className="prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap leading-relaxed">
-          {intro}
-        </div>
-      )}
+      {intro && renderRichBlock(intro, 'intro')}
       {ideas.map((idea, idx) => {
         const fullText = `${idea.heading}\n${idea.body}`
         const titleMatch = fullText.match(/《([^》]+)》/)
@@ -159,7 +258,7 @@ export function AnalysisRenderer({
           <div key={idx} className="border border-zinc-700/50 rounded-lg overflow-hidden">
             <div className="flex items-center justify-between bg-zinc-800/80 px-4 py-2">
               <span className="text-sm font-medium text-zinc-200">
-                {idea.heading.slice(0, 60)}{idea.heading.length > 60 ? '…' : ''}
+                {renderRichInline(idea.heading.slice(0, 80))}
               </span>
               <button
                 onClick={() => onSendIdea(parseIdeaFromSection(fullText))}
@@ -169,8 +268,8 @@ export function AnalysisRenderer({
                 <Send className="w-3 h-3" /> 发送到创建新书
               </button>
             </div>
-            <div className="px-4 py-3 prose prose-invert prose-sm max-w-none text-zinc-300 whitespace-pre-wrap leading-relaxed text-sm">
-              {idea.body}
+            <div className="px-4 py-3">
+              {renderRichBlock(idea.body, `idea-${idx}`)}
             </div>
           </div>
         )

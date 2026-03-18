@@ -21,6 +21,7 @@ export default function TruthFiles(): JSX.Element {
   const currentBookId = useAppStore((s) => s.currentBookId)
   const setCurrentBookId = useAppStore((s) => s.setCurrentBookId)
   const setBooks = useAppStore((s) => s.setBooks)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [activeFile, setActiveFile] = useState<string | null>(null)
   const [content, setContent] = useState('')
@@ -41,6 +42,7 @@ export default function TruthFiles(): JSX.Element {
       setContent(text || '（文件尚未创建，请先在仪表盘创建书籍或写一章后自动生成）')
     } catch {
       setContent('（加载失败）')
+      addToast('error', '真相文件加载失败')
     } finally {
       setLoading(false)
     }

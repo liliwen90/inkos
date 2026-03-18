@@ -173,8 +173,13 @@ const hintosAPI = {
     ipcRenderer.invoke('plan-update', bookId, chapter, content),
   planStats: (bookId: string): Promise<unknown> =>
     ipcRenderer.invoke('plan-stats', bookId),
-  readOperationLog: (bookId: string, limit?: number): Promise<unknown[]> =>
-    ipcRenderer.invoke('read-operation-log', bookId, limit),
+  // 活动日志
+  appendActivityLog: (type: string, message: string): Promise<void> =>
+    ipcRenderer.invoke('append-activity-log', type, message),
+
+  // 在默认浏览器打开链接
+  openExternal: (url: string): Promise<void> =>
+    ipcRenderer.invoke('open-external', url),
 
   // 进度事件
   onProgress: (callback: (event: unknown) => void): (() => void) => {

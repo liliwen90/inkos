@@ -564,10 +564,10 @@ const sections: TutorialSection[] = [
       { type: 'heading', content: '平台总览' },
       { type: 'table', headers: ['平台', '定位', 'AI 政策', '变现方式', '优先级'],
         rows: [
-          ['Royal Road', '西方网文第一站', '✅ 允许，需打标签', '打赏 + Stub→KDP + Patreon', '⭐⭐⭐ 首发'],
-          ['Amazon KDP', '全球最大电子书', '✅ 允许，需声明', '70% 版税 + KU 页读', '⭐⭐⭐ 变现'],
-          ['Patreon', '创作者订阅', '✅ 无限制', '月订阅，平台抽 8-12%', '⭐⭐⭐ 加速'],
-          ['ScribbleHub', 'ACG 向轻小说', '✅ 建议标注', '无站内变现，引流用', '⭐⭐ 同步'],
+          ['[Royal Road](https://www.royalroad.com)', '西方网文第一站', '✅ 允许，需打标签', '打赏 + Stub→KDP + Patreon', '⭐⭐⭐ 首发'],
+          ['[Amazon KDP](https://kdp.amazon.com)', '全球最大电子书', '✅ 允许，需声明', '70% 版税 + KU 页读', '⭐⭐⭐ 变现'],
+          ['[Patreon](https://www.patreon.com)', '创作者订阅', '✅ 无限制', '月订阅，平台抽 8-12%', '⭐⭐⭐ 加速'],
+          ['[ScribbleHub](https://www.scribblehub.com)', 'ACG 向轻小说', '✅ 建议标注', '无站内变现，引流用', '⭐⭐ 同步'],
         ]
       },
       { type: 'heading', content: '三段火箭执行策略' },
@@ -757,6 +757,22 @@ export default function Tutorial(): JSX.Element {
 
 // ===== Block 渲染器 =====
 
+/** 解析表格单元格中的 [text](url) 链接，点击时在默认浏览器打开 */
+function CellContent({ text }: { text: string }): JSX.Element {
+  const linkPattern = /\[([^\]]+)\]\((https:\/\/[^)]+)\)/
+  const match = text.match(linkPattern)
+  if (!match) return <>{text}</>
+  return (
+    <button
+      onClick={() => window.hintos?.openExternal?.(match[2])}
+      className="text-violet-400 hover:text-violet-300 underline underline-offset-2 cursor-pointer"
+      title={`在浏览器中打开 ${match[2]}`}
+    >
+      {match[1]}
+    </button>
+  )
+}
+
 function TutorialBlockRenderer({ block }: { block: TutorialBlock }): JSX.Element {
   switch (block.type) {
     case 'text':
@@ -814,7 +830,7 @@ function TutorialBlockRenderer({ block }: { block: TutorialBlock }): JSX.Element
                 <tr key={ri} className="border-t border-zinc-800/50 hover:bg-zinc-800/20">
                   {row.map((cell, ci) => (
                     <td key={ci} className={`px-3 py-2 ${ci === 0 ? 'text-zinc-300 font-medium' : 'text-zinc-500'}`}>
-                      {cell}
+                      <CellContent text={cell} />
                     </td>
                   ))}
                 </tr>

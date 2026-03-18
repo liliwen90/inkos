@@ -111,6 +111,9 @@ export default function LLMSettings(): JSX.Element {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [initializing, setInitializing] = useState(false)
+  const addToast = useAppStore((s) => s.addToast)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
 
   useEffect(() => {
     if (projectLoaded) {
@@ -195,6 +198,7 @@ export default function LLMSettings(): JSX.Element {
         await window.hintos.saveTaskRouting(buildRoutingPayload())
       }
       setSaved(true)
+      addToast('success', '✓ LLM 配置已保存')
       setTimeout(() => setSaved(false), 2000)
     } finally {
       setSaving(false)
@@ -202,6 +206,7 @@ export default function LLMSettings(): JSX.Element {
   }
 
   const handleTest = async (): Promise<void> => {
+    const actId = startActivity('测试LLM连接')
     setTesting(true)
     setTestResults([])
     try {
@@ -228,12 +233,19 @@ export default function LLMSettings(): JSX.Element {
         }
       }
       setTestResults(results)
+      const allOk = results.every(r => r.ok)
+      addToast(allOk ? 'success' : 'error', allOk ? `✓ 全部 ${results.length} 个连接测试通过` : `⚠ ${results.filter(r => !r.ok).length}/${results.length} 个连接失败`)
+      finishActivity(actId, allOk ? undefined : '部分连接失败')
+    } catch (err) {
+      addToast('error', `连接测试异常: ${(err as Error).message}`)
+      finishActivity(actId, (err as Error).message)
     } finally {
       setTesting(false)
     }
   }
 
   const handleInitPipeline = async (): Promise<void> => {
+    const actId = startActivity('初始化管线')
     setInitializing(true)
     try {
       await window.hintos.saveLLMConfig(getConfig())
@@ -257,8 +269,12 @@ export default function LLMSettings(): JSX.Element {
         label: '管线初始化成功' + (routedAgents ? ` | 路由: ${routedAgents}` : ''),
         ok: true
       }])
+      addToast('success', '✓ 管线初始化成功')
+      finishActivity(actId)
     } catch (err) {
       setTestResults([{ label: '初始化管线', ok: false, error: (err as Error).message }])
+      addToast('error', `管线初始化失败: ${(err as Error).message}`)
+      finishActivity(actId, (err as Error).message)
     } finally {
       setInitializing(false)
     }

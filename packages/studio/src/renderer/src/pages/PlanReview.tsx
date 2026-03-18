@@ -43,6 +43,9 @@ export default function PlanReview(): JSX.Element {
   const pipelineReady = useAppStore((s) => s.pipelineReady)
   const setBooks = useAppStore((s) => s.setBooks)
   const addProgressEvent = useAppStore((s) => s.addProgressEvent)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [planIndex, setPlanIndex] = useState<PlanIndex>({ plans: [] })
   const [stats, setStats] = useState<PlanStats | null>(null)
@@ -101,14 +104,18 @@ export default function PlanReview(): JSX.Element {
   // Actions
   const handlePlanNext = async (): Promise<void> => {
     if (!currentBookId || !pipelineReady) return
+    const actId = startActivity('生成章节大纲')
     setLoading(true)
     setLoadingAction('生成大纲中...')
     try {
       const entry = await window.hintos.planNext(currentBookId) as PlanEntry
       await loadPlans()
       setSelectedChapter(entry.chapter)
+      addToast('success', `✓ 第${entry.chapter}章大纲已生成`)
+      finishActivity(actId)
     } catch (err) {
-      alert(`大纲生成失败: ${(err as Error).message}`)
+      addToast('error', `大纲生成失败: ${(err as Error).message}`)
+      finishActivity(actId, (err as Error).message)
     } finally {
       setLoading(false)
       setLoadingAction('')
@@ -117,13 +124,19 @@ export default function PlanReview(): JSX.Element {
 
   const handleApprove = async (): Promise<void> => {
     if (!currentBookId || selectedChapter === null) return
-    await window.hintos.planApprove(currentBookId, selectedChapter)
-    await loadPlans()
+    try {
+      await window.hintos.planApprove(currentBookId, selectedChapter)
+      await loadPlans()
+      addToast('success', `✓ 第${selectedChapter}章大纲已通过`)
+    } catch (e) {
+      addToast('error', `审批失败: ${(e as Error).message}`)
+    }
   }
 
   const handleReject = async (): Promise<void> => {
     if (!currentBookId || selectedChapter === null || !feedbackText.trim()) return
     const feedback = feedbackText.trim()
+    const actId = startActivity(`驳回并重规划第${selectedChapter}章`)
     setLoading(true)
     setLoadingAction('驳回并重新规划中...')
     try {
@@ -139,8 +152,11 @@ export default function PlanReview(): JSX.Element {
       // Reload plan content
       const newContent = await window.hintos.planGet(currentBookId, selectedChapter)
       setPlanContent(newContent)
+      addToast('success', `✓ 第${selectedChapter}章已驳回并重新规划`)
+      finishActivity(actId)
     } catch (err) {
-      alert(`重新规划失败: ${(err as Error).message}`)
+      addToast('error', `重新规划失败: ${(err as Error).message}`)
+      finishActivity(actId, (err as Error).message)
     } finally {
       setLoading(false)
       setLoadingAction('')
@@ -149,10 +165,15 @@ export default function PlanReview(): JSX.Element {
 
   const handleSaveEdit = async (): Promise<void> => {
     if (!currentBookId || selectedChapter === null) return
-    await window.hintos.planUpdate(currentBookId, selectedChapter, editContent)
-    setPlanContent(editContent)
-    setIsEditing(false)
-    await loadPlans()
+    try {
+      await window.hintos.planUpdate(currentBookId, selectedChapter, editContent)
+      setPlanContent(editContent)
+      setIsEditing(false)
+      addToast('success', `✓ 第${selectedChapter}章大纲已更新`)
+      await loadPlans()
+    } catch (e) {
+      addToast('error', `保存失败: ${(e as Error).message}`)
+    }
   }
 
   const handleStartEdit = (): void => {
@@ -164,20 +185,26 @@ export default function PlanReview(): JSX.Element {
     if (!currentBookId || !pipelineReady) return
     const approved = planIndex.plans.filter((p) => p.status === 'approved')
     if (approved.length === 0) {
-      alert('没有已审核的章节大纲可以写作')
+      addToast('info', '没有已审核的章节大纲可以写作')
       return
     }
+    const actId = startActivity(`批量写作 ${approved.length} 章`)
     setLoading(true)
     setLoadingAction(`写作 ${approved.length} 章...`)
     try {
-      for (const plan of approved) {
-        setLoadingAction(`写作第${plan.chapter}章...`)
+      for (let i = 0; i < approved.length; i++) {
+        const plan = approved[i]
+        setLoadingAction(`写作第${plan.chapter}章 (${i + 1}/${approved.length})...`)
+        useAppStore.getState().updateActivity(actId, `第${plan.chapter}章`, Math.round(((i + 1) / approved.length) * 100))
         await window.hintos.writeNext(currentBookId)
       }
       await loadPlans()
       window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
+      addToast('success', `✓ ${approved.length} 章写作完成`)
+      finishActivity(actId)
     } catch (err) {
-      alert(`写作失败: ${(err as Error).message}`)
+      addToast('error', `写作失败: ${(err as Error).message}`)
+      finishActivity(actId, (err as Error).message)
     } finally {
       setLoading(false)
       setLoadingAction('')
