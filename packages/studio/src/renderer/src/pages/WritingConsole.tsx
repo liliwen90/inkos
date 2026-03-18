@@ -3,11 +3,13 @@ import { PenTool, Play, Loader2, CheckCircle2, XCircle, AlertTriangle } from 'lu
 import { useAppStore, type ProgressEvent, type BookSummary } from '../stores/app-store'
 
 const STAGES = [
-  { key: 'pipeline-start', label: '管线' },
+  { key: 'pipeline', label: '管线' },
   { key: 'architect', label: '建筑师' },
   { key: 'writer', label: '写手' },
   { key: 'auditor', label: '审计' },
-  { key: 'reviser', label: '修订' }
+  { key: 'continuity-plus', label: '深度审查' },
+  { key: 'reviser', label: '修订' },
+  { key: 'polisher', label: '润色' }
 ]
 
 type StageStatus = 'idle' | 'running' | 'done' | 'error'
@@ -67,9 +69,14 @@ export default function WritingConsole(): JSX.Element {
 
     try {
       for (let i = 0; i < batchCount; i++) {
-        const res = await window.inkos.writeNext(currentBookId, wordCount)
-        setResult(res)
-        setCompletedChapters(i + 1)
+        try {
+          const res = await window.inkos.writeNext(currentBookId, wordCount)
+          setResult(res)
+          setCompletedChapters(i + 1)
+        } catch (chapterErr) {
+          setError(`第${i + 1}章失败: ${(chapterErr as Error).message}${i > 0 ? `（已成功${i}章）` : ''}`)
+          break
+        }
       }
       // 刷新书籍列表
       window.inkos.listBooks().then((data) => setBooks(data as BookSummary[]))
@@ -96,7 +103,7 @@ export default function WritingConsole(): JSX.Element {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-100">写作控制台</h1>
-        <p className="text-zinc-500 text-sm mt-1">一键驱动完整管线: 写→审→改</p>
+        <p className="text-zinc-500 text-sm mt-1">一键驱动完整管线: 写→审→查→改→润</p>
       </div>
 
       {/* 书籍选择 */}
@@ -162,15 +169,25 @@ export default function WritingConsole(): JSX.Element {
         <div className="border border-zinc-800 rounded-lg p-4">
           <h3 className="text-sm font-medium text-zinc-300 mb-2">进度日志</h3>
           <div className="space-y-1 max-h-48 overflow-y-auto">
-            {progressEvents.map((e, i) => (
+            {progressEvents.map((e, i) => {
+              const base = e.stage.replace(/-done$/, '').replace(/-error$/, '')
+              const resolvedStatus = stageStatuses[base] ?? 'running'
+              const isDoneEvent = e.stage.endsWith('-done')
+              const isErrorEvent = e.stage.endsWith('-error')
+              const isStartEvent = !isDoneEvent && !isErrorEvent
+              // 起始事件的图标跟随最终状态（done/error），完成/错误事件保持自己的图标
+              const showDone = isDoneEvent || (isStartEvent && resolvedStatus === 'done')
+              const showError = isErrorEvent || (isStartEvent && resolvedStatus === 'error')
+              return (
               <div key={i} className="flex items-center gap-2 text-xs">
                 <span className="text-zinc-600 w-20 shrink-0">{new Date(e.timestamp).toLocaleTimeString()}</span>
-                {e.stage.endsWith('-done') ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" /> :
-                 e.stage.endsWith('-error') ? <XCircle className="w-3 h-3 text-red-500 shrink-0" /> :
+                {showDone ? <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" /> :
+                 showError ? <XCircle className="w-3 h-3 text-red-500 shrink-0" /> :
                  <Loader2 className="w-3 h-3 text-violet-400 animate-spin shrink-0" />}
-                <span className={e.stage.endsWith('-error') ? 'text-red-400' : 'text-zinc-400'}>{e.detail}</span>
+                <span className={showError ? 'text-red-400' : 'text-zinc-400'}>{e.detail}</span>
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

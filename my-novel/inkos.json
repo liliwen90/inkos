@@ -1,0 +1,25 @@
+{
+  "name": "我的小说工坊",
+  "version": "0.1.0",
+  "llm": {
+    "provider": "openai",
+    "baseUrl": "https://api.deepseek.com/v1",
+    "model": "deepseek-chat",
+    "temperature": 0.7,
+    "maxTokens": 8192
+  },
+  "notify": [],
+  "daemon": {
+    "schedule": {
+      "radarCron": "0 9 * * *",
+      "writeCron": "0 14 * * *",
+      "auditCron": "0 17 * * *"
+    },
+    "maxConcurrentBooks": 3,
+    "qualityGates": {
+      "maxAuditRetries": 2,
+      "pauseAfterConsecutiveFailures": 3,
+      "retryTemperatureStep": 0.1
+    }
+  }
+}

@@ -10,6 +10,10 @@ const inkosAPI = {
   loadProjectInfo: () => ipcRenderer.invoke('load-project-info'),
   isProjectDir: (dirPath: string): Promise<boolean> =>
     ipcRenderer.invoke('is-project-dir', dirPath),
+  getLastProject: (): Promise<string | null> =>
+    ipcRenderer.invoke('get-last-project'),
+  autoInitPipeline: (): Promise<{ ok: boolean; reason?: string }> =>
+    ipcRenderer.invoke('auto-init-pipeline'),
 
   // LLM 配置
   loadLLMConfig: () => ipcRenderer.invoke('load-llm-config'),
@@ -19,6 +23,12 @@ const inkosAPI = {
     ipcRenderer.invoke('test-llm-connection', config),
   initPipeline: (config: unknown): Promise<boolean> =>
     ipcRenderer.invoke('init-pipeline', config),
+  initPipelineRouting: (routing: unknown): Promise<boolean> =>
+    ipcRenderer.invoke('init-pipeline-routing', routing),
+  loadTaskRouting: (): Promise<unknown> =>
+    ipcRenderer.invoke('load-task-routing'),
+  saveTaskRouting: (routing: unknown): Promise<boolean> =>
+    ipcRenderer.invoke('save-task-routing', routing),
 
   // 书籍管理
   listBooks: () => ipcRenderer.invoke('list-books'),
@@ -26,11 +36,19 @@ const inkosAPI = {
   getBookStatus: (bookId: string) => ipcRenderer.invoke('get-book-status', bookId),
   createBook: (opts: unknown): Promise<{ bookId: string }> =>
     ipcRenderer.invoke('create-book', opts),
+  updateBookConfig: (bookId: string, updates: unknown): Promise<boolean> =>
+    ipcRenderer.invoke('update-book-config', bookId, updates),
+  deleteBook: (bookId: string): Promise<boolean> =>
+    ipcRenderer.invoke('delete-book', bookId),
+  selectStyleBookFiles: (): Promise<string[] | null> =>
+    ipcRenderer.invoke('select-style-book-files'),
 
   // 章节管理
   loadChapterIndex: (bookId: string) => ipcRenderer.invoke('load-chapter-index', bookId),
   loadChapterContent: (bookId: string, filename: string): Promise<string> =>
     ipcRenderer.invoke('load-chapter-content', bookId, filename),
+  resolveChapterFilename: (bookId: string, chapterNumber: number): Promise<string | null> =>
+    ipcRenderer.invoke('resolve-chapter-filename', bookId, chapterNumber),
   updateChapterStatus: (bookId: string, chapterNumber: number, status: string, note?: string): Promise<boolean> =>
     ipcRenderer.invoke('update-chapter-status', bookId, chapterNumber, status, note),
 
@@ -47,10 +65,20 @@ const inkosAPI = {
     ipcRenderer.invoke('audit-chapter', bookId, chapterNumber),
   reviseChapter: (bookId: string, chapterNumber?: number, mode?: string) =>
     ipcRenderer.invoke('revise-chapter', bookId, chapterNumber, mode),
+  checkContinuityPlus: (bookId: string, chapterNumber?: number) =>
+    ipcRenderer.invoke('check-continuity-plus', bookId, chapterNumber),
+  polishChapter: (bookId: string, chapterNumber?: number) =>
+    ipcRenderer.invoke('polish-chapter', bookId, chapterNumber),
 
   // 导出
   exportBook: (bookId: string, format: 'txt' | 'md'): Promise<string | null> =>
     ipcRenderer.invoke('export-book', bookId, format),
+  exportEpub: (bookId: string, metadata: unknown, options: unknown): Promise<string | null> =>
+    ipcRenderer.invoke('export-epub', bookId, metadata, options),
+  saveCoverImage: (dataUrl: string): Promise<string | null> =>
+    ipcRenderer.invoke('save-cover-image', dataUrl),
+  resolveBookLanguage: (bookId: string): Promise<'zh' | 'en'> =>
+    ipcRenderer.invoke('resolve-book-language', bookId),
 
   // 人性化引擎
   loadHumanizeSettings: (bookId: string) => ipcRenderer.invoke('load-humanize-settings', bookId),
@@ -69,6 +97,26 @@ const inkosAPI = {
   // 风格分析
   listStyleBooks: (bookId: string): Promise<string[]> =>
     ipcRenderer.invoke('list-style-books', bookId),
+
+  // 热榜
+  getTrendingPlatforms: (): Promise<{ id: string; name: string; lists: { type: string; label: string }[] }[]> =>
+    ipcRenderer.invoke('trending-platforms'),
+  fetchTrending: (platformId: string, listType: string, translate: boolean): Promise<unknown> =>
+    ipcRenderer.invoke('fetch-trending', platformId, listType, translate),
+  analyzeTrending: (novels: unknown[]): Promise<string> =>
+    ipcRenderer.invoke('analyze-trending', novels),
+
+  // 创意库
+  vaultSave: (entry: { novelCount: number; analysis: string }): Promise<{ id: string; createdAt: string }> =>
+    ipcRenderer.invoke('vault-save', entry),
+  vaultList: (): Promise<{ id: string; createdAt: string; novelCount: number; preview: string }[]> =>
+    ipcRenderer.invoke('vault-list'),
+  vaultGet: (id: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }> =>
+    ipcRenderer.invoke('vault-get', id),
+  vaultDelete: (id: string): Promise<void> =>
+    ipcRenderer.invoke('vault-delete', id),
+  vaultUpdate: (id: string, analysis: string): Promise<unknown> =>
+    ipcRenderer.invoke('vault-update', id, analysis),
   importStyleBook: (bookId: string): Promise<string[] | null> =>
     ipcRenderer.invoke('import-style-book', bookId),
   removeStyleBook: (bookId: string, fileName: string): Promise<boolean> =>
@@ -85,9 +133,21 @@ const inkosAPI = {
   // AI建议
   generateSuggestions: (bookId: string) => ipcRenderer.invoke('generate-suggestions', bookId),
   loadSuggestions: (bookId: string) => ipcRenderer.invoke('load-suggestions', bookId),
+  applySuggestions: (bookId: string): Promise<boolean> =>
+    ipcRenderer.invoke('apply-suggestions', bookId),
+
+  // 在线采样 (Book Inception Pipeline)
+  scraperFetchChapters: (fictionUrl: string) =>
+    ipcRenderer.invoke('scraper-fetch-chapters', fictionUrl),
+  scraperScrapeForAnalysis: (bookId: string, fictionUrl: string, fictionTitle: string, maxSamples?: number) =>
+    ipcRenderer.invoke('scraper-scrape-for-analysis', bookId, fictionUrl, fictionTitle, maxSamples ?? 15),
+
+  // 同步 style_guide.md
+  syncStyleGuide: (bookId: string): Promise<boolean> =>
+    ipcRenderer.invoke('sync-style-guide', bookId),
 
   // AIGC检测
-  analyzeAITells: (content: string) => ipcRenderer.invoke('analyze-ai-tells', content),
+  analyzeAITells: (content: string, language?: 'zh' | 'en') => ipcRenderer.invoke('analyze-ai-tells', content, language),
   analyzeSensitiveWords: (content: string, customWords?: string[]) =>
     ipcRenderer.invoke('analyze-sensitive-words', content, customWords),
   detectChapter: (bookId: string, chapterNumber: number, chapterTitle: string, content: string) =>

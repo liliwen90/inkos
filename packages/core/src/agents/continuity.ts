@@ -18,8 +18,8 @@ export interface AuditIssue {
   readonly suggestion: string;
 }
 
-// Dimension ID → name mapping
-const DIMENSION_MAP: Record<number, string> = {
+// Dimension ID → name mapping (Chinese)
+const DIMENSION_MAP_ZH: Record<number, string> = {
   1: "OOC检查",
   2: "时间线检查",
   3: "设定冲突",
@@ -49,10 +49,43 @@ const DIMENSION_MAP: Record<number, string> = {
   27: "敏感词检查",
 };
 
+// Dimension ID → name mapping (English)
+const DIMENSION_MAP_EN: Record<number, string> = {
+  1: "OOC Check",
+  2: "Timeline Check",
+  3: "Setting Conflict",
+  4: "Power Scaling Break",
+  5: "Numerical Check",
+  6: "Hook/Foreshadowing Check",
+  7: "Pacing Check",
+  8: "Style Check",
+  9: "Information Boundary Breach",
+  10: "Word Fatigue",
+  11: "Motivation Chain Break",
+  12: "Historical Accuracy",
+  13: "Side Character Intelligence Drop",
+  14: "Side Character as Plot Device",
+  15: "Satisfaction Deflation",
+  16: "Dialogue Authenticity",
+  17: "Blow-by-Blow Narration",
+  18: "Knowledge Contamination",
+  19: "POV Consistency",
+  20: "Uniform Paragraph Length",
+  21: "Cliché Density",
+  22: "Formulaic Twists",
+  23: "List-Style Structure",
+  24: "Subplot Stagnation",
+  25: "Flat Character Arc",
+  26: "Monotonous Pacing",
+  27: "Sensitive Content Check",
+};
+
 function buildDimensionList(
   gp: GenreProfile,
   bookRules: BookRules | null,
 ): ReadonlyArray<{ readonly id: number; readonly name: string; readonly note: string }> {
+  const en = gp.language === "en";
+  const dimMap = en ? DIMENSION_MAP_EN : DIMENSION_MAP_ZH;
   const activeIds = new Set(gp.auditDimensions);
 
   // Add book-level additional dimensions
@@ -70,7 +103,7 @@ function buildDimensionList(
   const dims: Array<{ id: number; name: string; note: string }> = [];
 
   for (const id of [...activeIds].sort((a, b) => a - b)) {
-    const name = DIMENSION_MAP[id];
+    const name = dimMap[id];
     if (!name) continue;
 
     let note = "";
@@ -78,27 +111,41 @@ function buildDimensionList(
       const words = bookRules?.fatigueWordsOverride && bookRules.fatigueWordsOverride.length > 0
         ? bookRules.fatigueWordsOverride
         : gp.fatigueWords;
-      note = `高疲劳词：${words.join("、")}。同时检查AI标记词（仿佛/不禁/宛如/竟然/忽然/猛地）密度，每3000字超过1次即warning`;
+      note = en
+        ? `High-fatigue words: ${words.join(", ")}. Also check AI-tell words (seemed/couldn't help but/as if/suddenly/involuntarily) density — more than 1 per 3000 words = warning`
+        : `高疲劳词：${words.join("、")}。同时检查AI标记词（仿佛/不禁/宛如/竟然/忽然/猛地）密度，每3000字超过1次即warning`;
     }
     if (id === 15 && gp.satisfactionTypes.length > 0) {
-      note = `爽点类型：${gp.satisfactionTypes.join("、")}`;
+      note = en
+        ? `Satisfaction types: ${gp.satisfactionTypes.join(", ")}`
+        : `爽点类型：${gp.satisfactionTypes.join("、")}`;
     }
     if (id === 12 && bookRules?.eraConstraints) {
       const era = bookRules.eraConstraints;
-      const parts = [era.period, era.region].filter(Boolean);
-      if (parts.length > 0) note = `年代：${parts.join("，")}`;
+      if (typeof era === "object" && era !== null) {
+        const parts = [era.period, era.region].filter(Boolean);
+        if (parts.length > 0) note = en ? `Era: ${parts.join(", ")}` : `年代：${parts.join("，")}`;
+      }
     }
     if (id === 19) {
-      note = "检查视角切换是否有过渡、是否与设定视角一致";
+      note = en
+        ? "Check POV transitions and consistency with configured viewpoint"
+        : "检查视角切换是否有过渡、是否与设定视角一致";
     }
     if (id === 24) {
-      note = "检查支线剧情是否停滞超过5章未推进";
+      note = en
+        ? "Check if any subplot has stagnated for more than 5 chapters"
+        : "检查支线剧情是否停滞超过5章未推进";
     }
     if (id === 25) {
-      note = "检查主要角色情感弧线是否平坦（连续3章无情绪变化）";
+      note = en
+        ? "Check if major character emotional arcs are flat (no emotional change for 3+ consecutive chapters)"
+        : "检查主要角色情感弧线是否平坦（连续3章无情绪变化）";
     }
     if (id === 26) {
-      note = "检查章节类型节奏：连续≥3同类型章→warning，≥5章无高潮/回收→warning";
+      note = en
+        ? "Check chapter type pacing: 3+ same type in a row → warning, 5+ chapters without climax/payoff → warning"
+        : "检查章节类型节奏：连续≥3同类型章→warning，≥5章无高潮/回收→warning";
     }
 
     dims.push({ id, name, note });
@@ -137,20 +184,45 @@ export class ContinuityAuditor extends BaseAgent {
     const bookRules = parsedRules?.rules ?? null;
 
     // Fallback: use book_rules body when style_guide.md doesn't exist
-    const styleGuide = styleGuideRaw !== "(文件不存在)"
+    const noFile = "(文件不存在)";
+    const styleGuide = styleGuideRaw !== noFile
       ? styleGuideRaw
-      : (parsedRules?.body ?? "(无文风指南)");
+      : (parsedRules?.body ?? (gp.language === "en" ? "(No style guide)" : "(无文风指南)"));
 
+    const en = gp.language === "en";
     const dimensions = buildDimensionList(gp, bookRules);
     const dimList = dimensions
-      .map((d) => `${d.id}. ${d.name}${d.note ? `（${d.note}）` : ""}`)
+      .map((d) => `${d.id}. ${d.name}${d.note ? (en ? ` (${d.note})` : `（${d.note}）`) : ""}`)
       .join("\n");
 
     const protagonistBlock = bookRules?.protagonist
-      ? `\n主角人设锁定：${bookRules.protagonist.name}，${bookRules.protagonist.personalityLock.join("、")}，行为约束：${bookRules.protagonist.behavioralConstraints.join("、")}`
+      ? en
+        ? `\nProtagonist lock: ${bookRules.protagonist.name}, ${bookRules.protagonist.personalityLock.join(", ")}, behavioral constraints: ${bookRules.protagonist.behavioralConstraints.join(", ")}`
+        : `\n主角人设锁定：${bookRules.protagonist.name}，${bookRules.protagonist.personalityLock.join("、")}，行为约束：${bookRules.protagonist.behavioralConstraints.join("、")}`
       : "";
 
-    const systemPrompt = `你是一位严格的${gp.name}网络小说审稿编辑。你的任务是对章节进行连续性、一致性和质量审查。${protagonistBlock}
+    const systemPrompt = en
+      ? `You are a strict ${gp.name} web fiction continuity editor. Your task is to audit each chapter for continuity, consistency, and quality.${protagonistBlock}
+
+Audit dimensions:
+${dimList}
+
+Output format must be JSON:
+{
+  "passed": true/false,
+  "issues": [
+    {
+      "severity": "critical|warning|info",
+      "category": "Dimension name",
+      "description": "Specific problem description",
+      "suggestion": "Suggested fix"
+    }
+  ],
+  "summary": "One-sentence audit conclusion"
+}
+
+Set passed to false only when critical issues exist.`
+      : `你是一位严格的${gp.name}网络小说审稿编辑。你的任务是对章节进行连续性、一致性和质量审查。${protagonistBlock}
 
 审查维度：
 ${dimList}
@@ -172,23 +244,37 @@ ${dimList}
 只有当存在 critical 级别问题时，passed 才为 false。`;
 
     const ledgerBlock = gp.numericalSystem
-      ? `\n## 资源账本\n${ledger}`
+      ? en ? `\n## Resource Ledger\n${ledger}` : `\n## 资源账本\n${ledger}`
       : "";
 
-    const subplotBlock = subplotBoard !== "(文件不存在)"
-      ? `\n## 支线进度板\n${subplotBoard}\n`
+    const subplotBlock = subplotBoard !== noFile
+      ? en ? `\n## Subplot Board\n${subplotBoard}\n` : `\n## 支线进度板\n${subplotBoard}\n`
       : "";
-    const emotionalBlock = emotionalArcs !== "(文件不存在)"
-      ? `\n## 情感弧线\n${emotionalArcs}\n`
+    const emotionalBlock = emotionalArcs !== noFile
+      ? en ? `\n## Emotional Arcs\n${emotionalArcs}\n` : `\n## 情感弧线\n${emotionalArcs}\n`
       : "";
-    const matrixBlock = characterMatrix !== "(文件不存在)"
-      ? `\n## 角色交互矩阵\n${characterMatrix}\n`
+    const matrixBlock = characterMatrix !== noFile
+      ? en ? `\n## Character Interaction Matrix\n${characterMatrix}\n` : `\n## 角色交互矩阵\n${characterMatrix}\n`
       : "";
-    const summariesBlock = chapterSummaries !== "(文件不存在)"
-      ? `\n## 章节摘要（用于节奏检查）\n${chapterSummaries}\n`
+    const summariesBlock = chapterSummaries !== noFile
+      ? en ? `\n## Chapter Summaries (for pacing check)\n${chapterSummaries}\n` : `\n## 章节摘要（用于节奏检查）\n${chapterSummaries}\n`
       : "";
 
-    const userPrompt = `请审查第${chapterNumber}章。
+    const userPrompt = en
+      ? `Please audit Chapter ${chapterNumber}.
+
+## Current State Card
+${currentState}
+${ledgerBlock}
+## Hook Pool
+${hooks}
+${subplotBlock}${emotionalBlock}${matrixBlock}${summariesBlock}
+## Style Guide
+${styleGuide}
+
+## Chapter Content to Audit
+${chapterContent}`
+      : `请审查第${chapterNumber}章。
 
 ## 当前状态卡
 ${currentState}

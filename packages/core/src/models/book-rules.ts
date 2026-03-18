@@ -17,11 +17,23 @@ const NumericalOverridesSchema = z.object({
   resourceTypes: z.array(z.string()).default([]),
 }).optional();
 
-const EraConstraintsSchema = z.object({
+const EraConstraintsObjectSchema = z.object({
   enabled: z.boolean().default(false),
   period: z.string().optional(),
   region: z.string().optional(),
-}).optional();
+});
+
+// LLM sometimes outputs eraConstraints as a single string instead of an object.
+// Preprocess: string → { enabled: true, period: <the string> }
+const EraConstraintsSchema = z.preprocess(
+  (val) => {
+    if (typeof val === "string") {
+      return { enabled: true, period: val };
+    }
+    return val;
+  },
+  EraConstraintsObjectSchema,
+).optional();
 
 export const BookRulesSchema = z.object({
   version: z.string().default("1.0"),

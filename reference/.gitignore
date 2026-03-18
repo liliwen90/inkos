@@ -1,0 +1,10 @@
+node_modules/
+dist/
+src_backup/
+build-log.txt
+.build-lock
+userdata/projects/
+*.exe
+
+# 包含API密钥的配置文件（用llm-config.example.json作为模板）
+src/config/llm-config.json

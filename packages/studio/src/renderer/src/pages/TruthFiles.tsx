@@ -38,7 +38,7 @@ export default function TruthFiles(): JSX.Element {
     setLoading(true)
     try {
       const text = await window.inkos.loadTruthFile(currentBookId, filename)
-      setContent(text || '（文件为空或不存在）')
+      setContent(text || '（文件尚未创建，请先在仪表盘创建书籍或写一章后自动生成）')
     } catch {
       setContent('（加载失败）')
     } finally {

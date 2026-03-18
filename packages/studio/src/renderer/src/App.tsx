@@ -10,6 +10,9 @@ import StyleAnalysis from './pages/StyleAnalysis'
 import AIGCDetection from './pages/AIGCDetection'
 import HumanizeEngine from './pages/HumanizeEngine'
 import AISuggestions from './pages/AISuggestions'
+import Tutorial from './pages/Tutorial'
+import TrendingPage from './pages/TrendingPage'
+import IdeaVaultPage from './pages/IdeaVaultPage'
 
 export default function App(): JSX.Element {
   return (
@@ -24,7 +27,10 @@ export default function App(): JSX.Element {
         <Route path="/detection" element={<AIGCDetection />} />
         <Route path="/humanize" element={<HumanizeEngine />} />
         <Route path="/suggestions" element={<AISuggestions />} />
+        <Route path="/trending" element={<TrendingPage />} />
+        <Route path="/idea-vault" element={<IdeaVaultPage />} />
         <Route path="/settings" element={<LLMSettings />} />
+        <Route path="/tutorial" element={<Tutorial />} />
       </Route>
     </Routes>
   )

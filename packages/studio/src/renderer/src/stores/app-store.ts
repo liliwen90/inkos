@@ -38,6 +38,15 @@ export interface ProgressEvent {
   timestamp: number
 }
 
+export interface BookDraft {
+  title: string
+  genre: string
+  platform: string
+  targetChapters: number
+  chapterWords: number
+  context: string
+}
+
 // ===== Store =====
 
 interface AppState {
@@ -60,6 +69,10 @@ interface AppState {
 
   // UI
   sidebarCollapsed: boolean
+  theme: string
+
+  // 创意库 → 创建新书
+  pendingBookDraft: BookDraft | null
 
   // Actions
   setProjectPath: (path: string | null) => void
@@ -73,6 +86,8 @@ interface AppState {
   clearProgress: () => void
   setIsWriting: (writing: boolean) => void
   toggleSidebar: () => void
+  setTheme: (theme: string) => void
+  setPendingBookDraft: (draft: BookDraft | null) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -86,6 +101,8 @@ export const useAppStore = create<AppState>((set) => ({
   progressEvents: [],
   isWriting: false,
   sidebarCollapsed: false,
+  theme: (typeof window !== 'undefined' && localStorage.getItem('inkos-theme')) || 'twilight',
+  pendingBookDraft: null,
 
   setProjectPath: (path) => set({ projectPath: path }),
   setProjectLoaded: (loaded) => set({ projectLoaded: loaded }),
@@ -98,5 +115,11 @@ export const useAppStore = create<AppState>((set) => ({
     set((s) => ({ progressEvents: [...s.progressEvents, event] })),
   clearProgress: () => set({ progressEvents: [] }),
   setIsWriting: (writing) => set({ isWriting: writing }),
-  toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed }))
+  toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  setTheme: (theme) => {
+    localStorage.setItem('inkos-theme', theme)
+    document.documentElement.setAttribute('data-theme', theme)
+    set({ theme })
+  },
+  setPendingBookDraft: (draft) => set({ pendingBookDraft: draft })
 }))

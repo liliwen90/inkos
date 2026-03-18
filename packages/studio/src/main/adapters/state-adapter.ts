@@ -1,7 +1,8 @@
 import { existsSync } from 'fs'
-import { readFile, readdir, writeFile, mkdir } from 'fs/promises'
+import { readFile, readdir, writeFile, mkdir, rm } from 'fs/promises'
 import { join } from 'path'
 import type { BookConfig, ChapterMeta } from '@actalk/inkos-core'
+import { buildEpub, type EpubChapter, type EpubMetadata, type KDPFormatOptions } from './epub-adapter'
 
 export interface BookSummary {
   bookId: string
@@ -100,6 +101,22 @@ export class StateAdapter {
     await writeFile(join(this.getRoot(), '.env'), lines.join('\n'), 'utf-8')
   }
 
+  // ===== 任务路由配置 =====
+
+  async loadTaskRouting(): Promise<unknown | null> {
+    const routingPath = join(this.getRoot(), 'task-routing.json')
+    if (!existsSync(routingPath)) return null
+    return JSON.parse(await readFile(routingPath, 'utf-8'))
+  }
+
+  async saveTaskRouting(routing: unknown): Promise<void> {
+    await writeFile(
+      join(this.getRoot(), 'task-routing.json'),
+      JSON.stringify(routing, null, 2),
+      'utf-8'
+    )
+  }
+
   // ===== 项目初始化 =====
 
   async initProject(dirPath: string, projectName: string): Promise<void> {
@@ -175,6 +192,20 @@ export class StateAdapter {
     return JSON.parse(await readFile(path, 'utf-8'))
   }
 
+  async saveBookConfig(bookId: string, config: BookConfig): Promise<void> {
+    const path = join(this.getRoot(), 'books', bookId, 'book.json')
+    await writeFile(path, JSON.stringify(config, null, 2), 'utf-8')
+  }
+
+  async deleteBook(bookId: string): Promise<void> {
+    if (!bookId || bookId.includes('..') || bookId.includes('/') || bookId.includes('\\')) {
+      throw new Error('无效的书籍ID')
+    }
+    const bookDir = join(this.getRoot(), 'books', bookId)
+    if (!existsSync(bookDir)) throw new Error(`书籍 ${bookId} 不存在`)
+    await rm(bookDir, { recursive: true, force: true })
+  }
+
   // ===== 章节管理 =====
 
   async loadChapterIndex(bookId: string): Promise<ChapterMeta[]> {
@@ -184,7 +215,22 @@ export class StateAdapter {
   }
 
   async loadChapterContent(bookId: string, filename: string): Promise<string> {
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+      throw new Error('无效的文件名')
+    }
     return readFile(join(this.getRoot(), 'books', bookId, 'chapters', filename), 'utf-8')
+  }
+
+  /**
+   * 通过章节号查找实际文件名。Core 生成的格式: 0001_标题.md
+   * 使用前缀匹配而非重建文件名，避免 sanitization 不一致。
+   */
+  async resolveChapterFilename(bookId: string, chapterNumber: number): Promise<string | null> {
+    const dir = join(this.getRoot(), 'books', bookId, 'chapters')
+    if (!existsSync(dir)) return null
+    const prefix = String(chapterNumber).padStart(4, '0') + '_'
+    const files = await readdir(dir)
+    return files.find(f => f.startsWith(prefix) && f.endsWith('.md')) ?? null
   }
 
   async updateChapterStatus(bookId: string, chapterNumber: number, status: string, reviewNote?: string): Promise<void> {
@@ -233,7 +279,8 @@ export class StateAdapter {
     else parts.push(`${title}\n${'='.repeat(title.length)}\n\n`)
 
     for (const ch of chapters) {
-      const filename = `${String(ch.number).padStart(4, '0')}_${ch.title?.replace(/[/\\:*?"<>|]/g, '_') ?? ''}.md`
+      const filename = await this.resolveChapterFilename(bookId, ch.number)
+      if (!filename) continue
       try {
         const content = await this.loadChapterContent(bookId, filename)
         if (format === 'md') {
@@ -246,5 +293,52 @@ export class StateAdapter {
       }
     }
     return parts.join('')
+  }
+
+  // ===== EPUB 导出 =====
+
+  /** 从 bookId 解析语言 */
+  async resolveLanguage(bookId: string): Promise<'zh' | 'en'> {
+    try {
+      const bookConfig = await this.loadBookConfig(bookId)
+      const genre = bookConfig?.genre
+      if (genre) {
+        const { readGenreProfile } = await import('@actalk/inkos-core')
+        const { profile } = await readGenreProfile(this.getRoot(), genre as string)
+        return profile.language ?? 'zh'
+      }
+    } catch { /* fallback */ }
+    return 'zh'
+  }
+
+  async exportBookEpub(
+    bookId: string,
+    metadata: Omit<EpubMetadata, 'language'> & { language?: 'zh' | 'en' },
+    options: KDPFormatOptions
+  ): Promise<Buffer> {
+    const chapters = await this.loadChapterIndex(bookId)
+    const config = await this.loadBookConfig(bookId)
+    const lang = metadata.language ?? await this.resolveLanguage(bookId)
+
+    const epubChapters: EpubChapter[] = []
+    for (const ch of chapters) {
+      const filename = await this.resolveChapterFilename(bookId, ch.number)
+      if (!filename) continue
+      try {
+        const content = await this.loadChapterContent(bookId, filename)
+        epubChapters.push({ number: ch.number, title: ch.title, content })
+      } catch { /* skip */ }
+    }
+
+    const fullMeta: EpubMetadata = {
+      title: metadata.title || config?.title || bookId,
+      author: metadata.author || 'Unknown',
+      language: lang,
+      description: metadata.description,
+      keywords: metadata.keywords,
+      coverImageBase64: metadata.coverImageBase64,
+    }
+
+    return buildEpub(epubChapters, fullMeta, options)
   }
 }

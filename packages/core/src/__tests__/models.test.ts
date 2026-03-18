@@ -65,13 +65,13 @@ describe("BookConfigSchema", () => {
 
   it("rejects invalid platform", () => {
     expect(() =>
-      BookConfigSchema.parse({ ...validBook, platform: "kindle" }),
+      BookConfigSchema.parse({ ...validBook, platform: "" }),
     ).toThrow();
   });
 
   it("rejects invalid genre", () => {
     expect(() =>
-      BookConfigSchema.parse({ ...validBook, genre: "romance" }),
+      BookConfigSchema.parse({ ...validBook, genre: "" }),
     ).toThrow();
   });
 
@@ -114,8 +114,12 @@ describe("PlatformSchema", () => {
     },
   );
 
-  it("rejects unknown platform", () => {
-    expect(() => PlatformSchema.parse("amazon")).toThrow();
+  it("rejects empty platform", () => {
+    expect(() => PlatformSchema.parse("")).toThrow();
+  });
+
+  it("accepts custom platform", () => {
+    expect(PlatformSchema.parse("royalroad")).toBe("royalroad");
   });
 });
 
@@ -132,8 +136,12 @@ describe("GenreSchema", () => {
     expect(GenreSchema.parse(value)).toBe(value);
   });
 
-  it("rejects unknown genre", () => {
-    expect(() => GenreSchema.parse("scifi")).toThrow();
+  it("rejects empty genre", () => {
+    expect(() => GenreSchema.parse("")).toThrow();
+  });
+
+  it("accepts custom genre", () => {
+    expect(GenreSchema.parse("litrpg")).toBe("litrpg");
   });
 });
 

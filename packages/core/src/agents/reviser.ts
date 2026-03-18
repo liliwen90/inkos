@@ -17,12 +17,20 @@ export interface ReviseOutput {
   readonly updatedHooks: string;
 }
 
-const MODE_DESCRIPTIONS: Record<ReviseMode, string> = {
+const MODE_DESCRIPTIONS_ZH: Record<ReviseMode, string> = {
   polish: "润色：只改表达、节奏、段落呼吸，不改事实与剧情结论",
   rewrite: "改写：可改叙述顺序、画面、力度，但保留核心事实与人物动机",
   rework: "重写：可重构场景推进和冲突组织，但不改主设定和大事件结果",
   "anti-detect": "反检测改写：在保持剧情不变的前提下，降低AI生成可检测性。手法包括：增加段落长度差异、打破句式规律、用口语化/个性化表达替代书面套话、加入非对称修辞、随机化过渡方式",
   "spot-fix": "定点修复：只修改审稿意见指出的具体句子或段落，其余所有内容必须原封不动保留。修改范围限定在问题句子及其前后各一句。禁止改动无关段落",
+};
+
+const MODE_DESCRIPTIONS_EN: Record<ReviseMode, string> = {
+  polish: "Polish: fix expression, rhythm, paragraph breathing only — no factual or plot changes",
+  rewrite: "Rewrite: may alter narration order, imagery, intensity — but preserve core facts and character motivations",
+  rework: "Rework: may restructure scene progression and conflict organization — but keep main settings and major event outcomes",
+  "anti-detect": "Anti-detect rewrite: reduce AI-generation detectability while keeping plot intact. Techniques: vary paragraph length, break sentence patterns, replace formal clichés with colloquial/personal expression, add asymmetric rhetoric, randomize transitions",
+  "spot-fix": "Spot fix: only modify specific sentences or paragraphs flagged by the audit. All other content must remain unchanged. Fix scope limited to the problem sentence plus one sentence before and after. Do not alter unrelated paragraphs",
 };
 
 export class ReviserAgent extends BaseAgent {
@@ -51,24 +59,57 @@ export class ReviserAgent extends BaseAgent {
     const parsedRules = await readBookRules(bookDir);
     const bookRules = parsedRules?.rules ?? null;
 
+    const en = gp.language === "en";
+
     // Fallback: use book_rules body when style_guide.md doesn't exist
-    const styleGuide = styleGuideRaw !== "(文件不存在)"
+    const noFile = "(文件不存在)";
+    const styleGuide = styleGuideRaw !== noFile
       ? styleGuideRaw
-      : (parsedRules?.body ?? "(无文风指南)");
+      : (parsedRules?.body ?? (en ? "(No style guide)" : "(无文风指南)"));
 
     const issueList = issues
-      .map((i) => `- [${i.severity}] ${i.category}: ${i.description}\n  建议: ${i.suggestion}`)
+      .map((i) => en
+        ? `- [${i.severity}] ${i.category}: ${i.description}\n  Suggestion: ${i.suggestion}`
+        : `- [${i.severity}] ${i.category}: ${i.description}\n  建议: ${i.suggestion}`)
       .join("\n");
 
-    const modeDesc = MODE_DESCRIPTIONS[mode];
+    const modeDesc = en ? MODE_DESCRIPTIONS_EN[mode] : MODE_DESCRIPTIONS_ZH[mode];
     const numericalRule = gp.numericalSystem
-      ? "\n3. 数值错误必须精确修正，前后对账"
+      ? en ? "\n3. Numerical errors must be precisely corrected with full reconciliation" : "\n3. 数值错误必须精确修正，前后对账"
       : "";
     const protagonistBlock = bookRules?.protagonist
-      ? `\n\n主角人设锁定：${bookRules.protagonist.name}，${bookRules.protagonist.personalityLock.join("、")}。修改不得违反人设。`
+      ? en
+        ? `\n\nProtagonist lock: ${bookRules.protagonist.name}, ${bookRules.protagonist.personalityLock.join(", ")}. Revisions must not violate character profile.`
+        : `\n\n主角人设锁定：${bookRules.protagonist.name}，${bookRules.protagonist.personalityLock.join("、")}。修改不得违反人设。`
       : "";
 
-    const systemPrompt = `你是一位专业的${gp.name}网络小说修稿编辑。你的任务是根据审稿意见对章节进行修正。${protagonistBlock}
+    const systemPrompt = en
+      ? `You are a professional ${gp.name} web fiction revision editor. Your task is to revise chapters according to audit feedback.${protagonistBlock}
+
+Revision mode: ${modeDesc}
+
+Revision principles:
+1. Control revision scope according to mode
+2. Fix root causes, not surface symptoms${numericalRule}
+4. Hook status must sync with hook pool
+5. Do not alter plot direction or core conflicts
+6. Preserve the original language style and rhythm
+7. After revision, update state card${gp.numericalSystem ? ", ledger" : ""}, and hook pool
+
+Output format:
+
+=== FIXED_ISSUES ===
+(List each fix, one per line)
+
+=== REVISED_CONTENT ===
+(Complete revised prose)
+
+=== UPDATED_STATE ===
+(Complete updated state card)
+${gp.numericalSystem ? "\n=== UPDATED_LEDGER ===\n(Complete updated resource ledger)" : ""}
+=== UPDATED_HOOKS ===
+(Complete updated hook pool)`
+      : `你是一位专业的${gp.name}网络小说修稿编辑。你的任务是根据审稿意见对章节进行修正。${protagonistBlock}
 
 修稿模式：${modeDesc}
 
@@ -95,10 +136,27 @@ ${gp.numericalSystem ? "\n=== UPDATED_LEDGER ===\n(更新后的完整资源账�
 (更新后的完整伏笔池)`;
 
     const ledgerBlock = gp.numericalSystem
-      ? `\n## 资源账本\n${ledger}`
+      ? en ? `\n## Resource Ledger\n${ledger}` : `\n## 资源账本\n${ledger}`
       : "";
 
-    const userPrompt = `请修正第${chapterNumber}章。
+    const userPrompt = en
+      ? `Please revise Chapter ${chapterNumber}.
+
+## Audit Issues
+${issueList}
+
+## Current State Card
+${currentState}
+${ledgerBlock}
+## Hook Pool
+${hooks}
+
+## Style Guide
+${styleGuide}
+
+## Chapter to Revise
+${chapterContent}`
+      : `请修正第${chapterNumber}章。
 
 ## 审稿问题
 ${issueList}
@@ -115,7 +173,7 @@ ${styleGuide}
 ## 待修正章节
 ${chapterContent}`;
 
-    const maxTokens = mode === "spot-fix" ? 8192 : 16384;
+    const maxTokens = mode === "spot-fix" ? 4096 : 8192;
 
     const response = await this.chat(
       [
@@ -147,11 +205,11 @@ ${chapterContent}`;
         .split("\n")
         .map((l) => l.trim())
         .filter((l) => l.length > 0),
-      updatedState: extract("UPDATED_STATE") || "(状态卡未更新)",
+      updatedState: extract("UPDATED_STATE") || (gp.language === "en" ? "(State card not updated)" : "(状态卡未更新)"),
       updatedLedger: gp.numericalSystem
-        ? (extract("UPDATED_LEDGER") || "(账本未更新)")
+        ? (extract("UPDATED_LEDGER") || (gp.language === "en" ? "(Ledger not updated)" : "(账本未更新)"))
         : "",
-      updatedHooks: extract("UPDATED_HOOKS") || "(伏笔池未更新)",
+      updatedHooks: extract("UPDATED_HOOKS") || (gp.language === "en" ? "(Hook pool not updated)" : "(伏笔池未更新)"),
     };
   }
 

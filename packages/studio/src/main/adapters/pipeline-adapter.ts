@@ -9,7 +9,9 @@ import type {
   TruthFiles,
   BookStatusInfo,
   BookConfig,
-  LLMClient
+  LLMClient,
+  ContinuityPlusResult,
+  PolishResult,
 } from '@actalk/inkos-core'
 
 export interface ProgressEvent {
@@ -24,9 +26,9 @@ export interface ProgressEvent {
 export class PipelineAdapter extends EventEmitter {
   private runner: PipelineRunnerType | null = null
 
-  async initialize(client: LLMClient, model: string, projectRoot: string): Promise<void> {
+  async initialize(client: LLMClient, model: string, projectRoot: string, modelOverrides?: Record<string, string>): Promise<void> {
     const { PipelineRunner } = await import('@actalk/inkos-core')
-    this.runner = new PipelineRunner({ client, model, projectRoot })
+    this.runner = new PipelineRunner({ client, model, projectRoot, modelOverrides })
     this.interceptMethods()
   }
 
@@ -87,7 +89,7 @@ export class PipelineAdapter extends EventEmitter {
 
     const originalWriteNext = runner.writeNextChapter.bind(runner)
     runner.writeNextChapter = async (...args: Parameters<typeof runner.writeNextChapter>) => {
-      this.emitProgress('pipeline-start', '管线启动: 写→审→改')
+      this.emitProgress('pipeline', '管线启动: 写→审→查→改→润')
       try {
         const result = await originalWriteNext(...args)
         this.emitProgress('pipeline-done', `完成: 第${result.chapterNumber}章「${result.title}」${result.wordCount}字`)
@@ -97,12 +99,38 @@ export class PipelineAdapter extends EventEmitter {
         throw err
       }
     }
+
+    const originalCheckCP = runner.checkContinuityPlus.bind(runner)
+    runner.checkContinuityPlus = async (...args: Parameters<typeof runner.checkContinuityPlus>) => {
+      this.emitProgress('continuity-plus', '深度连续性审查中(7维度)...')
+      try {
+        const result = await originalCheckCP(...args)
+        this.emitProgress('continuity-plus-done', `审查完成，${result.issues?.length ?? 0}个问题`)
+        return result
+      } catch (err) {
+        this.emitProgress('continuity-plus-error', `深度审查失败: ${(err as Error).message}`)
+        throw err
+      }
+    }
+
+    const originalPolish = runner.polishDraft.bind(runner)
+    runner.polishDraft = async (...args: Parameters<typeof runner.polishDraft>) => {
+      this.emitProgress('polisher', '文学润色中(7维度)...')
+      try {
+        const result = await originalPolish(...args)
+        this.emitProgress('polisher-done', `润色完成，${result.changes?.length ?? 0}处修改`)
+        return result
+      } catch (err) {
+        this.emitProgress('polisher-error', `润色失败: ${(err as Error).message}`)
+        throw err
+      }
+    }
   }
 
-  async initBook(book: BookConfig): Promise<void> {
+  async initBook(book: BookConfig, externalContext?: string): Promise<void> {
     this.emitProgress('architect', `建筑师Agent正在为「${book.title}」生成世界观...`)
     try {
-      await this.getRunner().initBook(book)
+      await this.getRunner().initBook(book, externalContext)
       this.emitProgress('architect-done', `「${book.title}」创建完成`)
     } catch (err) {
       this.emitProgress('architect-error', `创建失败: ${(err as Error).message}`)
@@ -120,6 +148,14 @@ export class PipelineAdapter extends EventEmitter {
 
   async reviseDraft(bookId: string, chapterNumber?: number, mode?: ReviseMode): Promise<ReviseResult> {
     return this.getRunner().reviseDraft(bookId, chapterNumber, mode)
+  }
+
+  async checkContinuityPlus(bookId: string, chapterNumber?: number): Promise<ContinuityPlusResult & { chapterNumber: number }> {
+    return this.getRunner().checkContinuityPlus(bookId, chapterNumber)
+  }
+
+  async polishDraft(bookId: string, chapterNumber?: number): Promise<PolishResult & { chapterNumber: number }> {
+    return this.getRunner().polishDraft(bookId, chapterNumber)
   }
 
   async readTruthFiles(bookId: string): Promise<TruthFiles> {

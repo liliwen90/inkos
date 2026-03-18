@@ -39,11 +39,17 @@ export interface DetectionRecord {
 
 // Core 的 analyzeAITells 返回 { issues: Array<{severity, category, description, suggestion}> }
 // 4个 category: "段落等长"(20), "套话密度"(21), "公式化转折"(22), "列表式结构"(23)
-const CATEGORY_MAP: Record<string, keyof Pick<AITellResult, 'paragraphUniformity' | 'hedgeDensity' | 'formulaicTransitions' | 'listStructure'>> = {
+type AITellDimKey = keyof Pick<AITellResult, 'paragraphUniformity' | 'hedgeDensity' | 'formulaicTransitions' | 'listStructure'>
+const CATEGORY_MAP: Record<string, AITellDimKey> = {
   '段落等长': 'paragraphUniformity',
   '套话密度': 'hedgeDensity',
   '公式化转折': 'formulaicTransitions',
-  '列表式结构': 'listStructure'
+  '列表式结构': 'listStructure',
+  // English category names (when language='en')
+  'Uniform Paragraph Length': 'paragraphUniformity',
+  'Cliché Density': 'hedgeDensity',
+  'Formulaic Transitions': 'formulaicTransitions',
+  'List-Style Structure': 'listStructure'
 }
 
 function transformAITells(coreResult: { issues: ReadonlyArray<{ severity: string; category: string; description: string; suggestion: string }> }): AITellResult {
@@ -112,11 +118,26 @@ export class DetectionAdapter {
     if (!existsSync(dir)) await mkdir(dir, { recursive: true })
   }
 
+  /** 从 bookId 解析语言：读 book.json → genre → readGenreProfile → language */
+  private async resolveLanguage(bookId: string): Promise<'zh' | 'en'> {
+    try {
+      const bookJsonPath = join(this.getRoot(), 'books', bookId, 'book.json')
+      const bookConfig = JSON.parse(await readFile(bookJsonPath, 'utf-8'))
+      const genre: string = bookConfig?.genre
+      if (genre) {
+        const { readGenreProfile } = await import('@actalk/inkos-core')
+        const { profile } = await readGenreProfile(this.getRoot(), genre)
+        return profile.language ?? 'zh'
+      }
+    } catch { /* fallback to zh */ }
+    return 'zh'
+  }
+
   // ===== AI痕迹分析（纯规则，无需LLM） =====
 
-  async analyzeAITells(content: string): Promise<AITellResult> {
+  async analyzeAITells(content: string, language?: 'zh' | 'en'): Promise<AITellResult> {
     const { analyzeAITells } = await import('@actalk/inkos-core')
-    const coreResult = analyzeAITells(content)
+    const coreResult = analyzeAITells(content, language)
     return transformAITells(coreResult)
   }
 
@@ -137,7 +158,8 @@ export class DetectionAdapter {
     content: string,
     customWords?: string[]
   ): Promise<DetectionRecord> {
-    const aiTells = await this.analyzeAITells(content)
+    const language = await this.resolveLanguage(bookId)
+    const aiTells = await this.analyzeAITells(content, language)
     const sensitiveWords = await this.analyzeSensitiveWords(content, customWords)
 
     let risk: 'low' | 'medium' | 'high' = 'low'

@@ -22,24 +22,175 @@ export class ArchitectAgent extends BaseAgent {
     const { profile: gp, body: genreBody } =
       await readGenreProfile(this.ctx.projectRoot, book.genre);
 
+    const en = gp.language === "en";
+
     const contextBlock = externalContext
-      ? `\n\n## 外部指令\n以下是来自外部系统的创作指令，请将其融入设定中：\n\n${externalContext}\n`
+      ? en
+        ? `\n\n## External Directives\nThe following are creative directives from the author. Incorporate them into the world-building:\n\n${externalContext}\n`
+        : `\n\n## 外部指令\n以下是来自外部系统的创作指令，请将其融入设定中：\n\n${externalContext}\n`
       : "";
 
     const numericalBlock = gp.numericalSystem
-      ? `- 有明确的数值/资源体系可追踪
+      ? en
+        ? `- Has a trackable numerical/resource system
+- Define numericalSystemOverrides in book_rules (hardCap, resourceTypes)`
+        : `- 有明确的数值/资源体系可追踪
 - 在 book_rules 中定义 numericalSystemOverrides（hardCap、resourceTypes）`
-      : "- 本题材无数值系统，不需要资源账本";
+      : en
+        ? "- This genre has no numerical system; no resource ledger needed"
+        : "- 本题材无数值系统，不需要资源账本";
 
     const powerBlock = gp.powerScaling
-      ? "- 有明确的战力等级体系"
+      ? en ? "- Has a defined power-level hierarchy" : "- 有明确的战力等级体系"
       : "";
 
     const eraBlock = gp.eraResearch
-      ? "- 需要年代考据支撑（在 book_rules 中设置 eraConstraints）"
+      ? en
+        ? "- Requires historical-era research (set eraConstraints in book_rules)"
+        : "- 需要年代考据支撑（在 book_rules 中设置 eraConstraints）"
       : "";
 
-    const systemPrompt = `你是一个专业的网络小说架构师。你的任务是为一本新的${gp.name}小说生成完整的基础设定。${contextBlock}
+    const eraTemplate = gp.eraResearch
+      ? en
+        ? `eraConstraints:
+  enabled: true
+  period: (specific historical period)
+  region: (specific region)`
+        : `eraConstraints:
+  enabled: true
+  period: (具体历史时期，如"明洪武年间")
+  region: (具体地域，如"中国江南")`
+      : "";
+
+    const systemPrompt = en
+      ? this.buildEnglishPrompt(book, gp, genreBody, contextBlock, numericalBlock, powerBlock, eraBlock, eraTemplate)
+      : this.buildChinesePrompt(book, gp, genreBody, contextBlock, numericalBlock, powerBlock, eraBlock, eraTemplate);
+
+    const userMessage = en
+      ? `Generate the complete foundation for an ${gp.name} novel titled "${book.title}".`
+      : `请为标题为"${book.title}"的${gp.name}小说生成完整基础设定。`;
+
+    const response = await this.chat([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userMessage },
+    ], { maxTokens: 8192, temperature: 0.8 });
+
+    return this.parseSections(response.content);
+  }
+
+  private buildEnglishPrompt(
+    book: BookConfig, gp: GenreProfile, genreBody: string,
+    contextBlock: string, numericalBlock: string, powerBlock: string,
+    eraBlock: string, eraTemplate: string,
+  ): string {
+    return `You are a professional web fiction architect. Your task is to generate a complete foundation for a new ${gp.name} novel.${contextBlock}
+
+Requirements:
+- Platform: ${book.platform}
+- Genre: ${gp.name} (${book.genre})
+- Target chapters: ${book.targetChapters}
+- Words per chapter: ${book.chapterWordCount}
+- Language: English (all output MUST be in English)
+
+## Genre Characteristics
+
+${genreBody}
+
+## Generation Instructions
+
+Generate the following sections, separated by === SECTION: <name> ===:
+
+=== SECTION: story_bible ===
+Organize with structured H2 headings:
+## 01_World-Building
+World setting, core rules/systems, magic/technology framework
+
+## 02_Protagonist
+Protagonist profile (identity/special ability or cheat/personality core/behavioral boundaries)
+
+## 03_Factions-and-Characters
+Faction layout, key supporting characters (each: name, role, motivation, relationship with MC, independent goals)
+
+## 04_Geography-and-Environment
+Map/scene design, environmental features, key locations
+
+## 05_Title-and-Synopsis
+- Title suggestion: Use a hook-driven format that signals genre + core appeal. Avoid abstract literary titles.
+- Synopsis (under 300 words): First sentence drops the conflict, second sentence reveals the MC's edge/ability, third sentence leaves a cliffhanger.
+
+=== SECTION: volume_outline ===
+Volume/arc planning. Each volume: arc name, chapter range, core conflict, key turning points, payoff goals.
+
+### Golden First Three Chapters (MUST follow for chapters 1-3)
+- Chapter 1: Drop the core conflict immediately (MC faces crisis/dilemma/threat). NO info-dumps or lengthy backstory.
+- Chapter 2: Reveal the MC's edge/power/cheat (show how they respond to Ch1's crisis). Give readers a taste of the payoff.
+- Chapter 3: Establish initial short-term goal (MC commits to a specific, achievable objective). Give readers a reason to keep reading.
+
+=== SECTION: book_rules ===
+Generate book_rules.md with YAML frontmatter + narrative guidance:
+\`\`\`
+---
+version: "1.0"
+protagonist:
+  name: (MC name)
+  personalityLock: [(3-5 personality keywords)]
+  behavioralConstraints: [(3-5 behavioral rules)]
+genreLock:
+  primary: ${book.genre}
+  forbidden: [(2-3 genres/styles to never mix in)]
+${gp.numericalSystem ? `numericalSystemOverrides:
+  hardCap: (determined by setting)
+  resourceTypes: [(core resource types)]` : ""}
+${eraTemplate}
+prohibitions:
+  - (3-5 story taboos for this book)
+chapterTypesOverride: []
+fatigueWordsOverride: []
+additionalAuditDimensions: []
+enableFullCastTracking: false
+---
+
+## Narrative Perspective
+(Describe this book's POV and style)
+
+## Core Conflict Driver
+(Describe the book's central tension and driving force)
+\`\`\`
+
+=== SECTION: current_state ===
+Initial state card (Chapter 0):
+| Field | Value |
+|-------|-------|
+| Current Chapter | 0 |
+| Current Location | (starting location) |
+| MC Status | (initial status) |
+| Current Goal | (first goal) |
+| Current Limitations | (initial constraints) |
+| Allies & Enemies | (initial relationships) |
+| Active Conflict | (first conflict) |
+
+=== SECTION: pending_hooks ===
+Initial foreshadowing pool (Markdown table):
+| hook_id | Origin Chapter | Type | Status | Last Advanced | Expected Payoff | Notes |
+
+Generated content MUST:
+1. Match ${book.platform} platform reader expectations and conventions
+2. Align with ${gp.name} genre conventions
+${numericalBlock}
+${powerBlock}
+${eraBlock}
+3. MC must have a distinct personality with clear behavioral boundaries
+4. Foreshadowing must connect — no dangling plot threads
+5. Supporting characters must have independent motivations — no cardboard cutouts
+6. ALL content must be written in natural, fluent English`;
+  }
+
+  private buildChinesePrompt(
+    book: BookConfig, gp: GenreProfile, genreBody: string,
+    contextBlock: string, numericalBlock: string, powerBlock: string,
+    eraBlock: string, eraTemplate: string,
+  ): string {
+    return `你是一个专业的网络小说架构师。你的任务是为一本新的${gp.name}小说生成完整的基础设定。${contextBlock}
 
 要求：
 - 平台：${book.platform}
@@ -96,6 +247,7 @@ genreLock:
 ${gp.numericalSystem ? `numericalSystemOverrides:
   hardCap: (根据设定确定)
   resourceTypes: [(核心资源类型列表)]` : ""}
+${eraTemplate}
 prohibitions:
   - (3-5条本书禁忌)
 chapterTypesOverride: []
@@ -136,16 +288,6 @@ ${eraBlock}
 3. 主角人设鲜明，有明确行为边界
 4. 伏笔前后呼应，不留悬空线
 5. 配角有独立动机，不是工具人`;
-
-    const response = await this.chat([
-      { role: "system", content: systemPrompt },
-      {
-        role: "user",
-        content: `请为标题为"${book.title}"的${gp.name}小说生成完整基础设定。`,
-      },
-    ], { maxTokens: 16384, temperature: 0.8 });
-
-    return this.parseSections(response.content);
   }
 
   async writeFoundationFiles(

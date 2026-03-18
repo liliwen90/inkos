@@ -121,3 +121,139 @@ export class QidianRadarSource implements RadarSource {
     return { platform: "起点中文网", entries };
   }
 }
+
+// ---------------------------------------------------------------------------
+// English platform sources (Royal Road, ScribbleHub)
+// ---------------------------------------------------------------------------
+
+export class RoyalRoadTrendingSource implements RadarSource {
+  readonly name = "royalroad";
+  private readonly listType: string;
+
+  constructor(listType: "trending" | "best-rated" | "rising-stars" | "popular" = "trending") {
+    this.listType = listType;
+  }
+
+  async fetch(): Promise<PlatformRankings> {
+    const entries: RankingEntry[] = [];
+    const labelMap: Record<string, string> = {
+      "trending": "Trending",
+      "best-rated": "Best Rated",
+      "rising-stars": "Rising Stars",
+      "popular": "Popular This Week",
+    };
+
+    try {
+      const url = `https://www.royalroad.com/fictions/${this.listType}`;
+      const res = await globalThis.fetch(url, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+          "Accept": "text/html",
+        },
+      });
+      if (!res.ok) return { platform: "Royal Road", entries };
+      const html = await res.text();
+
+      // Actual HTML: <h2 class="fiction-title"><a href="/fiction/132904/slug" class="...">Title</a></h2>
+      const titlePattern = /<h2[^>]*class="fiction-title"[^>]*>\s*<a\s+href="(\/fiction\/\d+\/[^"]+)"[^>]*>([^<]+)<\/a>/g;
+      let m: RegExpExecArray | null;
+      const seen = new Set<string>();
+
+      while ((m = titlePattern.exec(html)) !== null) {
+        const rawTitle = m[2].trim();
+        const title = rawTitle.replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+          .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+        if (!title || seen.has(title) || title.length < 2) continue;
+        seen.add(title);
+
+        // Extract tags: <a class="...fiction-tag" href="...">LitRPG</a>
+        const afterTitle = html.slice(m.index + m[0].length, m.index + m[0].length + 3000);
+        const tagPattern = /fiction-tag"[^>]*>([^<]+)<\/a>/g;
+        const tags: string[] = [];
+        let tm: RegExpExecArray | null;
+        while ((tm = tagPattern.exec(afterTitle)) !== null) {
+          tags.push(tm[1].trim());
+          if (tags.length >= 5) break;
+        }
+
+        // Extract stats: <span>162 Followers</span>
+        const followersMatch = afterTitle.match(/<span>(\d[\d,]*)\s*Followers<\/span>/i);
+        const viewsMatch = afterTitle.match(/<span>([\d,.]+[KMB]?)\s*Views<\/span>/i);
+        const statsStr = [
+          followersMatch ? `${followersMatch[1]} followers` : "",
+          viewsMatch ? `${viewsMatch[1]} views` : "",
+        ].filter(Boolean).join(", ");
+
+        entries.push({
+          title,
+          author: "",
+          category: tags.slice(0, 3).join(", "),
+          extra: `[${labelMap[this.listType] ?? this.listType}] ${statsStr}`.trim(),
+        });
+
+        if (entries.length >= 30) break;
+      }
+    } catch {
+      // skip on network error
+    }
+
+    return { platform: "Royal Road", entries };
+  }
+}
+
+export class ScribbleHubTrendingSource implements RadarSource {
+  readonly name = "scribblehub";
+
+  async fetch(): Promise<PlatformRankings> {
+    const entries: RankingEntry[] = [];
+
+    try {
+      const url = "https://www.scribblehub.com/series-ranking/?sort=1&order=4";
+      const res = await globalThis.fetch(url, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+          "Accept": "text/html",
+        },
+      });
+      if (!res.ok) return { platform: "ScribbleHub", entries };
+      const html = await res.text();
+
+      // Actual HTML: <span class="genre_rank">#1</span><a href="URL">Title</a>
+      const pattern = /class="genre_rank">#(\d+)<\/span><a\s+href="([^"]+)"[^>]*>([^<]+)<\/a>/g;
+      let m: RegExpExecArray | null;
+      const seen = new Set<string>();
+
+      while ((m = pattern.exec(html)) !== null) {
+        const title = m[3].trim();
+        if (!title || seen.has(title)) continue;
+        seen.add(title);
+
+        // Extract genre: <a class="fic_genre search" ...>Action</a>
+        const after = html.slice(m.index, m.index + 3000);
+        const genrePattern = /class="fic_genre[^"]*"[^>]*>([^<]+)<\/a>/g;
+        const genreTags: string[] = [];
+        let gm: RegExpExecArray | null;
+        while ((gm = genrePattern.exec(after)) !== null) {
+          genreTags.push(gm[1].trim());
+          if (genreTags.length >= 3) break;
+        }
+        const genre = genreTags.join(", ");
+
+        entries.push({
+          title,
+          author: "",
+          category: genre,
+          extra: "[Weekly Trending]",
+        });
+
+        if (entries.length >= 20) break;
+      }
+    } catch {
+      // skip on network error
+    }
+
+    return { platform: "ScribbleHub", entries };
+  }
+}

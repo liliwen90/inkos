@@ -118,18 +118,38 @@ interface AISuggestions {
   raw?: string
 }
 
+interface ScrapedChapterInfo {
+  title: string
+  url: string
+  index: number
+}
+
+interface ScrapeResult {
+  bookId: string
+  fictionTitle: string
+  platform: string
+  chaptersTotal: number
+  chaptersSampled: number
+  savedPath: string
+}
+
 interface InkOSAPI {
   // 项目管理
   selectProjectDir(): Promise<{ path: string; isProject: boolean } | null>
   initProject(dirPath: string, name: string): Promise<boolean>
   loadProjectInfo(): Promise<ProjectInfo | null>
   isProjectDir(dirPath: string): Promise<boolean>
+  getLastProject(): Promise<string | null>
+  autoInitPipeline(): Promise<{ ok: boolean; reason?: string }>
 
   // LLM 配置
   loadLLMConfig(): Promise<LLMConfig | null>
   saveLLMConfig(config: LLMConfig): Promise<boolean>
   testLLMConnection(config: LLMConfig): Promise<{ ok: boolean; error?: string; latencyMs?: number }>
   initPipeline(config: LLMConfig): Promise<boolean>
+  initPipelineRouting(routing: unknown): Promise<boolean>
+  loadTaskRouting(): Promise<unknown>
+  saveTaskRouting(routing: unknown): Promise<boolean>
 
   // 书籍管理
   listBooks(): Promise<BookSummary[]>
@@ -137,12 +157,17 @@ interface InkOSAPI {
   getBookStatus(bookId: string): Promise<unknown>
   createBook(opts: {
     title: string; genre: string; platform: string;
-    targetChapters: number; chapterWordCount: number; context?: string
+    targetChapters: number; chapterWordCount: number;
+    context?: string; styleBookPaths?: string[]
   }): Promise<{ bookId: string }>
+  updateBookConfig(bookId: string, updates: Record<string, unknown>): Promise<boolean>
+  deleteBook(bookId: string): Promise<boolean>
+  selectStyleBookFiles(): Promise<string[] | null>
 
   // 章节管理
   loadChapterIndex(bookId: string): Promise<ChapterMeta[]>
   loadChapterContent(bookId: string, filename: string): Promise<string>
+  resolveChapterFilename(bookId: string, chapterNumber: number): Promise<string | null>
   updateChapterStatus(bookId: string, chapterNumber: number, status: string, note?: string): Promise<boolean>
 
   // 真相文件
@@ -153,9 +178,26 @@ interface InkOSAPI {
   writeNext(bookId: string, wordCount?: number): Promise<unknown>
   auditChapter(bookId: string, chapterNumber?: number): Promise<unknown>
   reviseChapter(bookId: string, chapterNumber?: number, mode?: string): Promise<unknown>
+  checkContinuityPlus(bookId: string, chapterNumber?: number): Promise<unknown>
+  polishChapter(bookId: string, chapterNumber?: number): Promise<unknown>
 
   // 导出
   exportBook(bookId: string, format: 'txt' | 'md'): Promise<string | null>
+  exportEpub(bookId: string, metadata: {
+    title?: string
+    author: string
+    language?: 'zh' | 'en'
+    description?: string
+    keywords?: string[]
+    coverImageBase64?: string
+  }, options: {
+    includeToC: boolean
+    includeTitlePage: boolean
+    includeCopyrightPage: boolean
+    chapterHeadingStyle: 'chapter-number' | 'title-only' | 'full'
+  }): Promise<string | null>
+  saveCoverImage(dataUrl: string): Promise<string | null>
+  resolveBookLanguage(bookId: string): Promise<'zh' | 'en'>
 
   // 人性化引擎
   loadHumanizeSettings(bookId: string): Promise<HumanizeSettings>
@@ -168,6 +210,39 @@ interface InkOSAPI {
 
   // 风格分析
   listStyleBooks(bookId: string): Promise<string[]>
+
+  // 热榜
+  getTrendingPlatforms(): Promise<{ id: string; name: string; lists: { type: string; label: string }[] }[]>
+  fetchTrending(platformId: string, listType: string, translate: boolean): Promise<{
+    platform: string
+    listType: string
+    novels: {
+      rank: number
+      title: string
+      titleZh: string
+      tags: string
+      stats: string
+      platform: string
+      url: string
+    }[]
+    fetchedAt: string
+  }>
+  analyzeTrending(novels: {
+    rank: number
+    title: string
+    titleZh: string
+    tags: string
+    stats: string
+    platform: string
+    url: string
+  }[]): Promise<string>
+
+  // 创意库
+  vaultSave(entry: { novelCount: number; analysis: string }): Promise<{ id: string; createdAt: string }>
+  vaultList(): Promise<{ id: string; createdAt: string; novelCount: number; preview: string }[]>
+  vaultGet(id: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }>
+  vaultDelete(id: string): Promise<void>
+  vaultUpdate(id: string, analysis: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }>
   importStyleBook(bookId: string): Promise<string[] | null>
   removeStyleBook(bookId: string, fileName: string): Promise<boolean>
   analyzeStyleBooks(bookId: string): Promise<StyleProfile | null>
@@ -181,9 +256,17 @@ interface InkOSAPI {
   // AI建议
   generateSuggestions(bookId: string): Promise<AISuggestions>
   loadSuggestions(bookId: string): Promise<AISuggestions | null>
+  applySuggestions(bookId: string): Promise<boolean>
+
+  // 在线采样 (Book Inception Pipeline)
+  scraperFetchChapters(fictionUrl: string): Promise<ScrapedChapterInfo[]>
+  scraperScrapeForAnalysis(bookId: string, fictionUrl: string, fictionTitle: string, maxSamples?: number): Promise<ScrapeResult>
+
+  // 同步 style_guide.md
+  syncStyleGuide(bookId: string): Promise<boolean>
 
   // AIGC检测
-  analyzeAITells(content: string): Promise<AITellResult>
+  analyzeAITells(content: string, language?: 'zh' | 'en'): Promise<AITellResult>
   analyzeSensitiveWords(content: string, customWords?: string[]): Promise<SensitiveWordResult>
   detectChapter(bookId: string, chapterNumber: number, chapterTitle: string, content: string): Promise<DetectionRecord>
   loadDetectionHistory(bookId: string): Promise<DetectionRecord[]>

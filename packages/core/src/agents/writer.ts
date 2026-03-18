@@ -91,6 +91,7 @@ export class WriterAgent extends BaseAgent {
       characterMatrix,
       dialogueFingerprints,
       relevantSummaries,
+      en: genreProfile.language === "en",
     });
 
     const temperature = input.temperatureOverride ?? 0.7;
@@ -100,7 +101,7 @@ export class WriterAgent extends BaseAgent {
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      { maxTokens: 16384, temperature },
+      { maxTokens: 8192, temperature },
     );
 
     const output = this.parseOutput(chapterNumber, response.content, genreProfile);
@@ -120,6 +121,7 @@ export class WriterAgent extends BaseAgent {
     bookDir: string,
     output: WriteChapterOutput,
     numericalSystem: boolean = true,
+    english: boolean = false,
   ): Promise<void> {
     const chaptersDir = join(bookDir, "chapters");
     const storyDir = join(bookDir, "story");
@@ -128,11 +130,11 @@ export class WriterAgent extends BaseAgent {
     const paddedNum = String(output.chapterNumber).padStart(4, "0");
     const filename = `${paddedNum}_${this.sanitizeFilename(output.title)}.md`;
 
-    const chapterContent = [
-      `# 第${output.chapterNumber}章 ${output.title}`,
-      "",
-      output.content,
-    ].join("\n");
+    const header = english
+      ? `# Chapter ${output.chapterNumber}: ${output.title}`
+      : `# 第${output.chapterNumber}章 ${output.title}`;
+
+    const chapterContent = [header, "", output.content].join("\n");
 
     const writes: Array<Promise<void>> = [
       writeFile(join(chaptersDir, filename), chapterContent, "utf-8"),
@@ -165,38 +167,72 @@ export class WriterAgent extends BaseAgent {
     readonly characterMatrix: string;
     readonly dialogueFingerprints?: string;
     readonly relevantSummaries?: string;
+    readonly en?: boolean;
   }): string {
+    const en = params.en ?? false;
+    const notCreated = "(文件尚未创建)";
+
     const contextBlock = params.externalContext
-      ? `\n## 外部指令\n以下是来自外部系统的创作指令，请在本章中融入：\n\n${params.externalContext}\n`
+      ? en
+        ? `\n## External Directives\nIncorporate the following directives into this chapter:\n\n${params.externalContext}\n`
+        : `\n## 外部指令\n以下是来自外部系统的创作指令，请在本章中融入：\n\n${params.externalContext}\n`
       : "";
 
     const ledgerBlock = params.ledger
-      ? `\n## 资源账本\n${params.ledger}\n`
+      ? en ? `\n## Resource Ledger\n${params.ledger}\n` : `\n## 资源账本\n${params.ledger}\n`
       : "";
 
-    const summariesBlock = params.chapterSummaries !== "(文件尚未创建)"
-      ? `\n## 章节摘要（全部历史章节压缩上下文）\n${params.chapterSummaries}\n`
+    const summariesBlock = params.chapterSummaries !== notCreated
+      ? en
+        ? `\n## Chapter Summaries (compressed context of all prior chapters)\n${params.chapterSummaries}\n`
+        : `\n## 章节摘要（全部历史章节压缩上下文）\n${params.chapterSummaries}\n`
       : "";
 
-    const subplotBlock = params.subplotBoard !== "(文件尚未创建)"
-      ? `\n## 支线进度板\n${params.subplotBoard}\n`
+    const subplotBlock = params.subplotBoard !== notCreated
+      ? en ? `\n## Subplot Board\n${params.subplotBoard}\n` : `\n## 支线进度板\n${params.subplotBoard}\n`
       : "";
 
-    const emotionalBlock = params.emotionalArcs !== "(文件尚未创建)"
-      ? `\n## 情感弧线\n${params.emotionalArcs}\n`
+    const emotionalBlock = params.emotionalArcs !== notCreated
+      ? en ? `\n## Emotional Arcs\n${params.emotionalArcs}\n` : `\n## 情感弧线\n${params.emotionalArcs}\n`
       : "";
 
-    const matrixBlock = params.characterMatrix !== "(文件尚未创建)"
-      ? `\n## 角色交互矩阵\n${params.characterMatrix}\n`
+    const matrixBlock = params.characterMatrix !== notCreated
+      ? en ? `\n## Character Interaction Matrix\n${params.characterMatrix}\n` : `\n## 角色交互矩阵\n${params.characterMatrix}\n`
       : "";
 
     const fingerprintBlock = params.dialogueFingerprints
-      ? `\n## 角色对话指纹\n${params.dialogueFingerprints}\n`
+      ? en ? `\n## Character Dialogue Fingerprints\n${params.dialogueFingerprints}\n` : `\n## 角色对话指纹\n${params.dialogueFingerprints}\n`
       : "";
 
     const relevantBlock = params.relevantSummaries
-      ? `\n## 相关历史章节摘要\n${params.relevantSummaries}\n`
+      ? en ? `\n## Relevant Historical Chapter Summaries\n${params.relevantSummaries}\n` : `\n## 相关历史章节摘要\n${params.relevantSummaries}\n`
       : "";
+
+    if (en) {
+      const noRecent = params.recentChapters || "(This is Chapter 1, no prior content)";
+      return `Please continue writing Chapter ${params.chapterNumber}.
+${contextBlock}
+## Current State Card
+${params.currentState}
+${ledgerBlock}
+## Hook Pool
+${params.hooks}
+${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}${fingerprintBlock}${relevantBlock}
+## Recent Chapters
+${noRecent}
+
+## World-Building
+${params.storyBible}
+
+## Volume Outline
+${params.volumeOutline}
+
+Requirements:
+- Prose must be at least ${params.wordCount} words
+- After writing, update state card${params.ledger ? ", resource ledger" : ""}, hook pool, chapter summary, subplot board, emotional arcs, character interaction matrix
+- Output pre-write checklist first, then prose
+- ALL prose MUST be written in natural, fluent English`;
+    }
 
     return `请续写第${params.chapterNumber}章。
 ${contextBlock}

@@ -90,6 +90,21 @@ export class HumanizeAdapter {
     if (!existsSync(dir)) await mkdir(dir, { recursive: true })
   }
 
+  /** 从 bookId 解析语言：读 book.json → genre → readGenreProfile → language */
+  private async resolveLanguage(bookId: string): Promise<'zh' | 'en'> {
+    try {
+      const bookJsonPath = join(this.getRoot(), 'books', bookId, 'book.json')
+      const bookConfig = JSON.parse(await readFile(bookJsonPath, 'utf-8'))
+      const genre: string = bookConfig?.genre
+      if (genre) {
+        const { readGenreProfile } = await import('@actalk/inkos-core')
+        const { profile } = await readGenreProfile(this.getRoot(), genre)
+        return profile.language ?? 'zh'
+      }
+    } catch { /* fallback to zh */ }
+    return 'zh'
+  }
+
   // ===== 人性化设置 =====
 
   async loadSettings(bookId: string): Promise<HumanizeSettings> {
@@ -228,28 +243,58 @@ export class HumanizeAdapter {
     onProgress?: (msg: string, pct: number) => void
   ): Promise<FingerprintData> {
     const { chatCompletion } = await import('@actalk/inkos-core')
+    const lang = await this.resolveLanguage(bookId)
+    const en = lang === 'en'
     const dir = join(this.bookConfigDir(bookId), 'style-books')
-    if (!existsSync(dir)) throw new Error('没有导入风格参考书')
+    if (!existsSync(dir)) throw new Error(en ? 'No style reference books imported' : '没有导入风格参考书')
     const files = (await readdir(dir)).filter(f => f.endsWith('.txt'))
-    if (files.length === 0) throw new Error('没有导入风格参考书')
+    if (files.length === 0) throw new Error(en ? 'No style reference books imported' : '没有导入风格参考书')
 
-    onProgress?.('采样文本...', 10)
+    onProgress?.(en ? 'Sampling text...' : '采样文本...', 10)
     let samples = ''
     for (const f of files) {
       const content = await readFile(join(dir, f), 'utf-8')
       const len = content.length
       if (len < 500) continue
       const sampleLen = Math.min(1500, Math.floor(len / 3))
-      samples += `\n--- 来自《${f.replace('.txt', '')}》---\n`
-      samples += `【开头】\n${content.substring(0, sampleLen)}\n`
-      samples += `【中间】\n${content.substring(Math.floor(len / 2) - sampleLen / 2, Math.floor(len / 2) + sampleLen / 2)}\n`
-      samples += `【结尾】\n${content.substring(len - sampleLen)}\n`
+      const bookName = f.replace('.txt', '')
+      samples += en
+        ? `\n--- From "${bookName}" ---\n`
+        : `\n--- 来自《${bookName}》---\n`
+      samples += en
+        ? `[Opening]\n${content.substring(0, sampleLen)}\n`
+        : `【开头】\n${content.substring(0, sampleLen)}\n`
+      samples += en
+        ? `[Middle]\n${content.substring(Math.floor(len / 2) - sampleLen / 2, Math.floor(len / 2) + sampleLen / 2)}\n`
+        : `【中间】\n${content.substring(Math.floor(len / 2) - sampleLen / 2, Math.floor(len / 2) + sampleLen / 2)}\n`
+      samples += en
+        ? `[Ending]\n${content.substring(len - sampleLen)}\n`
+        : `【结尾】\n${content.substring(len - sampleLen)}\n`
     }
 
-    onProgress?.('AI深度分析风格...', 40)
-    const res = await chatCompletion(client, model, [
-      { role: 'system', content: '你是一位资深的文学风格分析专家。请用中文详细分析给定文本的写作风格特征。' },
-      { role: 'user', content: `请深度分析以下多本小说的文风特征，提炼出精准的"风格指纹"。
+    onProgress?.(en ? 'AI deep style analysis...' : 'AI深度分析风格...', 40)
+
+    const systemContent = en
+      ? 'You are a senior literary style analyst. Analyze the given text\'s writing style characteristics in detail. Respond in English.'
+      : '你是一位资深的文学风格分析专家。请用中文详细分析给定文本的写作风格特征。'
+
+    const userContent = en
+      ? `Perform a deep analysis of the following novel samples and extract a precise "style fingerprint".
+
+Analysis dimensions:
+1. Sentence rhythm (long/short sentence ratio, punctuation habits)
+2. Vocabulary preferences (common words, register level, colloquial vs formal)
+3. Narrative distance (close POV vs wide-angle omniscient)
+4. Rhetorical habits (metaphor, parallelism, hyperbole tendencies)
+5. Emotional expression (direct emoting vs environment-as-mood vs action-implies-feeling)
+6. Dialogue handling (dialogue proportion, dialogue tag habits, colloquial level)
+7. Scene transitions (hard cuts vs transitions vs montage)
+8. Unique markers (author's signature techniques, distinctive expressions)
+
+Output a detailed style fingerprint report.
+
+${samples}`
+      : `请深度分析以下多本小说的文风特征，提炼出精准的"风格指纹"。
 
 分析维度：
 1. 句式节奏（长短句比例、断句习惯）
@@ -263,10 +308,14 @@ export class HumanizeAdapter {
 
 请输出一份详细的风格指纹报告。
 
-${samples}` }
+${samples}`
+
+    const res = await chatCompletion(client, model, [
+      { role: 'system', content: systemContent },
+      { role: 'user', content: userContent }
     ], { maxTokens: 4096 })
 
-    onProgress?.('保存指纹...', 90)
+    onProgress?.(en ? 'Saving fingerprint...' : '保存指纹...', 90)
     const data: FingerprintData = {
       fingerprint: res.content,
       enabled: true,
@@ -288,28 +337,57 @@ ${samples}` }
     onProgress?: (msg: string, pct: number) => void
   ): Promise<AISuggestions> {
     const { chatCompletion } = await import('@actalk/inkos-core')
+    const lang = await this.resolveLanguage(bookId)
+    const en = lang === 'en'
     const dir = join(this.bookConfigDir(bookId), 'style-books')
-    if (!existsSync(dir)) throw new Error('没有导入风格参考书')
+    if (!existsSync(dir)) throw new Error(en ? 'No style reference books imported' : '没有导入风格参考书')
     const files = (await readdir(dir)).filter(f => f.endsWith('.txt'))
-    if (files.length === 0) throw new Error('没有导入风格参考书')
+    if (files.length === 0) throw new Error(en ? 'No style reference books imported' : '没有导入风格参考书')
 
-    onProgress?.('采样文本...', 10)
+    onProgress?.(en ? 'Sampling text...' : '采样文本...', 10)
     let samples = ''
     for (const f of files) {
       const content = await readFile(join(dir, f), 'utf-8')
       const len = content.length
       if (len < 500) continue
       const sampleLen = Math.min(2000, Math.floor(len / 3))
-      samples += `\n--- 来自《${f.replace('.txt', '')}》---\n`
-      samples += `【开头】\n${content.substring(0, sampleLen)}\n`
-      samples += `【中间】\n${content.substring(Math.floor(len / 2) - sampleLen / 2, Math.floor(len / 2) + sampleLen / 2)}\n`
-      samples += `【结尾】\n${content.substring(len - sampleLen)}\n`
+      const bookName = f.replace('.txt', '')
+      samples += en
+        ? `\n--- From "${bookName}" ---\n`
+        : `\n--- 来自《${bookName}》---\n`
+      samples += en
+        ? `[Opening]\n${content.substring(0, sampleLen)}\n`
+        : `【开头】\n${content.substring(0, sampleLen)}\n`
+      samples += en
+        ? `[Middle]\n${content.substring(Math.floor(len / 2) - sampleLen / 2, Math.floor(len / 2) + sampleLen / 2)}\n`
+        : `【中间】\n${content.substring(Math.floor(len / 2) - sampleLen / 2, Math.floor(len / 2) + sampleLen / 2)}\n`
+      samples += en
+        ? `[Ending]\n${content.substring(len - sampleLen)}\n`
+        : `【结尾】\n${content.substring(len - sampleLen)}\n`
     }
 
-    onProgress?.('AI正在生成全方位建议...', 30)
-    const res = await chatCompletion(client, model, [
-      { role: 'system', content: '你是一位精通各类型小说创作的资深顾问。请严格按要求的JSON格式输出内容建议，不要输出任何JSON以外的文字。' },
-      { role: 'user', content: `基于以下小说样本，生成完整的创作建议。严格按JSON格式输出：
+    onProgress?.(en ? 'AI generating comprehensive suggestions...' : 'AI正在生成全方位建议...', 30)
+
+    const systemContent = en
+      ? 'You are a senior novel writing consultant. Output content suggestions strictly in the required JSON format. Do not output any text outside the JSON.'
+      : '你是一位精通各类型小说创作的资深顾问。请严格按要求的JSON格式输出内容建议，不要输出任何JSON以外的文字。'
+
+    const userContent = en
+      ? `Based on the following novel samples, generate comprehensive creative suggestions. Output strictly in JSON format:
+
+{
+  "storyIdeas": [{"title":"Idea 1","content":"200-word description"},{"title":"Idea 2","content":"description"},{"title":"Idea 3","content":"description"}],
+  "writerRole": "Author role definition (200 words)",
+  "writingRules": "Writing rules (300 words)",
+  "humanizeSettings": {"pov":"third-limited","tense":"past","creativity":5,"pacing":"balanced","mood":"neutral","showDontTell":"medium","dialogue":"natural","density":"medium","reasons":{"pov":"reason","tense":"reason","pacing":"reason","mood":"reason","dialogue":"reason","density":"reason"}},
+  "voiceCards": [{"name":"Character Type","speech":"Speaking style","tone":"Tone","quirks":"Speech quirks"}],
+  "sceneBeats": [{"title":"Beat Template Name","beats":["Beat 1","Beat 2","Beat 3","Beat 4"]}],
+  "storyArc": {"phases":[{"name":"Phase","chapters":"1-N","goal":"Goal"}]}
+}
+
+Novel samples:
+${samples}`
+      : `基于以下小说样本，生成完整的创作建议。严格按JSON格式输出：
 
 {
   "storyIdeas": [{"title":"创意1","content":"200字描述"},{"title":"创意2","content":"描述"},{"title":"创意3","content":"描述"}],
@@ -322,7 +400,11 @@ ${samples}` }
 }
 
 小说样本：
-${samples}` }
+${samples}`
+
+    const res = await chatCompletion(client, model, [
+      { role: 'system', content: systemContent },
+      { role: 'user', content: userContent }
     ], { maxTokens: 4096 })
 
     onProgress?.('解析建议...', 85)
@@ -357,28 +439,54 @@ ${samples}` }
   async buildStyleGuidance(bookId: string, chapterNumber?: number): Promise<string> {
     let guidance = ''
     const settings = await this.loadSettings(bookId)
+    const lang = await this.resolveLanguage(bookId)
+    const en = lang === 'en'
 
-    const povMap: Record<string, string> = { first: '第一人称视角', 'third-limited': '第三人称有限视角', 'third-omniscient': '第三人称全知视角' }
-    const pacingMap: Record<string, string> = { fast: '快节奏', balanced: '均衡节奏', slow: '慢节奏' }
-    const moodMap: Record<string, string> = { neutral: '中性客观', tense: '紧张悬疑', warm: '温馨治愈', dark: '黑暗沉重', humorous: '幽默诙谐', epic: '史诗恢宏' }
-    const dialogueMap: Record<string, string> = { formal: '正式措辞', natural: '自然对话', colloquial: '口语化' }
-    const densityMap: Record<string, string> = { sparse: '简洁惜墨', medium: '适中详略', rich: '丰富沉浸' }
+    const povMap: Record<string, string> = en
+      ? { first: 'First Person', 'third-limited': 'Third Person Limited', 'third-omniscient': 'Third Person Omniscient' }
+      : { first: '第一人称视角', 'third-limited': '第三人称有限视角', 'third-omniscient': '第三人称全知视角' }
+    const pacingMap: Record<string, string> = en
+      ? { fast: 'Fast-paced', balanced: 'Balanced', slow: 'Slow-burn' }
+      : { fast: '快节奏', balanced: '均衡节奏', slow: '慢节奏' }
+    const moodMap: Record<string, string> = en
+      ? { neutral: 'Neutral/Objective', tense: 'Tense/Suspenseful', warm: 'Warm/Cozy', dark: 'Dark/Gritty', humorous: 'Humorous/Witty', epic: 'Epic/Grand' }
+      : { neutral: '中性客观', tense: '紧张悬疑', warm: '温馨治愈', dark: '黑暗沉重', humorous: '幽默诙谐', epic: '史诗恢宏' }
+    const dialogueMap: Record<string, string> = en
+      ? { formal: 'Formal speech', natural: 'Natural dialogue', colloquial: 'Colloquial/Slangy' }
+      : { formal: '正式措辞', natural: '自然对话', colloquial: '口语化' }
+    const densityMap: Record<string, string> = en
+      ? { sparse: 'Sparse/Lean prose', medium: 'Balanced detail', rich: 'Rich/Immersive' }
+      : { sparse: '简洁惜墨', medium: '适中详略', rich: '丰富沉浸' }
 
-    guidance += `\n【人性化风格要求】\n`
-    guidance += `视角：${povMap[settings.pov] ?? '第三人称有限视角'} | 创意度：${settings.creativity}/10\n`
-    guidance += `节奏：${pacingMap[settings.pacing] ?? '均衡'} | 基调：${moodMap[settings.mood] ?? '中性'}\n`
-    guidance += `对话：${dialogueMap[settings.dialogue] ?? '自然'} | 密度：${densityMap[settings.density] ?? '适中'}\n`
+    const defaultPov = en ? 'Third Person Limited' : '第三人称有限视角'
+    const defaultMood = en ? 'Neutral/Objective' : '中性'
+    const defaultDialogue = en ? 'Natural dialogue' : '自然'
+    const defaultDensity = en ? 'Balanced detail' : '适中'
+
+    if (en) {
+      guidance += `\n[Humanization Style Requirements]\n`
+      guidance += `POV: ${povMap[settings.pov] ?? defaultPov} | Creativity: ${settings.creativity}/10\n`
+      guidance += `Pacing: ${pacingMap[settings.pacing] ?? 'Balanced'} | Mood: ${moodMap[settings.mood] ?? defaultMood}\n`
+      guidance += `Dialogue: ${dialogueMap[settings.dialogue] ?? defaultDialogue} | Density: ${densityMap[settings.density] ?? defaultDensity}\n`
+    } else {
+      guidance += `\n【人性化风格要求】\n`
+      guidance += `视角：${povMap[settings.pov] ?? defaultPov} | 创意度：${settings.creativity}/10\n`
+      guidance += `节奏：${pacingMap[settings.pacing] ?? '均衡'} | 基调：${moodMap[settings.mood] ?? defaultMood}\n`
+      guidance += `对话：${dialogueMap[settings.dialogue] ?? defaultDialogue} | 密度：${densityMap[settings.density] ?? defaultDensity}\n`
+    }
 
     // 指纹
     const fp = await this.loadFingerprint(bookId)
     if (fp?.enabled && fp.fingerprint) {
-      guidance += `\n【风格指纹 (模仿强度:${fp.strength}/10)】\n${fp.fingerprint.substring(0, 2000)}\n`
+      guidance += en
+        ? `\n[Style Fingerprint (imitation strength: ${fp.strength}/10)]\n${fp.fingerprint.substring(0, 2000)}\n`
+        : `\n【风格指纹 (模仿强度:${fp.strength}/10)】\n${fp.fingerprint.substring(0, 2000)}\n`
     }
 
     // 声音卡片
     const cards = await this.loadVoiceCards(bookId)
     if (cards.length > 0) {
-      guidance += '\n【角色声音卡片】\n'
+      guidance += en ? '\n[Character Voice Cards]\n' : '\n【角色声音卡片】\n'
       for (const c of cards) {
         guidance += `${c.name}: ${c.speech} / ${c.tone}${c.quirks ? ` / ${c.quirks}` : ''}\n`
       }
@@ -388,7 +496,7 @@ ${samples}` }
     if (chapterNumber !== undefined) {
       const beats = await this.loadSceneBeats(bookId, chapterNumber)
       if (beats?.length) {
-        guidance += '\n【本章场景节拍】\n'
+        guidance += en ? '\n[Scene Beats for This Chapter]\n' : '\n【本章场景节拍】\n'
         beats.forEach((b, i) => { guidance += `${i + 1}. ${b}\n` })
       }
     }
