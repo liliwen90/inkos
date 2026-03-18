@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
-import { readFile, readdir, writeFile, mkdir, rm } from 'fs/promises'
+import { readFile, readdir, writeFile, mkdir, rm, appendFile } from 'fs/promises'
 import { join } from 'path'
-import type { BookConfig, ChapterMeta } from '@actalk/hintos-core'
+import type { BookConfig, ChapterMeta, PlanIndex, PlanEntry, PlanStats } from '@actalk/hintos-core'
 import { buildEpub, type EpubChapter, type EpubMetadata, type KDPFormatOptions } from './epub-adapter'
 
 export interface BookSummary {
@@ -340,5 +340,105 @@ export class StateAdapter {
     }
 
     return buildEpub(epubChapters, fullMeta, options)
+  }
+
+  // ===== 章节大纲 (Plan) =====
+
+  async loadPlanIndex(bookId: string): Promise<PlanIndex> {
+    const indexPath = join(this.getRoot(), 'books', bookId, 'plans', 'plan_index.json')
+    try {
+      const raw = await readFile(indexPath, 'utf-8')
+      return JSON.parse(raw) as PlanIndex
+    } catch {
+      return { plans: [] }
+    }
+  }
+
+  async savePlanIndex(bookId: string, index: PlanIndex): Promise<void> {
+    const plansDir = join(this.getRoot(), 'books', bookId, 'plans')
+    await mkdir(plansDir, { recursive: true })
+    await writeFile(join(plansDir, 'plan_index.json'), JSON.stringify(index, null, 2), 'utf-8')
+  }
+
+  async loadChapterPlan(bookId: string, chapter: number): Promise<string> {
+    const padded = String(chapter).padStart(3, '0')
+    const planPath = join(this.getRoot(), 'books', bookId, 'plans', `chapter_plan_${padded}.md`)
+    try {
+      return await readFile(planPath, 'utf-8')
+    } catch {
+      return ''
+    }
+  }
+
+  async saveChapterPlan(bookId: string, chapter: number, content: string): Promise<void> {
+    const plansDir = join(this.getRoot(), 'books', bookId, 'plans')
+    await mkdir(plansDir, { recursive: true })
+    const padded = String(chapter).padStart(3, '0')
+    await writeFile(join(plansDir, `chapter_plan_${padded}.md`), content, 'utf-8')
+  }
+
+  async approvePlan(bookId: string, chapter: number): Promise<void> {
+    const index = await this.loadPlanIndex(bookId)
+    const entry = index.plans.find((p) => p.chapter === chapter)
+    if (!entry) throw new Error(`No plan found for chapter ${chapter}`)
+    const now = new Date().toISOString()
+    const updated: PlanIndex = {
+      plans: index.plans.map((p) =>
+        p.chapter === chapter ? { ...p, status: 'approved' as const, approvedAt: now } : p
+      )
+    }
+    await this.savePlanIndex(bookId, updated)
+  }
+
+  async rejectPlan(bookId: string, chapter: number, feedback: string): Promise<void> {
+    const index = await this.loadPlanIndex(bookId)
+    const entry = index.plans.find((p) => p.chapter === chapter)
+    if (!entry) throw new Error(`No plan found for chapter ${chapter}`)
+    const now = new Date().toISOString()
+    const updated: PlanIndex = {
+      plans: index.plans.map((p) =>
+        p.chapter === chapter ? { ...p, status: 'rejected' as const, rejectedAt: now, feedback } : p
+      )
+    }
+    await this.savePlanIndex(bookId, updated)
+  }
+
+  async updatePlanContent(bookId: string, chapter: number, content: string): Promise<void> {
+    const index = await this.loadPlanIndex(bookId)
+    const entry = index.plans.find((p) => p.chapter === chapter)
+    if (!entry) throw new Error(`No plan found for chapter ${chapter}`)
+    if (entry.status === 'written') throw new Error(`Chapter ${chapter} plan is already written — cannot edit`)
+    await this.saveChapterPlan(bookId, chapter, content)
+  }
+
+  getPlanStats(index: PlanIndex): PlanStats {
+    const plans = index.plans
+    return {
+      total: plans.length,
+      unplanned: 0,
+      pending: plans.filter((p) => p.status === 'pending').length,
+      approved: plans.filter((p) => p.status === 'approved').length,
+      rejected: plans.filter((p) => p.status === 'rejected').length,
+      written: plans.filter((p) => p.status === 'written').length,
+    }
+  }
+
+  // ===== 操作日志 =====
+
+  async appendOperationLog(bookId: string, event: { type: string; [key: string]: unknown }): Promise<void> {
+    const logPath = join(this.getRoot(), 'books', bookId, 'operation_log.jsonl')
+    const entry = { ts: new Date().toISOString(), ...event }
+    await appendFile(logPath, JSON.stringify(entry) + '\n', 'utf-8')
+  }
+
+  async readOperationLog(bookId: string, limit = 100): Promise<Array<Record<string, unknown>>> {
+    const logPath = join(this.getRoot(), 'books', bookId, 'operation_log.jsonl')
+    try {
+      const raw = await readFile(logPath, 'utf-8')
+      const lines = raw.trim().split('\n').filter(Boolean)
+      return lines.slice(-limit).map((l) => JSON.parse(l))
+    } catch {
+      return []
+    }
   }
 }

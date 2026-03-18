@@ -234,6 +234,7 @@ export default function Dashboard(): JSX.Element {
                     'bg-zinc-800 text-zinc-400'
                   }`}>{book.status}</span>
                 </div>
+                <BookPlanBadge bookId={book.bookId} />
                 </button>
                 <button onClick={(e) => { e.stopPropagation(); setEditBook(book) }}
                   className="absolute top-3 right-12 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-zinc-700 transition-all"
@@ -273,6 +274,7 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
   const [styleBookPaths, setStyleBookPaths] = useState<string[]>([])
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
+  const [progressSteps, setProgressSteps] = useState<string[]>([])
   const addProgressEvent = useAppStore((s) => s.addProgressEvent)
   const activeGenres = lang === 'en' ? GENRES_EN : GENRES_ZH
   const activePlatforms = lang === 'en' ? PLATFORMS_EN : PLATFORMS_ZH
@@ -293,9 +295,17 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
     if (!title.trim()) { setError('请输入书名'); return }
     setCreating(true)
     setError('')
+    setProgressSteps([])
     try {
       const unsub = window.hintos.onProgress((evt: unknown) => {
-        addProgressEvent(evt as { stage: string; detail: string; timestamp: number })
+        const e = evt as { stage: string; detail: string; timestamp: number }
+        addProgressEvent(e)
+        setProgressSteps(prev => {
+          const last = prev[prev.length - 1]
+          // 去重：如果上一条和新的 stage 相同则替换（进度更新）
+          if (last && e.stage === last) return prev
+          return [...prev.slice(-9), e.stage]
+        })
       })
       await window.hintos.createBook({
         title: title.trim(), genre, platform,
@@ -413,6 +423,20 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
         </div>
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
+
+        {/* 创建进度面板 */}
+        {creating && progressSteps.length > 0 && (
+          <div className="bg-zinc-800/60 border border-zinc-700 rounded-lg p-3 space-y-1 max-h-40 overflow-y-auto">
+            {progressSteps.map((step, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs">
+                {i === progressSteps.length - 1
+                  ? <Loader2 className="w-3.5 h-3.5 text-violet-400 animate-spin shrink-0 mt-0.5" />
+                  : <BookOpenCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />}
+                <span className={i === progressSteps.length - 1 ? 'text-zinc-200' : 'text-zinc-500'}>{step}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-2">
           <button onClick={handleClose} disabled={creating}
@@ -538,6 +562,24 @@ function EditBookDialog({ book, onClose }: { book: BookSummary; onClose: () => v
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+function BookPlanBadge({ bookId }: { bookId: string }): JSX.Element | null {
+  const [stats, setStats] = useState<{ pending: number; approved: number; written: number } | null>(null)
+  useEffect(() => {
+    window.hintos.planStats(bookId).then((s) => {
+      const st = s as { pending: number; approved: number; written: number; total: number }
+      if (st.total > 0) setStats(st)
+    }).catch(() => {})
+  }, [bookId])
+  if (!stats) return null
+  return (
+    <div className="flex items-center gap-2 mt-2 text-[10px]">
+      {stats.pending > 0 && <span className="text-amber-400">{stats.pending} 待审</span>}
+      {stats.approved > 0 && <span className="text-emerald-400">{stats.approved} 可写</span>}
+      {stats.written > 0 && <span className="text-blue-400">{stats.written} 已写</span>}
     </div>
   )
 }

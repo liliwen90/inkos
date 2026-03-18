@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { PenTool, Play, Loader2, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
+import { PenTool, Play, Loader2, CheckCircle2, XCircle, AlertTriangle, FileCheck } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useAppStore, type ProgressEvent, type BookSummary } from '../stores/app-store'
 
 const STAGES = [
@@ -43,6 +44,8 @@ export default function WritingConsole(): JSX.Element {
   const [result, setResult] = useState<unknown>(null)
   const [error, setError] = useState('')
   const [completedChapters, setCompletedChapters] = useState(0)
+  const [nextChapterPlanStatus, setNextChapterPlanStatus] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   // 监听进度事件
   useEffect(() => {
@@ -58,6 +61,19 @@ export default function WritingConsole(): JSX.Element {
       window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
     }
   }, [projectLoaded, setBooks])
+
+  // 检查下一章大纲状态
+  useEffect(() => {
+    if (!currentBookId) { setNextChapterPlanStatus(null); return }
+    const book = books.find(b => b.bookId === currentBookId)
+    if (!book) return
+    const nextCh = book.chapterCount + 1
+    window.hintos.planList(currentBookId).then((idx) => {
+      const planIdx = idx as { plans: { chapter: number; status: string }[] }
+      const entry = planIdx.plans.find(p => p.chapter === nextCh)
+      setNextChapterPlanStatus(entry?.status ?? null)
+    }).catch(() => setNextChapterPlanStatus(null))
+  }, [currentBookId, books])
 
   const handleWriteNext = useCallback(async () => {
     if (!currentBookId || !pipelineReady) return
@@ -157,9 +173,28 @@ export default function WritingConsole(): JSX.Element {
             )}
           </button>
           {currentBook && (
-            <span className="text-zinc-500 text-sm">
-              下一章: 第{currentBook.chapterCount + 1}章
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-zinc-500 text-sm">
+                下一章: 第{currentBook.chapterCount + 1}章
+              </span>
+              {nextChapterPlanStatus === 'approved' && (
+                <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
+                  <FileCheck className="w-3 h-3" /> 大纲已审核
+                </span>
+              )}
+              {nextChapterPlanStatus === 'pending' && (
+                <button onClick={() => navigate('/plan-review')}
+                  className="inline-flex items-center gap-1 text-[11px] text-amber-400 hover:text-amber-300">
+                  <AlertTriangle className="w-3 h-3" /> 大纲待审核 →
+                </button>
+              )}
+              {!nextChapterPlanStatus && currentBook.chapterCount > 0 && (
+                <button onClick={() => navigate('/plan-review')}
+                  className="inline-flex items-center gap-1 text-[11px] text-zinc-500 hover:text-zinc-400">
+                  无大纲（可直接写或先规划）
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

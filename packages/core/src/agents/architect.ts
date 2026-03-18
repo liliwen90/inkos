@@ -1,6 +1,7 @@
 import { BaseAgent } from "./base.js";
 import type { BookConfig } from "../models/book.js";
 import type { GenreProfile } from "../models/genre-profile.js";
+import type { PlanTruthFiles } from "../models/plan.js";
 import { readGenreProfile } from "./rules-reader.js";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -77,6 +78,264 @@ export class ArchitectAgent extends BaseAgent {
 
     return this.parseSections(response.content);
   }
+
+  /**
+   * Generate a detailed chapter plan for the given chapter number.
+   * The Architect considers all truth files plus the previous chapter's plan.
+   */
+  async planChapter(
+    book: BookConfig,
+    chapterNumber: number,
+    truthFiles: PlanTruthFiles,
+    prevPlan?: string,
+    feedback?: string,
+  ): Promise<string> {
+    const { profile: gp, body: genreBody } =
+      await readGenreProfile(this.ctx.projectRoot, book.genre);
+    const en = gp.language === "en";
+
+    const systemPrompt = en
+      ? this.buildPlanSystemPromptEn(book, gp, genreBody)
+      : this.buildPlanSystemPromptZh(book, gp, genreBody);
+
+    const userPrompt = this.buildPlanUserPrompt(chapterNumber, truthFiles, en, prevPlan, feedback);
+
+    const response = await this.chat(
+      [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      { maxTokens: 4096, temperature: 0.7 },
+    );
+
+    return response.content.trim();
+  }
+
+  /**
+   * Re-plan a chapter after rejection with user feedback.
+   * Wraps planChapter with the rejected plan + feedback.
+   */
+  async replanChapter(
+    book: BookConfig,
+    chapterNumber: number,
+    truthFiles: PlanTruthFiles,
+    rejectedPlan: string,
+    feedback: string,
+  ): Promise<string> {
+    return this.planChapter(book, chapterNumber, truthFiles, rejectedPlan, feedback);
+  }
+
+  private buildPlanSystemPromptEn(book: BookConfig, gp: GenreProfile, genreBody: string): string {
+    return `You are a professional web fiction architect specializing in ${gp.name}.
+Your task is to generate a detailed SINGLE CHAPTER PLAN for the next chapter of an ongoing novel.
+
+<requirements>
+- Platform: ${book.platform}
+- Genre: ${gp.name} (${book.genre})
+- Words per chapter: ${book.chapterWordCount}
+</requirements>
+
+<genre_context>
+${genreBody}
+</genre_context>
+
+<planning_rules>
+1. Check volume_outline for the pacing goals of the current volume.
+2. Check pending_hooks for any hooks that are overdue for payoff.
+3. Check subplot_board for any stalled subplots that need advancement.
+4. Check emotional_arcs to avoid flat emotional repetition.
+5. Each scene beat should have a clear purpose and approximate word count.
+6. The plan must be self-contained — a writer who only reads this plan + truth files can write the chapter.
+</planning_rules>
+
+Output the plan in the EXACT format specified in the user message. Do NOT output anything else.
+ALL content MUST be in natural, fluent English.`;
+  }
+
+  private buildPlanSystemPromptZh(book: BookConfig, gp: GenreProfile, genreBody: string): string {
+    return `你是一位专精${gp.name}题材的专业网络小说架构师。
+你的任务是为一本正在连载的小说生成下一章的详细章节大纲。
+
+<要求>
+- 平台：${book.platform}
+- 题材：${gp.name}（${book.genre}）
+- 每章字数：${book.chapterWordCount}字
+</要求>
+
+<题材特征>
+${genreBody}
+</题材特征>
+
+<规划铁律>
+1. 查看卷纲(volume_outline)，确认当前卷的节奏目标。
+2. 查看伏笔池(pending_hooks)，是否有到期应回收的伏笔。
+3. 查看支线进度板(subplot_board)，是否有停滞过久的支线需要推进。
+4. 查看情感弧线(emotional_arcs)，避免情绪单调重复。
+5. 每个场景节拍必须有明确目的和大致字数。
+6. 大纲必须自成一体——写手只看这份大纲+真相文件就能写作。
+</规划铁律>
+
+严格按照用户消息中指定的格式输出，不要输出其他内容。`;
+  }
+
+  private buildPlanUserPrompt(
+    chapterNumber: number,
+    tf: PlanTruthFiles,
+    en: boolean,
+    prevPlan?: string,
+    feedback?: string,
+  ): string {
+    const notCreated = "(文件尚未创建)";
+
+    // Truncate chapter_summaries to last 20 rows to control context size
+    const truncatedSummaries = this.truncateSummaries(tf.chapterSummaries, 20);
+
+    const feedbackBlock = prevPlan && feedback
+      ? en
+        ? `\n## REJECTED PLAN (DO NOT repeat these mistakes)\n${prevPlan}\n\n## USER FEEDBACK\n${feedback}\n\nGenerate a NEW plan that addresses the feedback above.\n`
+        : `\n## 被驳回的大纲（不要重蹈覆辙）\n${prevPlan}\n\n## 用户反馈\n${feedback}\n\n请根据上述反馈生成新的大纲。\n`
+      : "";
+
+    const summariesBlock = truncatedSummaries !== notCreated
+      ? en
+        ? `\n## Chapter Summaries (recent)\n${truncatedSummaries}\n`
+        : `\n## 章节摘要（最近）\n${truncatedSummaries}\n`
+      : "";
+
+    const subplotBlock = tf.subplotBoard !== notCreated
+      ? en ? `\n## Subplot Board\n${tf.subplotBoard}\n` : `\n## 支线进度板\n${tf.subplotBoard}\n`
+      : "";
+
+    const emotionalBlock = tf.emotionalArcs !== notCreated
+      ? en ? `\n## Emotional Arcs\n${tf.emotionalArcs}\n` : `\n## 情感弧线\n${tf.emotionalArcs}\n`
+      : "";
+
+    const matrixBlock = tf.characterMatrix !== notCreated
+      ? en ? `\n## Character Interaction Matrix\n${tf.characterMatrix}\n` : `\n## 角色交互矩阵\n${tf.characterMatrix}\n`
+      : "";
+
+    const entityBlock = tf.entityRegistry !== notCreated
+      ? en
+        ? `\n## Entity Registry\n${tf.entityRegistry}\n`
+        : `\n## 实体注册表\n${tf.entityRegistry}\n`
+      : "";
+
+    if (en) {
+      return `Generate a detailed plan for Chapter ${chapterNumber}.
+${feedbackBlock}
+## Current State Card
+${tf.currentState}
+
+## Hook Pool
+${tf.pendingHooks}
+${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}${entityBlock}
+## World-Building
+${tf.storyBible}
+
+## Volume Outline
+${tf.volumeOutline}
+
+## Book Rules
+${tf.bookRules}
+
+Output the plan in EXACTLY this format:
+
+# Chapter ${chapterNumber} Plan
+
+## Chapter Title
+{title}
+
+## POV
+{viewpoint character} / {viewpoint type}
+
+## Scene Beats
+1. {beat description} (~{word count} words)
+2. {beat description} (~{word count} words)
+...
+
+## Emotional Curve
+{starting emotion} → {turning point} → {ending emotion}
+
+## Subplots Advanced
+- {subplot name}: {what happens in this chapter}
+
+## Hooks Resolved
+- Ch.{X} {hook name}: {how it's resolved}
+
+## New Hooks Set
+- {hook description}
+
+## Target Word Count
+{word count}
+
+## Planning Rationale
+{why this arrangement, logical connection to previous chapters}`;
+    }
+
+    return `请为第${chapterNumber}章生成详细大纲。
+${feedbackBlock}
+## 当前状态卡
+${tf.currentState}
+
+## 伏笔池
+${tf.pendingHooks}
+${summariesBlock}${subplotBlock}${emotionalBlock}${matrixBlock}${entityBlock}
+## 世界观设定
+${tf.storyBible}
+
+## 卷纲
+${tf.volumeOutline}
+
+## 本书铁律
+${tf.bookRules}
+
+严格按以下格式输出：
+
+# 第${chapterNumber}章 大纲
+
+## 章节标题
+{标题}
+
+## POV
+{视角人物} / {视角类型}
+
+## 场景节拍
+1. {节拍描述} (~{字数}字)
+2. {节拍描述} (~{字数}字)
+...
+
+## 情绪曲线
+{起始情绪} → {转折} → {结束情绪}
+
+## 推进支线
+- {支线名}: {本章推进内容}
+
+## 回收伏笔
+- 第{X}章 {伏笔名}: {回收方式}
+
+## 新设钩子
+- {钩子描述}
+
+## 目标字数
+{字数}
+
+## 规划理由
+{为什么这样安排，与前文的逻辑关系}`;
+  }
+
+  /** Truncate chapter summaries to the last N table rows to control prompt size. */
+  private truncateSummaries(summaries: string, maxRows: number): string {
+    if (!summaries || summaries === "(文件尚未创建)") return summaries;
+    const lines = summaries.split("\n");
+    const headerLines = lines.filter((l) => l.startsWith("| 章节") || l.startsWith("| -") || l.startsWith("# "));
+    const dataRows = lines.filter((l) => l.startsWith("|") && !l.startsWith("| 章节") && !l.startsWith("| -"));
+    const truncated = dataRows.slice(-maxRows);
+    return [...headerLines, ...truncated].join("\n");
+  }
+
+  // ---------------------------------------------------------------------------
+  // Foundation prompt builders
+  // ---------------------------------------------------------------------------
 
   private buildEnglishPrompt(
     book: BookConfig, gp: GenreProfile, genreBody: string,
@@ -306,7 +565,9 @@ ${eraBlock}
     numericalSystem: boolean = true,
   ): Promise<void> {
     const storyDir = join(bookDir, "story");
+    const plansDir = join(bookDir, "plans");
     await mkdir(storyDir, { recursive: true });
+    await mkdir(plansDir, { recursive: true });
 
     const writes: Array<Promise<void>> = [
       writeFile(join(storyDir, "story_bible.md"), output.storyBible, "utf-8"),
@@ -346,6 +607,12 @@ ${eraBlock}
       writeFile(
         join(storyDir, "entity_registry.md"),
         "# 实体注册表\n\n| 名称 | 类型 | 性别 | 年龄 | 外貌 | 身份 | 能力 | 首次出现 | 最近出现 | 关键事实 |\n|------|------|------|------|------|------|------|----------|----------|----------|\n",
+        "utf-8",
+      ),
+      // Initialize empty plan index
+      writeFile(
+        join(bookDir, "plans", "plan_index.json"),
+        JSON.stringify({ plans: [] }, null, 2),
         "utf-8",
       ),
     );

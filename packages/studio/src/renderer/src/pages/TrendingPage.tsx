@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { TrendingUp, Loader2, Sparkles } from 'lucide-react'
+import { TrendingUp, Loader2, Sparkles, Globe, Construction } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../stores/app-store'
 import { AnalysisRenderer, type ParsedIdea } from '../components/AnalysisRenderer'
@@ -21,23 +21,33 @@ interface TrendingResult {
   fetchedAt: string
 }
 
-/** 需要自动抓取的榜单列表 */
-const FETCH_TARGETS = [
+/** 英文平台榜单 */
+const FETCH_TARGETS_EN = [
   { platformId: 'royalroad', listType: 'trending', label: 'Royal Road · Trending' },
   { platformId: 'royalroad', listType: 'rising-stars', label: 'Royal Road · Rising Stars' },
   { platformId: 'scribblehub', listType: 'trending', label: 'ScribbleHub · Weekly Trending' },
 ]
 
+/** 中文平台榜单 — Coming Soon */
+const FETCH_TARGETS_ZH: typeof FETCH_TARGETS_EN = [
+  // TODO: 番茄小说、起点中文网等
+]
+
 export default function TrendingPage(): JSX.Element {
   const navigate = useNavigate()
   const setPendingBookDraft = useAppStore((s) => s.setPendingBookDraft)
+  const [lang, setLang] = useState<'en' | 'zh'>('en')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<string | null>(null)
   const [novelCount, setNovelCount] = useState(0)
 
+  const targets = lang === 'en' ? FETCH_TARGETS_EN : FETCH_TARGETS_ZH
+  const isZhComingSoon = lang === 'zh'
+
   const handleOneClick = async (): Promise<void> => {
+    if (isZhComingSoon) return
     setLoading(true)
     setError(null)
     setAnalysis(null)
@@ -46,7 +56,7 @@ export default function TrendingPage(): JSX.Element {
     const seen = new Set<string>()
     const errors: string[] = []
 
-    for (const target of FETCH_TARGETS) {
+    for (const target of targets) {
       setStatus(`正在抓取 ${target.label}…`)
       try {
         const res: TrendingResult = await window.hintos.fetchTrending(target.platformId, target.listType, false)
@@ -70,7 +80,7 @@ export default function TrendingPage(): JSX.Element {
       const text = await window.hintos.analyzeTrending(allNovels)
       setAnalysis(text)
       // 自动保存到创意库
-      await window.hintos.vaultSave({ novelCount: allNovels.length, analysis: text })
+      await window.hintos.vaultSave({ novelCount: allNovels.length, analysis: text, novels: allNovels, language: lang })
       setStatus('')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'AI 分析失败')
@@ -98,31 +108,73 @@ export default function TrendingPage(): JSX.Element {
       <div className="flex items-center gap-3">
         <TrendingUp className="w-7 h-7 text-violet-400" />
         <h1 className="text-2xl font-bold text-zinc-100">热榜雷达</h1>
-        <span className="text-sm text-zinc-500">一键抓取海外热门小说，AI 推荐选题方向</span>
-      </div>
-
-      {/* 操作面板 */}
-      <div className="bg-zinc-800/60 rounded-lg p-4 flex flex-wrap items-center gap-4">
-        <button
-          onClick={handleOneClick}
-          disabled={loading}
-          className="flex items-center gap-2 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
-        >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          {loading ? '处理中…' : 'AI 选题推荐'}
-        </button>
-
-        <span className="text-xs text-zinc-500">
-          自动抓取 Royal Road + ScribbleHub 后由 AI 综合分析，结果自动保存到创意库
+        <span className="text-sm text-zinc-500">
+          {lang === 'en' ? '抓取海外热门小说，AI 推荐选题方向' : '抓取中文热门小说，AI 推荐选题方向'}
         </span>
-
-        {status && (
-          <div className="flex items-center gap-2 text-sm text-violet-400">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            {status}
-          </div>
-        )}
       </div>
+
+      {/* 语言选择 */}
+      <div className="flex items-center gap-2">
+        <Globe className="w-4 h-4 text-zinc-400" />
+        <span className="text-sm text-zinc-400">目标市场</span>
+        <div className="flex rounded-lg overflow-hidden border border-zinc-700">
+          <button onClick={() => { setLang('en'); setAnalysis(null); setError(null) }}
+            className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+              lang === 'en' ? 'bg-violet-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}>
+            English
+          </button>
+          <button onClick={() => { setLang('zh'); setAnalysis(null); setError(null) }}
+            className={`px-4 py-1.5 text-sm font-medium transition-colors ${
+              lang === 'zh' ? 'bg-violet-600 text-white' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+            }`}>
+            中文
+          </button>
+        </div>
+        {lang === 'en' && <span className="text-xs text-zinc-600">Royal Road · ScribbleHub</span>}
+        {lang === 'zh' && <span className="text-xs text-amber-500/70">番茄 · 起点 · 飞卢（开发中）</span>}
+      </div>
+
+      {/* 中文 Coming Soon */}
+      {isZhComingSoon && (
+        <div className="flex flex-col items-center justify-center py-20 text-zinc-500 space-y-4">
+          <Construction className="w-14 h-14 text-amber-500/50" />
+          <h2 className="text-lg font-semibold text-zinc-300">中文平台支持开发中</h2>
+          <p className="text-sm text-zinc-500 max-w-md text-center">
+            番茄小说、起点中文网、飞卢小说等中文平台的热榜抓取和 AI 选题分析功能正在开发中。
+            目前可直接在仪表盘创建中文小说。
+          </p>
+          <button onClick={() => navigate('/')}
+            className="mt-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium transition-colors">
+            去仪表盘创建中文小说 →
+          </button>
+        </div>
+      )}
+
+      {/* 英文操作面板 */}
+      {!isZhComingSoon && (
+        <div className="bg-zinc-800/60 rounded-lg p-4 flex flex-wrap items-center gap-4">
+          <button
+            onClick={handleOneClick}
+            disabled={loading}
+            className="flex items-center gap-2 px-5 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {loading ? '处理中…' : 'AI 选题推荐'}
+          </button>
+
+          <span className="text-xs text-zinc-500">
+            自动抓取 Royal Road + ScribbleHub 后由 AI 综合分析，结果自动保存到创意库
+          </span>
+
+          {status && (
+            <div className="flex items-center gap-2 text-sm text-violet-400">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              {status}
+            </div>
+          )}
+        </div>
+      )}
 
       {error && (
         <div className="bg-red-900/30 border border-red-700 rounded-lg p-3 text-sm text-red-300">{error}</div>
@@ -151,7 +203,7 @@ export default function TrendingPage(): JSX.Element {
       )}
 
       {/* 空状态 */}
-      {!analysis && !loading && !error && (
+      {!isZhComingSoon && !analysis && !loading && !error && (
         <div className="flex flex-col items-center justify-center py-20 text-zinc-500 space-y-3">
           <Sparkles className="w-12 h-12 text-zinc-600" />
           <p>点击「AI 选题推荐」，一键获取海外热门趋势分析</p>

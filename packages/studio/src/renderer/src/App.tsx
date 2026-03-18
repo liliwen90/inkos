@@ -13,6 +13,7 @@ import AISuggestions from './pages/AISuggestions'
 import Tutorial from './pages/Tutorial'
 import TrendingPage from './pages/TrendingPage'
 import IdeaVaultPage from './pages/IdeaVaultPage'
+import PlanReview from './pages/PlanReview'
 
 export default function App(): JSX.Element {
   return (
@@ -20,6 +21,7 @@ export default function App(): JSX.Element {
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/writing" element={<WritingConsole />} />
+        <Route path="/plan-review" element={<PlanReview />} />
         <Route path="/chapters" element={<ChapterManager />} />
         <Route path="/truth-files" element={<TruthFiles />} />
         <Route path="/export" element={<ExportPage />} />
