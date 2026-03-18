@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { Settings, Check, X, Loader2, Zap, Route, ChevronDown, ChevronRight } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
+import { createPortal } from 'react-dom'
+import { Settings, Check, X, Loader2, Zap, Route, ChevronDown, ChevronRight, Info } from 'lucide-react'
 import { useAppStore, type LLMConfig } from '../stores/app-store'
 
 interface AgentSlot {
@@ -10,18 +11,74 @@ interface AgentSlot {
   enabled: boolean
 }
 
-const AGENT_LABELS: Record<string, { label: string; desc: string; emoji: string; recommend: string; modelHint: string }> = {
-  architect: { label: '建筑师', desc: '规划大纲和世界观', emoji: '🏗️', recommend: '推荐 DeepSeek — 规划能力足够，便宜', modelHint: 'deepseek-chat' },
-  writer: { label: '写手', desc: '生成章节正文（最耗 token）', emoji: '✍️', recommend: '推荐 DeepSeek 写中文 / Claude 写英文', modelHint: 'deepseek-chat' },
-  auditor: { label: '审计员', desc: '26 维度质量审查', emoji: '🔍', recommend: '推荐 Gemini Flash — 分析型任务强项，超便宜', modelHint: 'gemini-2.5-flash' },
-  reviser: { label: '修订者', desc: '修复审计发现的问题', emoji: '✏️', recommend: '推荐 Claude Sonnet — 文学润色最强', modelHint: 'claude-sonnet-4-20250514' },
-  'continuity-plus': { label: '深度审查', desc: '7维度叙事连续性审计', emoji: '🔬', recommend: '推荐 Gemini Flash — 分析逻辑型任务', modelHint: 'gemini-2.5-flash' },
-  polisher: { label: '润色师', desc: '文学级散文润色（反AI）', emoji: '💎', recommend: '推荐 Claude Sonnet — 散文质感最佳', modelHint: 'claude-sonnet-4-20250514' }
+const AGENT_LABELS: Record<string, { label: string; desc: string; emoji: string; recommend: string; modelHint: string; detail: string }> = {
+  architect: {
+    label: '建筑师', desc: '规划大纲和世界观', emoji: '🏗️',
+    recommend: '推荐 DeepSeek — 规划能力足够，便宜', modelHint: 'deepseek-chat',
+    detail: '📐 建筑师 (Architect)\n\n职责：创建整本书的基础架构\n\n• 生成世界观设定 (story_bible.md)\n• 规划卷级大纲 (volume_outline.md)\n• 初始化所有真相文件：状态卡、伏笔池、\n  数值账本、支线板、情感弧线、角色矩阵、\n  实体注册表等 12 个文件\n• 解析书籍规则中的主角人设锁定和行为约束\n• 应用"黄金三章"法则确保开篇吸引力\n\nToken 消耗：中等（仅创建书籍时调用一次）\n推荐模型：规划能力强的通用模型即可',
+  },
+  writer: {
+    label: '写手', desc: '生成章节正文（最耗 token）', emoji: '✍️',
+    recommend: '推荐 DeepSeek 写中文 / Claude 写英文', modelHint: 'deepseek-chat',
+    detail: '✍️ 写手 (Writer)\n\n职责：生成每章正文，管线核心环节\n\n• 加载 12 个上下文文件（世界观、大纲、状态卡、\n  伏笔池、账本、摘要、支线板、情感弧线、角色\n  矩阵、实体注册表、风格指南、风格画像）\n• 加载最近 3 章完整正文作为上下文\n• 输出：写作自检表 → 正文 → 更新状态卡/\n  伏笔池/账本/摘要/支线/弧线/矩阵\n• 提取角色对话指纹确保声纹一致性\n• 检索相关历史摘要补充远程上下文\n• 写完后自动触发实体提取器更新注册表\n• 应用题材专属的反 AI 写作铁律\n\nToken 消耗：最高（每章调用，输入+输出最大）\n推荐模型：中文用 DeepSeek，英文用 Claude',
+  },
+  auditor: {
+    label: '审计员', desc: '27 维度质量审查', emoji: '🔍',
+    recommend: '推荐 Gemini Flash — 分析型任务强项，超便宜', modelHint: 'gemini-2.5-flash',
+    detail: '🔍 审计员 (Continuity Auditor)\n\n职责：27 维度机械/结构性质量审查\n\n结构性（最高优先级）：\n① OOC检查 ② 时间线 ③ 设定冲突\n④ 战力崩坏 ⑤ 数值检查 ⑥ 伏笔检查\n\n质量检查：\n⑦ 节奏 ⑧ 文风 ⑨ 信息越界 ⑩ 词汇疲劳\n⑪ 利益链断裂 ⑫ 年代考据\n\n模式检查：\n⑬ 配角降智 ⑭ 工具人化 ⑮ 爽点虚化\n⑯ 台词失真 ⑰ 流水账 ⑱ 知识污染\n⑲ 视角一致性 ⑳ 段落等长 ㉑ 套话密度\n㉒ 公式化转折 ㉓ 列表式结构 ㉔ 支线停滞\n㉕ 弧线平坦 ㉖ 节奏单调 ㉗ 敏感词\n\n• 加载实体注册表交叉验证事实一致性\n• 输出 JSON: passed / issues / summary\n\nToken 消耗：中等\n推荐模型：分析型任务，Flash 级即可',
+  },
+  reviser: {
+    label: '修订者', desc: '修复审计发现的问题', emoji: '✏️',
+    recommend: '推荐 Claude Sonnet — 文学润色最强', modelHint: 'claude-sonnet-4-20250514',
+    detail: '✏️ 修订者 (Reviser)\n\n职责：修复审计员 + 深度审查发现的全部问题\n\n• 接收审计员 27 维度 + 深度审查 5 维度的\n  issues 列表，合并后逐条修复\n• 保持字数在原文 ±10% 范围内\n• 修复时不引入新的连续性问题\n• 保持原始文风和叙事节奏\n• 不改变剧情走向，只修复技术性问题\n\n修复范围：\n• OOC → 调整对话/行为回归人设\n• 时间线矛盾 → 修正时间描述\n• 设定冲突 → 与世界观对齐\n• 战力/数值错误 → 修正数据\n• 遗漏伏笔 → 补埋线索\n• 情绪急转 → 添加过渡铺垫\n• 声纹偏移 → 恢复角色语言风格\n\nToken 消耗：中高（输入=原文+问题，输出=修改后全文）\n推荐模型：需要文学创作能力，Claude Sonnet 最佳',
+  },
+  'continuity-plus': {
+    label: '深度审查', desc: '5 维度叙事连续性审计', emoji: '🔬',
+    recommend: '推荐 Gemini Flash — 分析逻辑型任务', modelHint: 'gemini-2.5-flash',
+    detail: '🔬 深度审查 (ContinuityPlus)\n\n职责：深层叙事一致性审查（与审计员互补）\n\n审计员检查机械/结构问题，深度审查专注于\n"技术上没错但读起来别扭"的叙事层面：\n\n1️⃣ 角色声纹一致性\n  语域切换/词汇水平/口头禅/语言习惯\n  加载声音卡片 (voice-cards) 交叉验证\n\n2️⃣ 情绪脉络连贯\n  禁止情绪急转，情绪有惯性\n  升级须有节拍：酝酿→积累→爆发→余波\n\n3️⃣ 场景转换质量\n  时间/空间/视角锚点，转换手法多样化\n\n4️⃣ 感官环境连续性\n  天气/伤势/物品/光照是否持续存在\n\n5️⃣ 动机连续性与决策逻辑\n  目标转变需催化事件，牺牲须与利害成正比\n\n• 加载实体注册表验证不可变属性\n• 加载最近 2 章（各 2000 字）比较上下文\n\nToken 消耗：中等\n推荐模型：逻辑分析型，Flash 级即可',
+  },
+  polisher: {
+    label: '润色师', desc: '文学级散文润色（反AI）', emoji: '💎',
+    recommend: '推荐 Claude Sonnet — 散文质感最佳', modelHint: 'claude-sonnet-4-20250514',
+    detail: '💎 润色师 (Polisher)\n\n职责：管线最终环节，文学级散文质感提升\n\n始终作为最后一个 Agent 运行，确保最终\n输出达到发表级别的文学水准：\n\n1️⃣ 反 AI 痕迹消除（最高优先级！）\n  消灭"仿佛/不禁/宛如/竟然"等 AI 标记词\n  打破 AI 的齐整段落结构\n  用具象替换抽象，用动作替换心理旁白\n\n2️⃣ Show Don\'t Tell\n  "她很害怕"→ 用身体语言、环境变化展示\n\n3️⃣ 句式节奏\n  长短句交替呼吸感，关键时刻短句加速\n\n4️⃣ 对话工艺\n  对话须推进剧情或揭示角色，避免信息投喂\n\n5️⃣ 感官分层 — 视/听/触/嗅/味立体化\n\n6️⃣ 散文质感\n  中文：声韵意识、四字格节奏\n  英文：多音节词控制、韵律变化\n\n7️⃣ 读者信任\n  用特征细节（而非形容词堆砌）建立可信度\n\nToken 消耗：中高（输入=全文，输出=润色后全文）\n推荐模型：散文质感最关键，Claude Sonnet 最佳',
+  },
 }
 
 const AGENT_NAMES = ['architect', 'writer', 'auditor', 'reviser', 'continuity-plus', 'polisher'] as const
 
 const DEFAULT_SLOT: AgentSlot = { model: '', apiKey: '', baseUrl: '', provider: 'openai', enabled: false }
+
+function AgentTooltip({ text }: { text: string }): JSX.Element {
+  const [show, setShow] = useState(false)
+  const [style, setStyle] = useState<React.CSSProperties>({})
+  const ref = useRef<HTMLDivElement>(null)
+
+  const handleEnter = (): void => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      const goUp = rect.bottom + 380 > window.innerHeight
+      const left = Math.min(Math.max(rect.left - 140, 8), window.innerWidth - 340)
+      setStyle(goUp
+        ? { position: 'fixed', left, bottom: window.innerHeight - rect.top + 6 }
+        : { position: 'fixed', left, top: rect.bottom + 6 })
+    }
+    setShow(true)
+  }
+
+  return (
+    <div className="relative inline-flex" ref={ref}
+      onMouseEnter={handleEnter} onMouseLeave={() => setShow(false)}>
+      <Info className="w-3.5 h-3.5 text-zinc-600 hover:text-violet-400 cursor-help transition-colors" />
+      {show && createPortal(
+        <div style={style}
+          className="z-[9999] w-80 px-4 py-3 rounded-lg border border-zinc-700 bg-zinc-900/95 backdrop-blur shadow-2xl text-[11px] leading-relaxed text-zinc-300 whitespace-pre-wrap pointer-events-none">
+          {text}
+        </div>,
+        document.body,
+      )}
+    </div>
+  )
+}
 
 export default function LLMSettings(): JSX.Element {
   const projectLoaded = useAppStore((s) => s.projectLoaded)
@@ -307,8 +364,11 @@ export default function LLMSettings(): JSX.Element {
                   <div className="flex items-center gap-3 px-4 py-2.5">
                     <span className="text-base">{info.emoji}</span>
                     <div className="flex-1 min-w-0">
-                      <span className="text-sm font-medium text-zinc-200">{info.label}</span>
-                      <span className="text-xs text-zinc-500 ml-2">{info.desc}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm font-medium text-zinc-200">{info.label}</span>
+                        <span className="text-xs text-zinc-500">{info.desc}</span>
+                        <AgentTooltip text={info.detail} />
+                      </div>
                       {!slot.enabled && (
                         <div className="text-[10px] text-zinc-600 mt-0.5">💡 {info.recommend}</div>
                       )}
