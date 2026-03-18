@@ -26,6 +26,9 @@ interface FingerprintData {
 export default function StyleAnalysis(): JSX.Element {
   const bookId = useAppStore((s) => s.currentBookId)
   const books = useAppStore((s) => s.books)
+  const addToast = useAppStore((s) => s.addToast)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
 
   const [styleBooks, setStyleBooks] = useState<string[]>([])
   const [profile, setProfile] = useState<StyleProfile | null>(null)
@@ -61,16 +64,26 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleImport = async (): Promise<void> => {
     if (!bookId) return
-    const names = await window.hintos.importStyleBook(bookId)
-    if (names) {
-      setStyleBooks((prev) => [...prev, ...names])
+    try {
+      const names = await window.hintos.importStyleBook(bookId)
+      if (names) {
+        setStyleBooks((prev) => [...prev, ...names])
+        addToast('success', `✓ 已导入 ${names.length} 本参考书`)
+      }
+    } catch (e) {
+      addToast('error', `导入失败: ${(e as Error).message}`)
     }
   }
 
   const handleRemove = async (fileName: string): Promise<void> => {
     if (!bookId) return
-    await window.hintos.removeStyleBook(bookId, fileName)
-    setStyleBooks((prev) => prev.filter((f) => f !== fileName))
+    try {
+      await window.hintos.removeStyleBook(bookId, fileName)
+      setStyleBooks((prev) => prev.filter((f) => f !== fileName))
+      addToast('success', '✓ 已移除')
+    } catch (e) {
+      addToast('error', `移除失败: ${(e as Error).message}`)
+    }
   }
 
   const handleAnalyze = async (): Promise<void> => {
@@ -80,8 +93,10 @@ export default function StyleAnalysis(): JSX.Element {
     try {
       const result = await window.hintos.analyzeStyleBooks(bookId)
       setProfile(result)
+      addToast('success', en ? '✓ Analysis complete' : '✓ 统计分析完成')
     } catch (e) {
       setError((e as Error).message)
+      addToast('error', en ? `Analysis failed: ${(e as Error).message}` : `分析失败: ${(e as Error).message}`)
     } finally {
       setAnalyzing(false)
     }
@@ -89,13 +104,18 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleDeepFingerprint = async (): Promise<void> => {
     if (!bookId) return
+    const actId = startActivity(en ? 'AI Deep Fingerprint' : 'AI深度指纹分析')
     setAnalyzingFp(true)
     setError(null)
     try {
       const result = await window.hintos.analyzeDeepFingerprint(bookId)
       setFingerprint(result)
+      addToast('success', en ? '✓ Fingerprint generated' : '✓ AI指纹分析完成')
+      finishActivity(actId)
     } catch (e) {
       setError((e as Error).message)
+      addToast('error', en ? `Fingerprint failed: ${(e as Error).message}` : `指纹分析失败: ${(e as Error).message}`)
+      finishActivity(actId, (e as Error).message)
     } finally {
       setAnalyzingFp(false)
     }
@@ -105,7 +125,12 @@ export default function StyleAnalysis(): JSX.Element {
     if (!bookId || !fingerprint) return
     const updated = { ...fingerprint, strength }
     setFingerprint(updated)
-    await window.hintos.saveFingerprint(bookId, updated)
+    try {
+      await window.hintos.saveFingerprint(bookId, updated)
+      addToast('info', en ? 'Strength updated' : '指纹强度已更新')
+    } catch (e) {
+      addToast('error', `保存失败: ${(e as Error).message}`)
+    }
   }
 
   const handleOnlineScrape = async (): Promise<void> => {
@@ -128,12 +153,15 @@ export default function StyleAnalysis(): JSX.Element {
       // Refresh style books list
       const books = await window.hintos.listStyleBooks(bookId)
       setStyleBooks(books)
-      setScrapeStatus(en
+      const msg = en
         ? `Done! Sampled ${result.chaptersSampled}/${result.chaptersTotal} chapters from ${result.platform}`
-        : `完成！从 ${result.platform} 采样了 ${result.chaptersSampled}/${result.chaptersTotal} 章节`)
+        : `完成！从 ${result.platform} 采样了 ${result.chaptersSampled}/${result.chaptersTotal} 章节`
+      setScrapeStatus(msg)
+      addToast('success', `✓ ${msg}`)
       setTimeout(() => setScrapeStatus(''), 3000)
     } catch (e) {
       setError((e as Error).message)
+      addToast('error', en ? `Scrape failed: ${(e as Error).message}` : `采样失败: ${(e as Error).message}`)
       setScrapeStatus('')
     } finally {
       unsub()
@@ -145,7 +173,12 @@ export default function StyleAnalysis(): JSX.Element {
     if (!bookId || !fingerprint) return
     const updated = { ...fingerprint, enabled: !fingerprint.enabled }
     setFingerprint(updated)
-    await window.hintos.saveFingerprint(bookId, updated)
+    try {
+      await window.hintos.saveFingerprint(bookId, updated)
+      addToast('info', updated.enabled ? (en ? 'Fingerprint enabled' : '指纹已启用') : (en ? 'Fingerprint disabled' : '指纹已禁用'))
+    } catch (e) {
+      addToast('error', `保存失败: ${(e as Error).message}`)
+    }
   }
 
   if (!bookId) {

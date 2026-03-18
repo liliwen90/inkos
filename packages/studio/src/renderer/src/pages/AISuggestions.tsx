@@ -29,6 +29,9 @@ export default function AISuggestionsPage(): JSX.Element {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [applying, setApplying] = useState(false)
   const [applied, setApplied] = useState(false)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
+  const addToast = useAppStore((s) => s.addToast)
 
   const currentBook = books.find((b) => b.bookId === bookId)
   const lang = bookLang(currentBook?.genre)
@@ -48,14 +51,18 @@ export default function AISuggestionsPage(): JSX.Element {
 
   const handleGenerate = async (): Promise<void> => {
     if (!bookId) return
+    const actId = startActivity(en ? 'Generate AI Suggestions' : '生成AI创作建议')
     setGenerating(true)
     setError(null)
     setApplied(false)
     try {
       const result = await window.hintos.generateSuggestions(bookId)
       setSuggestions(result)
+      addToast('success', en ? '✓ Suggestions generated' : '✓ 建议已生成')
+      finishActivity(actId)
     } catch (e) {
       setError((e as Error).message)
+      finishActivity(actId, (e as Error).message)
     } finally {
       setGenerating(false)
     }
@@ -63,14 +70,18 @@ export default function AISuggestionsPage(): JSX.Element {
 
   const handleApplyAll = async (): Promise<void> => {
     if (!bookId || !suggestions) return
+    const actId = startActivity(en ? 'Apply all suggestions' : '应用全部建议')
     setApplying(true)
     setError(null)
     try {
       await window.hintos.applySuggestions(bookId)
       setApplied(true)
+      addToast('success', en ? '✓ All suggestions applied' : '✓ 所有建议已应用')
+      finishActivity(actId)
       setTimeout(() => setApplied(false), 3000)
     } catch (e) {
       setError((e as Error).message)
+      finishActivity(actId, (e as Error).message)
     } finally {
       setApplying(false)
     }

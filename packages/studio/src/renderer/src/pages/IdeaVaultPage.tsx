@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Archive, Clock, Trash2, Sparkles, Pencil, Save, X } from 'lucide-react'
+import { Archive, Clock, Trash2, Sparkles, Pencil, Save, X, Loader2 } from 'lucide-react'
 import { useAppStore } from '../stores/app-store'
 import { AnalysisRenderer, type ParsedIdea } from '../components/AnalysisRenderer'
 
@@ -21,6 +21,7 @@ interface VaultDetail {
 export default function IdeaVaultPage(): JSX.Element {
   const navigate = useNavigate()
   const setPendingBookDraft = useAppStore((s) => s.setPendingBookDraft)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [vault, setVault] = useState<VaultEntry[]>([])
   const [viewing, setViewing] = useState<VaultDetail | null>(null)
@@ -28,6 +29,7 @@ export default function IdeaVaultPage(): JSX.Element {
   const [editText, setEditText] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadingDetail, setLoadingDetail] = useState(false)
 
   const loadVault = useCallback(async () => {
     try { setVault(await window.hintos.vaultList()) } catch { /* ignore */ }
@@ -38,11 +40,14 @@ export default function IdeaVaultPage(): JSX.Element {
   const handleView = async (id: string): Promise<void> => {
     try {
       setError(null)
+      setLoadingDetail(true)
       const detail = await window.hintos.vaultGet(id)
       setViewing(detail)
       setEditing(false)
     } catch (e) {
       setError(e instanceof Error ? e.message : '读取失败')
+    } finally {
+      setLoadingDetail(false)
     }
   }
 
@@ -52,6 +57,7 @@ export default function IdeaVaultPage(): JSX.Element {
       await window.hintos.vaultDelete(id)
       if (viewing?.id === id) { setViewing(null); setEditing(false) }
       await loadVault()
+      addToast('success', '✓ 已删除')
     } catch { /* ignore */ }
   }
 
@@ -68,9 +74,11 @@ export default function IdeaVaultPage(): JSX.Element {
       await window.hintos.vaultUpdate(viewing.id, editText)
       setViewing({ ...viewing, analysis: editText })
       setEditing(false)
+      addToast('success', '✓ 已保存')
       await loadVault()
     } catch (e) {
       setError(e instanceof Error ? e.message : '保存失败')
+      addToast('error', `保存失败: ${e instanceof Error ? e.message : '未知错误'}`)
     } finally {
       setSaving(false)
     }

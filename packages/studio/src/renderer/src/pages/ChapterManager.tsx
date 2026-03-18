@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, Check, X, Eye, Download, ChevronLeft } from 'lucide-react'
+import { BookOpen, Check, X, Eye, Download, ChevronLeft, Loader2 } from 'lucide-react'
 import { useAppStore, type BookSummary, type ChapterMeta } from '../stores/app-store'
 import { bookLang } from '../utils/lang'
 
@@ -36,11 +36,15 @@ export default function ChapterManager(): JSX.Element {
   const currentBookId = useAppStore((s) => s.currentBookId)
   const setCurrentBookId = useAppStore((s) => s.setCurrentBookId)
   const setBooks = useAppStore((s) => s.setBooks)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [chapters, setChapters] = useState<ChapterMeta[]>([])
   const [selectedChapter, setSelectedChapter] = useState<ChapterMeta | null>(null)
   const [chapterContent, setChapterContent] = useState('')
   const [loading, setLoading] = useState(false)
+  const [listLoading, setListLoading] = useState(true)
 
   const currentBook = books.find((b) => b.bookId === currentBookId)
   const lang = bookLang(currentBook?.genre)
@@ -63,8 +67,13 @@ export default function ChapterManager(): JSX.Element {
 
   const loadChapters = async (): Promise<void> => {
     if (!currentBookId) return
-    const data = await window.hintos.loadChapterIndex(currentBookId)
-    setChapters(data as ChapterMeta[])
+    setListLoading(true)
+    try {
+      const data = await window.hintos.loadChapterIndex(currentBookId)
+      setChapters(data as ChapterMeta[])
+    } finally {
+      setListLoading(false)
+    }
   }
 
   const handleViewChapter = async (ch: ChapterMeta): Promise<void> => {
@@ -78,6 +87,7 @@ export default function ChapterManager(): JSX.Element {
       setSelectedChapter(ch)
     } catch {
       setChapterContent('（无法加载章节内容）')
+      addToast('error', '章节内容加载失败')
       setSelectedChapter(ch)
     } finally {
       setLoading(false)
@@ -87,6 +97,7 @@ export default function ChapterManager(): JSX.Element {
   const handleApprove = async (ch: ChapterMeta): Promise<void> => {
     if (!currentBookId) return
     await window.hintos.updateChapterStatus(currentBookId, ch.number, 'approved')
+    addToast('success', `✓ 第${ch.number}章已通过`)
     setSelectedChapter(null)
     loadChapters()
   }
@@ -95,13 +106,22 @@ export default function ChapterManager(): JSX.Element {
     if (!currentBookId) return
     const note = prompt(lang === 'en' ? 'Rejection reason (optional):' : '驳回理由（可选）:')
     await window.hintos.updateChapterStatus(currentBookId, ch.number, 'rejected', note ?? undefined)
+    addToast('info', `第${ch.number}章已驳回`)
     setSelectedChapter(null)
     loadChapters()
   }
 
   const handleExport = async (): Promise<void> => {
     if (!currentBookId) return
-    await window.hintos.exportBook(currentBookId, 'md')
+    const actId = startActivity('导出章节')
+    try {
+      await window.hintos.exportBook(currentBookId, 'md')
+      addToast('success', '✓ 导出完成')
+      finishActivity(actId)
+    } catch (e) {
+      finishActivity(actId, (e as Error).message)
+      addToast('error', `导出失败: ${(e as Error).message}`)
+    }
   }
 
   if (!projectLoaded) {

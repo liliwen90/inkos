@@ -48,7 +48,11 @@ export class StateAdapter {
   async loadProjectConfig(): Promise<Record<string, unknown> | null> {
     const configPath = join(this.getRoot(), 'hintos.json')
     if (!existsSync(configPath)) return null
-    return JSON.parse(await readFile(configPath, 'utf-8'))
+    try {
+      return JSON.parse(await readFile(configPath, 'utf-8'))
+    } catch {
+      throw new Error('hintos.json 格式损坏，请检查文件内容')
+    }
   }
 
   async saveProjectConfig(config: Record<string, unknown>): Promise<void> {
@@ -106,7 +110,11 @@ export class StateAdapter {
   async loadTaskRouting(): Promise<unknown | null> {
     const routingPath = join(this.getRoot(), 'task-routing.json')
     if (!existsSync(routingPath)) return null
-    return JSON.parse(await readFile(routingPath, 'utf-8'))
+    try {
+      return JSON.parse(await readFile(routingPath, 'utf-8'))
+    } catch {
+      throw new Error('task-routing.json 格式损坏，请检查文件内容')
+    }
   }
 
   async saveTaskRouting(routing: unknown): Promise<void> {
@@ -211,7 +219,11 @@ export class StateAdapter {
   async loadChapterIndex(bookId: string): Promise<ChapterMeta[]> {
     const indexPath = join(this.getRoot(), 'books', bookId, 'chapters', 'index.json')
     if (!existsSync(indexPath)) return []
-    return JSON.parse(await readFile(indexPath, 'utf-8'))
+    try {
+      return JSON.parse(await readFile(indexPath, 'utf-8'))
+    } catch {
+      throw new Error('章节索引损坏，请检查 index.json')
+    }
   }
 
   async loadChapterContent(bookId: string, filename: string): Promise<string> {
@@ -236,7 +248,12 @@ export class StateAdapter {
   async updateChapterStatus(bookId: string, chapterNumber: number, status: string, reviewNote?: string): Promise<void> {
     const indexPath = join(this.getRoot(), 'books', bookId, 'chapters', 'index.json')
     if (!existsSync(indexPath)) throw new Error('章节索引不存在')
-    const chapters: ChapterMeta[] = JSON.parse(await readFile(indexPath, 'utf-8'))
+    let chapters: ChapterMeta[]
+    try {
+      chapters = JSON.parse(await readFile(indexPath, 'utf-8'))
+    } catch {
+      throw new Error('章节索引损坏，请检查 index.json')
+    }
     const ch = chapters.find(c => c.number === chapterNumber)
     if (!ch) throw new Error(`章节 ${chapterNumber} 不存在`)
     ;(ch as Record<string, unknown>).status = status

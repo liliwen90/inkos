@@ -3,6 +3,7 @@ import { Sparkles, Save, Plus, Trash2, Music, Loader2 } from 'lucide-react'
 import { useAppStore } from '../stores/app-store'
 import { bookLang } from '../utils/lang'
 
+
 interface HumanizeSettings {
   pov: 'first' | 'third-limited' | 'third-omniscient'
   tense: 'past' | 'present'
@@ -64,6 +65,7 @@ const optLabels = (en: boolean) => ({
 export default function HumanizeEngine(): JSX.Element {
   const bookId = useAppStore((s) => s.currentBookId)
   const books = useAppStore((s) => s.books)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [settings, setSettings] = useState<HumanizeSettings>({
     pov: 'third-limited', tense: 'past', creativity: 5,
@@ -76,6 +78,7 @@ export default function HumanizeEngine(): JSX.Element {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [preview, setPreview] = useState<string>('')
+  const [previewLoading, setPreviewLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [tab, setTab] = useState<'settings' | 'voice' | 'beats' | 'preview'>('settings')
 
@@ -118,9 +121,11 @@ export default function HumanizeEngine(): JSX.Element {
         window.hintos.saveSceneBeats(bookId, editingChapter, sceneBeats)
       ])
       setSaved(true)
+      addToast('success', en ? '✓ Settings saved' : '✓ 人性化设置已保存')
       setTimeout(() => setSaved(false), 2000)
     } catch (e) {
       setError((e as Error).message)
+      addToast('error', en ? `Save failed: ${(e as Error).message}` : `保存失败: ${(e as Error).message}`)
     } finally {
       setSaving(false)
     }
@@ -128,12 +133,16 @@ export default function HumanizeEngine(): JSX.Element {
 
   const handlePreview = async (): Promise<void> => {
     if (!bookId) return
+    setPreviewLoading(true)
     try {
       const text = await window.hintos.buildStyleGuidance(bookId, editingChapter)
       setPreview(text)
       setTab('preview')
     } catch (e) {
       setError((e as Error).message)
+      addToast('error', en ? `Preview failed: ${(e as Error).message}` : `预览生成失败: ${(e as Error).message}`)
+    } finally {
+      setPreviewLoading(false)
     }
   }
 
@@ -179,9 +188,10 @@ export default function HumanizeEngine(): JSX.Element {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={handlePreview}
-            className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded-lg text-xs text-zinc-300 transition-colors">
-            {en ? 'Preview Injection' : '预览注入文本'}
+          <button onClick={handlePreview} disabled={previewLoading}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded-lg text-xs text-zinc-300 transition-colors disabled:opacity-50">
+            {previewLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            {previewLoading ? (en ? 'Generating…' : '生成中…') : (en ? 'Preview Injection' : '预览注入文本')}
           </button>
           <button onClick={handleSave} disabled={saving}
             className="flex items-center gap-1.5 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white transition-colors disabled:opacity-50">

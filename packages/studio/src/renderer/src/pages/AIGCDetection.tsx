@@ -37,6 +37,9 @@ interface ChapterMeta {
 export default function AIGCDetection(): JSX.Element {
   const bookId = useAppStore((s) => s.currentBookId)
   const books = useAppStore((s) => s.books)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
+  const addToast = useAppStore((s) => s.addToast)
 
   const [chapters, setChapters] = useState<ChapterMeta[]>([])
   const [history, setHistory] = useState<DetectionRecord[]>([])
@@ -71,6 +74,7 @@ export default function AIGCDetection(): JSX.Element {
     if (!bookId || selectedChapter == null) return
     const ch = chapters.find((c) => c.number === selectedChapter)
     if (!ch) return
+    const actId = startActivity(`检测第${ch.number}章`)
     setDetecting(true)
     setError(null)
     try {
@@ -83,8 +87,11 @@ export default function AIGCDetection(): JSX.Element {
         const filtered = prev.filter((r) => r.chapterNumber !== ch.number)
         return [...filtered, result].sort((a, b) => a.chapterNumber - b.chapterNumber)
       })
+      addToast('success', `✓ 第${ch.number}章检测完成 · 风险: ${result.overallRisk}`)
+      finishActivity(actId)
     } catch (e) {
       setError((e as Error).message)
+      finishActivity(actId, (e as Error).message)
     } finally {
       setDetecting(false)
     }
@@ -92,21 +99,37 @@ export default function AIGCDetection(): JSX.Element {
 
   const handleDetectAll = async (): Promise<void> => {
     if (!bookId || chapters.length === 0) return
+    const actId = startActivity(`检测全部 ${chapters.length} 章`)
     setDetecting(true)
     setError(null)
+    let failed = 0
     try {
-      for (const ch of chapters) {
-        const filename = await window.hintos.resolveChapterFilename(bookId, ch.number)
-        if (!filename) continue
-        const content = await window.hintos.loadChapterContent(bookId, filename)
-        const result = await window.hintos.detectChapter(bookId, ch.number, ch.title, content)
-        setHistory((prev) => {
-          const filtered = prev.filter((r) => r.chapterNumber !== ch.number)
-          return [...filtered, result].sort((a, b) => a.chapterNumber - b.chapterNumber)
-        })
+      for (let i = 0; i < chapters.length; i++) {
+        const ch = chapters[i]
+        useAppStore.getState().updateActivity(actId, `${i + 1}/${chapters.length} · 第${ch.number}章`, Math.round(((i + 1) / chapters.length) * 100))
+        try {
+          const filename = await window.hintos.resolveChapterFilename(bookId, ch.number)
+          if (!filename) continue
+          const content = await window.hintos.loadChapterContent(bookId, filename)
+          const result = await window.hintos.detectChapter(bookId, ch.number, ch.title, content)
+          setHistory((prev) => {
+            const filtered = prev.filter((r) => r.chapterNumber !== ch.number)
+            return [...filtered, result].sort((a, b) => a.chapterNumber - b.chapterNumber)
+          })
+        } catch {
+          failed++
+        }
+      }
+      if (failed > 0) {
+        addToast('info', `完成 ${chapters.length - failed}/${chapters.length} 章，${failed} 章失败`)
+        finishActivity(actId, `${failed} 章失败`)
+      } else {
+        addToast('success', `✓ 全部 ${chapters.length} 章检测完成`)
+        finishActivity(actId)
       }
     } catch (e) {
       setError((e as Error).message)
+      finishActivity(actId, (e as Error).message)
     } finally {
       setDetecting(false)
     }

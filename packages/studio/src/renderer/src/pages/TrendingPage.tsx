@@ -36,6 +36,9 @@ const FETCH_TARGETS_ZH: typeof FETCH_TARGETS_EN = [
 export default function TrendingPage(): JSX.Element {
   const navigate = useNavigate()
   const setPendingBookDraft = useAppStore((s) => s.setPendingBookDraft)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
+  const addToast = useAppStore((s) => s.addToast)
   const [lang, setLang] = useState<'en' | 'zh'>('en')
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState('')
@@ -48,6 +51,7 @@ export default function TrendingPage(): JSX.Element {
 
   const handleOneClick = async (): Promise<void> => {
     if (isZhComingSoon) return
+    const actId = startActivity('热榜AI选题分析')
     setLoading(true)
     setError(null)
     setAnalysis(null)
@@ -58,6 +62,7 @@ export default function TrendingPage(): JSX.Element {
 
     for (const target of targets) {
       setStatus(`正在抓取 ${target.label}…`)
+      useAppStore.getState().updateActivity(actId, `抓取 ${target.label}`)
       try {
         const res: TrendingResult = await window.hintos.fetchTrending(target.platformId, target.listType, false)
         for (const n of res.novels) {
@@ -72,18 +77,23 @@ export default function TrendingPage(): JSX.Element {
 
     if (allNovels.length === 0) {
       setError('所有榜单抓取失败' + (errors.length > 0 ? '：' + errors.join('；') : ''))
+      finishActivity(actId, '抓取失败')
       setLoading(false); setStatus(''); return
     }
 
     setStatus(`已抓取 ${allNovels.length} 部小说，AI 正在分析选题…`)
+    useAppStore.getState().updateActivity(actId, `AI分析 ${allNovels.length} 部小说`)
     try {
       const text = await window.hintos.analyzeTrending(allNovels)
       setAnalysis(text)
       // 自动保存到创意库
       await window.hintos.vaultSave({ novelCount: allNovels.length, analysis: text, novels: allNovels, language: lang })
       setStatus('')
+      addToast('success', `✓ 分析完成 · ${allNovels.length} 部小说 · 已保存到创意库`)
+      finishActivity(actId)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'AI 分析失败')
+      finishActivity(actId, e instanceof Error ? e.message : 'AI 分析失败')
       setStatus('')
     } finally {
       setLoading(false)

@@ -50,9 +50,16 @@ export class LLMAdapter {
   /** 按 model 名缓存的真实 LLM client */
   private clientPool: Map<string, LLMClient> = new Map()
 
+  /** Token 使用回调 — handlers.ts 注册后，每次 LLM 调用完成时触发 */
+  private onTokenUsage: ((model: string, input: number, output: number) => void) | null = null
+
+  setTokenUsageCallback(cb: (model: string, input: number, output: number) => void): void {
+    this.onTokenUsage = cb
+  }
+
   async createClient(config: LLMConfigUI): Promise<LLMClient> {
     const { createLLMClient } = await import('@actalk/hintos-core')
-    this.client = createLLMClient({
+    const rawClient = createLLMClient({
       provider: config.provider === 'custom' ? 'openai' : config.provider,
       baseUrl: config.baseUrl,
       apiKey: config.apiKey,
@@ -60,8 +67,93 @@ export class LLMAdapter {
       temperature: config.temperature ?? 0.7,
       maxTokens: config.maxTokens ?? 8192
     })
+    // 包装 token 追踪 proxy，即使是单模型也能记录消耗
+    this.client = this._wrapWithTokenTracking(rawClient)
     this.currentConfig = config
     return this.client
+  }
+
+  /** 包装 LLMClient 以拦截 API 响应提取 token 用量（支持 streaming） */
+  private _wrapWithTokenTracking(rawClient: LLMClient): LLMClient {
+    const tokenCb = (): ((model: string, input: number, output: number) => void) | null => this.onTokenUsage
+    const proxyCompletions = new Proxy(rawClient._openai!.chat.completions, {
+      get(target, prop, receiver) {
+        if (prop === 'create') {
+          return function trackedCreate(params: Record<string, unknown>, ...rest: unknown[]) {
+            const requestModel = params?.model as string || 'unknown'
+            // streaming 时注入 stream_options 让最终 chunk 包含 usage
+            if (params?.stream === true) {
+              params.stream_options = { ...(params.stream_options as Record<string, unknown> ?? {}), include_usage: true }
+            }
+            const result = target.create(params as never, ...rest as [never])
+            // create() 返回 APIPromise — 无论 streaming 与否都是 thenable
+            if (result && typeof (result as { then?: unknown }).then === 'function') {
+              return (result as Promise<unknown>).then((resolved: unknown) => {
+                // Non-streaming: resolved 是 ChatCompletion，直接含 usage
+                const direct = (resolved as Record<string, unknown>)?.usage as
+                  { prompt_tokens?: number; completion_tokens?: number } | undefined
+                if (direct && (direct.prompt_tokens || direct.completion_tokens)) {
+                  const cb = tokenCb()
+                  if (cb) cb(requestModel, direct.prompt_tokens ?? 0, direct.completion_tokens ?? 0)
+                  return resolved
+                }
+                // Streaming: resolved 是 Stream (AsyncIterable)，包装迭代器以拦截 usage
+                if (resolved && typeof (resolved as Record<symbol, unknown>)[Symbol.asyncIterator] === 'function') {
+                  const origIter = (resolved as AsyncIterable<unknown>)[Symbol.asyncIterator]()
+                  let lastUsage: { prompt_tokens?: number; completion_tokens?: number } | undefined
+                  return new Proxy(resolved as object, {
+                    get(t, p, r) {
+                      if (p === Symbol.asyncIterator) {
+                        return function() {
+                          return {
+                            async next() {
+                              const n = await origIter.next()
+                              if (!n.done) {
+                                const u = (n.value as Record<string, unknown>)?.usage as typeof lastUsage
+                                if (u) lastUsage = u
+                              }
+                              if (n.done && lastUsage) {
+                                const cb = tokenCb()
+                                if (cb) cb(requestModel, lastUsage.prompt_tokens ?? 0, lastUsage.completion_tokens ?? 0)
+                              }
+                              return n
+                            },
+                            return: origIter.return?.bind(origIter),
+                            throw: origIter.throw?.bind(origIter),
+                          }
+                        }
+                      }
+                      return Reflect.get(t, p, r)
+                    }
+                  })
+                }
+                return resolved
+              })
+            }
+            return result
+          }
+        }
+        return Reflect.get(target, prop, receiver)
+      }
+    })
+    const proxyChat = new Proxy(rawClient._openai!.chat, {
+      get(target, prop, receiver) {
+        if (prop === 'completions') return proxyCompletions
+        return Reflect.get(target, prop, receiver)
+      }
+    })
+    const proxyOpenAI = new Proxy(rawClient._openai!, {
+      get(target, prop, receiver) {
+        if (prop === 'chat') return proxyChat
+        return Reflect.get(target, prop, receiver)
+      }
+    })
+    return new Proxy(rawClient, {
+      get(target, prop, receiver) {
+        if (prop === '_openai') return proxyOpenAI
+        return Reflect.get(target, prop, receiver)
+      }
+    }) as LLMClient
   }
 
   /**
@@ -118,6 +210,7 @@ export class LLMAdapter {
     // Core 的 chatCompletion 最终调 client._openai.chat.completions.create({ model, ... })
     // 我们拦截 create 调用, 根据 params.model 路由到正确的真实 OpenAI SDK 实例
     const pool = this.clientPool
+    const tokenCb = (): ((model: string, input: number, output: number) => void) | null => this.onTokenUsage
 
     // Proxy chain: proxyClient._openai.chat.completions.create({ model }) → 真实 client 的 SDK
     const proxyCompletions = new Proxy(defaultClient._openai!.chat.completions, {
@@ -127,7 +220,56 @@ export class LLMAdapter {
             const requestModel = params?.model as string
             const realClient = requestModel ? pool.get(requestModel) : undefined
             const realTarget = realClient?._openai?.chat?.completions ?? target
-            return realTarget.create(params as never, ...rest as [never])
+            // streaming 时注入 stream_options 让最终 chunk 包含 usage
+            if (params?.stream === true) {
+              params.stream_options = { ...(params.stream_options as Record<string, unknown> ?? {}), include_usage: true }
+            }
+            const result = realTarget.create(params as never, ...rest as [never])
+            // create() 返回 APIPromise — 无论 streaming 与否都是 thenable
+            if (result && typeof (result as { then?: unknown }).then === 'function') {
+              return (result as Promise<unknown>).then((resolved: unknown) => {
+                // Non-streaming: resolved 直接含 usage
+                const direct = (resolved as Record<string, unknown>)?.usage as
+                  { prompt_tokens?: number; completion_tokens?: number } | undefined
+                if (direct && (direct.prompt_tokens || direct.completion_tokens)) {
+                  const cb = tokenCb()
+                  if (cb) cb(requestModel || 'unknown', direct.prompt_tokens ?? 0, direct.completion_tokens ?? 0)
+                  return resolved
+                }
+                // Streaming: resolved 是 AsyncIterable (Stream)，包装迭代器
+                if (resolved && typeof (resolved as Record<symbol, unknown>)[Symbol.asyncIterator] === 'function') {
+                  const origIter = (resolved as AsyncIterable<unknown>)[Symbol.asyncIterator]()
+                  let lastUsage: { prompt_tokens?: number; completion_tokens?: number } | undefined
+                  return new Proxy(resolved as object, {
+                    get(t, p, r) {
+                      if (p === Symbol.asyncIterator) {
+                        return function() {
+                          return {
+                            async next() {
+                              const n = await origIter.next()
+                              if (!n.done) {
+                                const u = (n.value as Record<string, unknown>)?.usage as typeof lastUsage
+                                if (u) lastUsage = u
+                              }
+                              if (n.done && lastUsage) {
+                                const cb = tokenCb()
+                                if (cb) cb(requestModel || 'unknown', lastUsage.prompt_tokens ?? 0, lastUsage.completion_tokens ?? 0)
+                              }
+                              return n
+                            },
+                            return: origIter.return?.bind(origIter),
+                            throw: origIter.throw?.bind(origIter),
+                          }
+                        }
+                      }
+                      return Reflect.get(t, p, r)
+                    }
+                  })
+                }
+                return resolved
+              })
+            }
+            return result
           }
         }
         return Reflect.get(target, prop, receiver)
@@ -155,6 +297,9 @@ export class LLMAdapter {
         return Reflect.get(target, prop, receiver)
       }
     }) as LLMClient
+
+    // 存储 proxyClient 而不是 rawClient，让 getClient() 返回带 token 追踪的版本
+    this.client = proxyClient
 
     return { client: proxyClient, modelOverrides }
   }

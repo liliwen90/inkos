@@ -59,6 +59,7 @@ export default function Dashboard(): JSX.Element {
   const setPipelineReady = useAppStore((s) => s.setPipelineReady)
   const setLLMConfig = useAppStore((s) => s.setLLMConfig)
   const pendingBookDraft = useAppStore((s) => s.pendingBookDraft)
+  const addToast = useAppStore((s) => s.addToast)
   const [showCreate, setShowCreate] = useState(false)
   const [editBook, setEditBook] = useState<BookSummary | null>(null)
   const [autoLoading, setAutoLoading] = useState(true)
@@ -108,18 +109,22 @@ export default function Dashboard(): JSX.Element {
   }
 
   const handleOpenProject = async (): Promise<void> => {
-    const result = await window.hintos.selectProjectDir()
-    if (!result) return
-    if (result.isProject) {
-      setProjectPath(result.path)
-      setProjectLoaded(true)
-    } else {
-      if (confirm(`${result.path} 不是 HintOS 项目。\n是否在此目录初始化新项目？`)) {
-        const name = prompt('项目名称:', result.path.split(/[\\/]/).pop() ?? 'my-novel') ?? 'my-novel'
-        await window.hintos.initProject(result.path, name)
+    try {
+      const result = await window.hintos.selectProjectDir()
+      if (!result) return
+      if (result.isProject) {
         setProjectPath(result.path)
         setProjectLoaded(true)
+      } else {
+        if (confirm(`${result.path} 不是 HintOS 项目。\n是否在此目录初始化新项目？`)) {
+          const name = prompt('项目名称:', result.path.split(/[\\/]/).pop() ?? 'my-novel') ?? 'my-novel'
+          await window.hintos.initProject(result.path, name)
+          setProjectPath(result.path)
+          setProjectLoaded(true)
+        }
       }
+    } catch (e) {
+      addToast('error', `打开项目失败: ${(e as Error).message}`)
     }
   }
 
@@ -134,8 +139,9 @@ export default function Dashboard(): JSX.Element {
       if (currentBookId === bookId) setCurrentBookId(null)
       await window.hintos.deleteBook(bookId)
       await loadBooks()
+      addToast('success', `✓ 已删除《${title}》`)
     } catch (err) {
-      alert(`删除失败: ${(err as Error).message}`)
+      addToast('error', `删除失败: ${(err as Error).message}`)
     }
   }
 
@@ -276,6 +282,9 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
   const [error, setError] = useState('')
   const [progressSteps, setProgressSteps] = useState<string[]>([])
   const addProgressEvent = useAppStore((s) => s.addProgressEvent)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
+  const addToast = useAppStore((s) => s.addToast)
   const activeGenres = lang === 'en' ? GENRES_EN : GENRES_ZH
   const activePlatforms = lang === 'en' ? PLATFORMS_EN : PLATFORMS_ZH
 
@@ -293,6 +302,7 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
 
   const handleCreate = async (): Promise<void> => {
     if (!title.trim()) { setError('请输入书名'); return }
+    const actId = startActivity(`创建《${title.trim()}》`)
     setCreating(true)
     setError('')
     setProgressSteps([])
@@ -300,6 +310,7 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
       const unsub = window.hintos.onProgress((evt: unknown) => {
         const e = evt as { stage: string; detail: string; timestamp: number }
         addProgressEvent(e)
+        useAppStore.getState().updateActivity(actId, e.stage)
         setProgressSteps(prev => {
           const last = prev[prev.length - 1]
           // 去重：如果上一条和新的 stage 相同则替换（进度更新）
@@ -314,9 +325,13 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
         styleBookPaths: styleBookPaths.length > 0 ? styleBookPaths : undefined
       })
       unsub()
+      addToast('success', `✓ 《${title.trim()}》创建完成`)
+      finishActivity(actId)
       handleClose()
     } catch (err) {
       setError((err as Error).message)
+      addToast('error', `创建失败: ${(err as Error).message}`)
+      finishActivity(actId, (err as Error).message)
       setCreating(false)
     }
   }
@@ -482,6 +497,8 @@ function EditBookDialog({ book, onClose }: { book: BookSummary; onClose: () => v
     })
   }, [book.bookId])
 
+  const addToast = useAppStore((s) => s.addToast)
+
   const handleSave = async (): Promise<void> => {
     if (!title.trim()) { setError('书名不能为空'); return }
     setSaving(true)
@@ -491,9 +508,11 @@ function EditBookDialog({ book, onClose }: { book: BookSummary; onClose: () => v
         title: title.trim(), genre, platform,
         targetChapters, chapterWordCount: chapterWords, status
       })
+      addToast('success', '✓ 书籍设置已保存')
       onClose()
     } catch (err) {
       setError((err as Error).message)
+      addToast('error', `保存失败: ${(err as Error).message}`)
       setSaving(false)
     }
   }
