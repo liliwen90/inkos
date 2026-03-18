@@ -46,6 +46,7 @@ export class ContinuityPlusAgent extends BaseAgent {
       styleGuide,
       voiceCardsRaw,
       subplotBoard,
+      entityRegistry,
     ] = await Promise.all([
       this.readFileSafe(join(storyDir, "current_state.md")),
       this.readFileSafe(join(storyDir, "story_bible.md")),
@@ -56,6 +57,7 @@ export class ContinuityPlusAgent extends BaseAgent {
       this.readFileSafe(join(storyDir, "style_guide.md")),
       this.readFileSafe(join(bookDir, "humanize", "voice-cards.json")),
       this.readFileSafe(join(storyDir, "subplot_board.md")),
+      this.readFileSafe(join(storyDir, "entity_registry.md")),
     ]);
 
     // Load preceding chapter for context (last 1-2 chapters)
@@ -88,12 +90,12 @@ export class ContinuityPlusAgent extends BaseAgent {
       ? this.buildEnglishUserPrompt(
           chapterNumber, chapterContent, currentState, storyBible,
           chapterSummaries, emotionalArcs, characterMatrix, prevChapters,
-          pendingHooks, subplotBoard,
+          pendingHooks, subplotBoard, entityRegistry,
         )
       : this.buildChineseUserPrompt(
           chapterNumber, chapterContent, currentState, storyBible,
           chapterSummaries, emotionalArcs, characterMatrix, prevChapters,
-          pendingHooks, subplotBoard,
+          pendingHooks, subplotBoard, entityRegistry,
         );
 
     const response = await this.chat(
@@ -246,7 +248,7 @@ ${voiceCards ? `\n已建立的声音卡片:\n${voiceCards}\n` : ""}
   private buildEnglishUserPrompt(
     chapterNumber: number, content: string, state: string, bible: string,
     summaries: string, arcs: string, matrix: string, prevChapters: string,
-    hooks: string, subplotBoard: string,
+    hooks: string, subplotBoard: string, entityRegistry: string,
   ): string {
     let prompt = `Perform a DEEP continuity audit on Chapter ${chapterNumber}.\n\n`;
     prompt += `=== CHAPTER ${chapterNumber} CONTENT ===\n${content}\n\n`;
@@ -258,14 +260,15 @@ ${voiceCards ? `\n已建立的声音卡片:\n${voiceCards}\n` : ""}
     if (matrix !== "(文件不存在)") prompt += `=== CHARACTER INTERACTION MATRIX ===\n${matrix}\n\n`;
     if (hooks !== "(文件不存在)") prompt += `=== PENDING HOOKS ===\n${hooks}\n\n`;
     if (subplotBoard !== "(文件不存在)") prompt += `=== SUBPLOT BOARD ===\n${subplotBoard}\n\n`;
-    prompt += `Now analyze Chapter ${chapterNumber} for all 7 deep continuity dimensions. Be ruthlessly specific.`;
+    if (entityRegistry !== "(文件不存在)") prompt += `=== ENTITY REGISTRY (immutable facts — flag ANY contradiction) ===\n${entityRegistry}\n\n`;
+    prompt += `Now analyze Chapter ${chapterNumber} for all 5 deep continuity dimensions. Be ruthlessly specific.`;
     return prompt;
   }
 
   private buildChineseUserPrompt(
     chapterNumber: number, content: string, state: string, bible: string,
     summaries: string, arcs: string, matrix: string, prevChapters: string,
-    hooks: string, subplotBoard: string,
+    hooks: string, subplotBoard: string, entityRegistry: string,
   ): string {
     let prompt = `对第${chapterNumber}章执行深度连续性审计。\n\n`;
     prompt += `=== 第${chapterNumber}章正文 ===\n${content}\n\n`;
@@ -277,7 +280,8 @@ ${voiceCards ? `\n已建立的声音卡片:\n${voiceCards}\n` : ""}
     if (matrix !== "(文件不存在)") prompt += `=== 角色互动矩阵 ===\n${matrix}\n\n`;
     if (hooks !== "(文件不存在)") prompt += `=== 未收伏笔 ===\n${hooks}\n\n`;
     if (subplotBoard !== "(文件不存在)") prompt += `=== 支线面板 ===\n${subplotBoard}\n\n`;
-    prompt += `现在分析第${chapterNumber}章全部7个深度连续性维度，请务必具体到引用原文。`;
+    if (entityRegistry !== "(文件不存在)") prompt += `=== 实体注册表（不可变事实——任何矛盾必须标记） ===\n${entityRegistry}\n\n`;
+    prompt += `现在分析第${chapterNumber}章全部5个深度连续性维度，请务必具体到引用原文。`;
     return prompt;
   }
 

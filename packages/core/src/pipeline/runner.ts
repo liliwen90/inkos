@@ -8,6 +8,7 @@ import { WriterAgent } from "../agents/writer.js";
 import { ContinuityAuditor } from "../agents/continuity.js";
 import { ContinuityPlusAgent, type ContinuityPlusResult } from "../agents/continuity-plus.js";
 import { PolisherAgent, type PolishResult } from "../agents/polisher.js";
+import { EntityExtractorAgent } from "../agents/entity-extractor.js";
 import { ReviserAgent, type ReviseMode } from "../agents/reviser.js";
 import { RadarAgent } from "../agents/radar.js";
 import type { RadarSource } from "../agents/radar-source.js";
@@ -185,6 +186,12 @@ export class PipelineRunner {
       // Save truth files
       await writer.saveChapter(bookDir, output, gp.numericalSystem, en);
       await writer.saveNewTruthFiles(bookDir, output);
+
+      // Extract entities for long-term memory
+      try {
+        const extractor = new EntityExtractorAgent(this.agentCtxFor("writer", bookId));
+        await extractor.extractAndMerge(bookDir, output.content, chapterNumber, book.genre);
+      } catch { /* non-critical */ }
 
       // Update index
       const existingIndex = await this.state.loadChapterIndex(bookId);
@@ -625,6 +632,14 @@ export class PipelineRunner {
 
     // Save new truth files (summaries, subplots, emotional arcs, character matrix)
     await writer.saveNewTruthFiles(bookDir, output);
+
+    // 7a. Extract entities to keep entity_registry.md up to date
+    try {
+      const extractor = new EntityExtractorAgent(this.agentCtxFor("writer", bookId));
+      await extractor.extractAndMerge(bookDir, finalContent, chapterNumber, book.genre);
+    } catch {
+      // Entity extraction is non-critical — don't fail the pipeline
+    }
 
     // 7. Update chapter index
     const existingIndex = await this.state.loadChapterIndex(bookId);

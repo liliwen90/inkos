@@ -19,6 +19,7 @@ export { ContinuityAuditor, type AuditResult, type AuditIssue } from "./agents/c
 export { ReviserAgent, type ReviseOutput, type ReviseMode } from "./agents/reviser.js";
 export { ContinuityPlusAgent, type ContinuityPlusResult } from "./agents/continuity-plus.js";
 export { PolisherAgent, type PolishResult } from "./agents/polisher.js";
+export { EntityExtractorAgent } from "./agents/entity-extractor.js";
 export { RadarAgent, type RadarResult, type RadarRecommendation } from "./agents/radar.js";
 export { FanqieRadarSource, QidianRadarSource, TextRadarSource, RoyalRoadTrendingSource, ScribbleHubTrendingSource, type RadarSource, type PlatformRankings, type RankingEntry } from "./agents/radar-source.js";
 export { readGenreProfile, readBookRules, listAvailableGenres, getBuiltinGenresDir } from "./agents/rules-reader.js";
