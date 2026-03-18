@@ -42,38 +42,38 @@ function runStderr(args: string[]): { stdout: string; stderr: string; exitCode: 
 
 describe("CLI integration", () => {
   beforeAll(async () => {
-    projectDir = await mkdtemp(join(tmpdir(), "inkos-cli-test-"));
+    projectDir = await mkdtemp(join(tmpdir(), "hintos-cli-test-"));
   });
 
   afterAll(async () => {
     await rm(projectDir, { recursive: true, force: true });
   });
 
-  describe("inkos --version", () => {
+  describe("hintos --version", () => {
     it("prints version number", () => {
       const output = run(["--version"]);
       expect(output.trim()).toMatch(/^\d+\.\d+\.\d+$/);
     });
   });
 
-  describe("inkos --help", () => {
+  describe("hintos --help", () => {
     it("prints help with command list", () => {
       const output = run(["--help"]);
-      expect(output).toContain("inkos");
+      expect(output).toContain("hintos");
       expect(output).toContain("init");
       expect(output).toContain("book");
       expect(output).toContain("write");
     });
   });
 
-  describe("inkos init", () => {
+  describe("hintos init", () => {
     it("initializes project in current directory", () => {
       const output = run(["init"]);
       expect(output).toContain("Project initialized");
     });
 
-    it("creates inkos.json with correct structure", async () => {
-      const raw = await readFile(join(projectDir, "inkos.json"), "utf-8");
+    it("creates hintos.json with correct structure", async () => {
+      const raw = await readFile(join(projectDir, "hintos.json"), "utf-8");
       const config = JSON.parse(raw);
       expect(config.llm).toBeDefined();
       expect(config.llm.provider).toBe("openai");
@@ -84,7 +84,7 @@ describe("CLI integration", () => {
 
     it("creates .env file", async () => {
       const envContent = await readFile(join(projectDir, ".env"), "utf-8");
-      expect(envContent).toContain("INKOS_LLM_API_KEY");
+      expect(envContent).toContain("HINTOS_LLM_API_KEY");
     });
 
     it("creates .gitignore", async () => {
@@ -100,20 +100,20 @@ describe("CLI integration", () => {
     });
   });
 
-  describe("inkos init <name>", () => {
+  describe("hintos init <name>", () => {
     it("creates project in subdirectory", () => {
       const output = run(["init", "subproject"]);
       expect(output).toContain("Project initialized");
     });
 
-    it("creates inkos.json in subdirectory", async () => {
-      const raw = await readFile(join(projectDir, "subproject", "inkos.json"), "utf-8");
+    it("creates hintos.json in subdirectory", async () => {
+      const raw = await readFile(join(projectDir, "subproject", "hintos.json"), "utf-8");
       const config = JSON.parse(raw);
       expect(config.name).toBe("subproject");
     });
   });
 
-  describe("inkos config set", () => {
+  describe("hintos config set", () => {
     it("sets a top-level config value", () => {
       const output = run(["config", "set", "name", "test-project"]);
       expect(output).toContain("Set name = test-project");
@@ -121,20 +121,20 @@ describe("CLI integration", () => {
 
     it("sets a nested config value", async () => {
       run(["config", "set", "llm.model", "gpt-5"]);
-      const raw = await readFile(join(projectDir, "inkos.json"), "utf-8");
+      const raw = await readFile(join(projectDir, "hintos.json"), "utf-8");
       const config = JSON.parse(raw);
       expect(config.llm.model).toBe("gpt-5");
     });
 
     it("creates intermediate keys for deep paths", async () => {
       run(["config", "set", "custom.nested.key", "value"]);
-      const raw = await readFile(join(projectDir, "inkos.json"), "utf-8");
+      const raw = await readFile(join(projectDir, "hintos.json"), "utf-8");
       const config = JSON.parse(raw);
       expect(config.custom.nested.key).toBe("value");
     });
   });
 
-  describe("inkos config show", () => {
+  describe("hintos config show", () => {
     it("shows current config as JSON", () => {
       const output = run(["config", "show"]);
       const config = JSON.parse(output);
@@ -143,7 +143,7 @@ describe("CLI integration", () => {
     });
   });
 
-  describe("inkos book list", () => {
+  describe("hintos book list", () => {
     it("shows no books in empty project", () => {
       const output = run(["book", "list"]);
       expect(output).toContain("No books found");
@@ -156,7 +156,7 @@ describe("CLI integration", () => {
     });
   });
 
-  describe("inkos status", () => {
+  describe("hintos status", () => {
     it("shows project status with zero books", () => {
       const output = run(["status"]);
       expect(output).toContain("Books: 0");
@@ -175,16 +175,16 @@ describe("CLI integration", () => {
     });
   });
 
-  describe("inkos doctor", () => {
+  describe("hintos doctor", () => {
     it("checks environment health", () => {
       const { stdout } = runStderr(["doctor"]);
-      expect(stdout).toContain("InkOS Doctor");
+      expect(stdout).toContain("HintOS Doctor");
       expect(stdout).toContain("Node.js >= 20");
-      expect(stdout).toContain("inkos.json");
+      expect(stdout).toContain("hintos.json");
     });
   });
 
-  describe("inkos analytics", () => {
+  describe("hintos analytics", () => {
     it("errors when no book exists", () => {
       const { exitCode } = runStderr(["analytics"]);
       expect(exitCode).not.toBe(0);

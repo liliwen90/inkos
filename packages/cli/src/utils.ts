@@ -2,9 +2,9 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { config as loadEnv } from "dotenv";
-import { createLLMClient, StateManager, type ProjectConfig, ProjectConfigSchema } from "@actalk/inkos-core";
+import { createLLMClient, StateManager, type ProjectConfig, ProjectConfigSchema } from "@actalk/hintos-core";
 
-export const GLOBAL_CONFIG_DIR = join(homedir(), ".inkos");
+export const GLOBAL_CONFIG_DIR = join(homedir(), ".hintos");
 export const GLOBAL_ENV_PATH = join(GLOBAL_CONFIG_DIR, ".env");
 
 export async function resolveContext(opts: {
@@ -34,30 +34,30 @@ export function findProjectRoot(): string {
 export async function loadConfig(): Promise<ProjectConfig> {
   const root = findProjectRoot();
 
-  // Load global ~/.inkos/.env first, then project .env overrides
+  // Load global ~/.hintos/.env first, then project .env overrides
   loadEnv({ path: GLOBAL_ENV_PATH });
   loadEnv({ path: join(root, ".env"), override: true });
 
-  const configPath = join(root, "inkos.json");
+  const configPath = join(root, "hintos.json");
   try {
     const raw = await readFile(configPath, "utf-8");
     const config = JSON.parse(raw);
 
-    // .env overrides inkos.json for LLM settings
+    // .env overrides hintos.json for LLM settings
     const env = process.env;
-    if (env.INKOS_LLM_PROVIDER) config.llm.provider = env.INKOS_LLM_PROVIDER;
-    if (env.INKOS_LLM_BASE_URL) config.llm.baseUrl = env.INKOS_LLM_BASE_URL;
-    if (env.INKOS_LLM_MODEL) config.llm.model = env.INKOS_LLM_MODEL;
-    if (env.INKOS_LLM_TEMPERATURE) config.llm.temperature = parseFloat(env.INKOS_LLM_TEMPERATURE);
-    if (env.INKOS_LLM_MAX_TOKENS) config.llm.maxTokens = parseInt(env.INKOS_LLM_MAX_TOKENS, 10);
-    if (env.INKOS_LLM_THINKING_BUDGET) config.llm.thinkingBudget = parseInt(env.INKOS_LLM_THINKING_BUDGET, 10);
-    if (env.INKOS_LLM_API_FORMAT) config.llm.apiFormat = env.INKOS_LLM_API_FORMAT;
+    if (env.HINTOS_LLM_PROVIDER) config.llm.provider = env.HINTOS_LLM_PROVIDER;
+    if (env.HINTOS_LLM_BASE_URL) config.llm.baseUrl = env.HINTOS_LLM_BASE_URL;
+    if (env.HINTOS_LLM_MODEL) config.llm.model = env.HINTOS_LLM_MODEL;
+    if (env.HINTOS_LLM_TEMPERATURE) config.llm.temperature = parseFloat(env.HINTOS_LLM_TEMPERATURE);
+    if (env.HINTOS_LLM_MAX_TOKENS) config.llm.maxTokens = parseInt(env.HINTOS_LLM_MAX_TOKENS, 10);
+    if (env.HINTOS_LLM_THINKING_BUDGET) config.llm.thinkingBudget = parseInt(env.HINTOS_LLM_THINKING_BUDGET, 10);
+    if (env.HINTOS_LLM_API_FORMAT) config.llm.apiFormat = env.HINTOS_LLM_API_FORMAT;
 
-    // API key ONLY from env — never stored in inkos.json
-    const apiKey = env.INKOS_LLM_API_KEY;
+    // API key ONLY from env — never stored in hintos.json
+    const apiKey = env.HINTOS_LLM_API_KEY;
     if (!apiKey) {
       throw new Error(
-        "INKOS_LLM_API_KEY not set. Run 'inkos config set-global' or add it to project .env file.",
+        "HINTOS_LLM_API_KEY not set. Run 'hintos config set-global' or add it to project .env file.",
       );
     }
     config.llm.apiKey = apiKey;
@@ -65,7 +65,7 @@ export async function loadConfig(): Promise<ProjectConfig> {
     return ProjectConfigSchema.parse(config);
   } catch (e) {
     throw new Error(
-      `inkos.json not found in ${root}.\nMake sure you are inside an InkOS project directory (cd into the project created by 'inkos init').`,
+      `hintos.json not found in ${root}.\nMake sure you are inside an HintOS project directory (cd into the project created by 'hintos init').`,
     );
   }
 }
@@ -105,7 +105,7 @@ export async function resolveBookId(
 
   if (books.length === 0) {
     throw new Error(
-      "No books found. Create one first:\n  inkos book create --title '...' --genre xuanhuan",
+      "No books found. Create one first:\n  hintos book create --title '...' --genre xuanhuan",
     );
   }
   if (books.length === 1) {

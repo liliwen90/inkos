@@ -1,10 +1,10 @@
 {
-  "name": "@actalk/inkos",
+  "name": "@actalk/hintos",
   "version": "0.3.6",
-  "description": "InkOS CLI — multi-agent novel production system",
+  "description": "HintOS CLI — multi-agent novel production system",
   "type": "module",
   "bin": {
-    "inkos": "dist/index.js"
+    "hintos": "dist/index.js"
   },
   "files": [
     "dist",
@@ -13,7 +13,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Narcooo/inkos.git",
+    "url": "https://github.com/Narcooo/hintos.git",
     "directory": "packages/cli"
   },
   "scripts": {
@@ -25,7 +25,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@actalk/inkos-core": "workspace:*",
+    "@actalk/hintos-core": "workspace:*",
     "commander": "^13.0.0",
     "dotenv": "^16.4.0"
   },

@@ -12,7 +12,7 @@ import type {
   LLMClient,
   ContinuityPlusResult,
   PolishResult,
-} from '@actalk/inkos-core'
+} from '@actalk/hintos-core'
 
 export interface ProgressEvent {
   stage: string
@@ -27,7 +27,7 @@ export class PipelineAdapter extends EventEmitter {
   private runner: PipelineRunnerType | null = null
 
   async initialize(client: LLMClient, model: string, projectRoot: string, modelOverrides?: Record<string, string>): Promise<void> {
-    const { PipelineRunner } = await import('@actalk/inkos-core')
+    const { PipelineRunner } = await import('@actalk/hintos-core')
     this.runner = new PipelineRunner({
       client, model, projectRoot, modelOverrides,
       onProgress: (stage, detail) => this.emitProgress(stage, detail),

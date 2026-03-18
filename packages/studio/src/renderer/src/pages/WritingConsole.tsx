@@ -46,7 +46,7 @@ export default function WritingConsole(): JSX.Element {
 
   // 监听进度事件
   useEffect(() => {
-    const unsub = window.inkos.onProgress((evt: unknown) => {
+    const unsub = window.hintos.onProgress((evt: unknown) => {
       addProgressEvent(evt as ProgressEvent)
     })
     return unsub
@@ -55,7 +55,7 @@ export default function WritingConsole(): JSX.Element {
   // 加载书籍列表
   useEffect(() => {
     if (projectLoaded) {
-      window.inkos.listBooks().then((data) => setBooks(data as BookSummary[]))
+      window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
     }
   }, [projectLoaded, setBooks])
 
@@ -70,7 +70,7 @@ export default function WritingConsole(): JSX.Element {
     try {
       for (let i = 0; i < batchCount; i++) {
         try {
-          const res = await window.inkos.writeNext(currentBookId, wordCount)
+          const res = await window.hintos.writeNext(currentBookId, wordCount)
           setResult(res)
           setCompletedChapters(i + 1)
         } catch (chapterErr) {
@@ -79,7 +79,7 @@ export default function WritingConsole(): JSX.Element {
         }
       }
       // 刷新书籍列表
-      window.inkos.listBooks().then((data) => setBooks(data as BookSummary[]))
+      window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -91,7 +91,7 @@ export default function WritingConsole(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
         <PenTool className="w-8 h-8 mb-2" />
-        <p>请先打开 InkOS 项目</p>
+        <p>请先打开 HintOS 项目</p>
       </div>
     )
   }

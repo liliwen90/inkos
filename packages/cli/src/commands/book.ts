@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { PipelineRunner, StateManager, type BookConfig } from "@actalk/inkos-core";
+import { PipelineRunner, StateManager, type BookConfig } from "@actalk/hintos-core";
 import { loadConfig, createClient, findProjectRoot, resolveContext, resolveBookId, log, logError } from "../utils.js";
 
 export const bookCommand = new Command("book")
@@ -61,14 +61,14 @@ bookCommand
           genre: book.genre,
           platform: book.platform,
           location: `books/${bookId}/`,
-          nextStep: `inkos write next ${bookId}`,
+          nextStep: `hintos write next ${bookId}`,
         }, null, 2));
       } else {
         log(`Book created: ${bookId}`);
         log(`  Location: books/${bookId}/`);
         log(`  Story bible, outline, book rules generated.`);
         log("");
-        log(`Next: inkos write next ${bookId}`);
+        log(`Next: hintos write next ${bookId}`);
       }
     } catch (e) {
       if (opts.json) {
@@ -151,7 +151,7 @@ bookCommand
         if (opts.json) {
           log(JSON.stringify({ books: [] }));
         } else {
-          log("No books found. Create one with: inkos book create --title '...'");
+          log("No books found. Create one with: hintos book create --title '...'");
         }
         return;
       }

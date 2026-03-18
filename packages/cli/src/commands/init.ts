@@ -6,14 +6,14 @@ import { log, logError, GLOBAL_ENV_PATH } from "../utils.js";
 async function hasGlobalConfig(): Promise<boolean> {
   try {
     const content = await readFile(GLOBAL_ENV_PATH, "utf-8");
-    return content.includes("INKOS_LLM_API_KEY=") && !content.includes("your-api-key-here");
+    return content.includes("HINTOS_LLM_API_KEY=") && !content.includes("your-api-key-here");
   } catch {
     return false;
   }
 }
 
 export const initCommand = new Command("init")
-  .description("Initialize an InkOS project (current directory by default)")
+  .description("Initialize an HintOS project (current directory by default)")
   .argument("[name]", "Project name (creates subdirectory). Omit to init current directory.")
   .action(async (name?: string) => {
     const projectDir = name ? join(process.cwd(), name) : process.cwd();
@@ -28,9 +28,9 @@ export const initCommand = new Command("init")
         name: projectName,
         version: "0.1.0",
         llm: {
-          provider: process.env.INKOS_LLM_PROVIDER ?? "openai",
-          baseUrl: process.env.INKOS_LLM_BASE_URL ?? "https://api.openai.com/v1",
-          model: process.env.INKOS_LLM_MODEL ?? "gpt-4o",
+          provider: process.env.HINTOS_LLM_PROVIDER ?? "openai",
+          baseUrl: process.env.HINTOS_LLM_BASE_URL ?? "https://api.openai.com/v1",
+          model: process.env.HINTOS_LLM_MODEL ?? "gpt-4o",
         },
         notify: [],
         daemon: {
@@ -44,7 +44,7 @@ export const initCommand = new Command("init")
       };
 
       await writeFile(
-        join(projectDir, "inkos.json"),
+        join(projectDir, "hintos.json"),
         JSON.stringify(config, null, 2),
         "utf-8",
       );
@@ -56,12 +56,12 @@ export const initCommand = new Command("init")
           join(projectDir, ".env"),
           [
             "# Project-level LLM overrides (optional)",
-            "# Global config at ~/.inkos/.env will be used by default.",
+            "# Global config at ~/.hintos/.env will be used by default.",
             "# Uncomment below to override for this project only:",
-            "# INKOS_LLM_PROVIDER=openai",
-            "# INKOS_LLM_BASE_URL=https://api.openai.com/v1",
-            "# INKOS_LLM_API_KEY=your-api-key-here",
-            "# INKOS_LLM_MODEL=gpt-4o",
+            "# HINTOS_LLM_PROVIDER=openai",
+            "# HINTOS_LLM_BASE_URL=https://api.openai.com/v1",
+            "# HINTOS_LLM_API_KEY=your-api-key-here",
+            "# HINTOS_LLM_MODEL=gpt-4o",
           ].join("\n"),
           "utf-8",
         );
@@ -70,23 +70,23 @@ export const initCommand = new Command("init")
           join(projectDir, ".env"),
           [
             "# LLM Configuration",
-            "# Tip: Run 'inkos config set-global' to set once for all projects.",
+            "# Tip: Run 'hintos config set-global' to set once for all projects.",
             "# Provider: openai (OpenAI / compatible proxy), anthropic (Anthropic native)",
-            "INKOS_LLM_PROVIDER=openai",
-            "INKOS_LLM_BASE_URL=https://api.openai.com/v1",
-            "INKOS_LLM_API_KEY=your-api-key-here",
-            "INKOS_LLM_MODEL=gpt-4o",
+            "HINTOS_LLM_PROVIDER=openai",
+            "HINTOS_LLM_BASE_URL=https://api.openai.com/v1",
+            "HINTOS_LLM_API_KEY=your-api-key-here",
+            "HINTOS_LLM_MODEL=gpt-4o",
             "",
             "# Optional parameters (defaults shown):",
-            "# INKOS_LLM_TEMPERATURE=0.7",
-            "# INKOS_LLM_MAX_TOKENS=8192",
-            "# INKOS_LLM_THINKING_BUDGET=0          # Anthropic extended thinking budget",
-            "# INKOS_LLM_API_FORMAT=chat             # chat (default) or responses (OpenAI Responses API)",
+            "# HINTOS_LLM_TEMPERATURE=0.7",
+            "# HINTOS_LLM_MAX_TOKENS=8192",
+            "# HINTOS_LLM_THINKING_BUDGET=0          # Anthropic extended thinking budget",
+            "# HINTOS_LLM_API_FORMAT=chat             # chat (default) or responses (OpenAI Responses API)",
             "",
             "# Anthropic example:",
-            "# INKOS_LLM_PROVIDER=anthropic",
-            "# INKOS_LLM_BASE_URL=https://api.anthropic.com",
-            "# INKOS_LLM_MODEL=claude-sonnet-4-5-20250514",
+            "# HINTOS_LLM_PROVIDER=anthropic",
+            "# HINTOS_LLM_BASE_URL=https://api.anthropic.com",
+            "# HINTOS_LLM_MODEL=claude-sonnet-4-5-20250514",
           ].join("\n"),
           "utf-8",
         );
@@ -105,17 +105,17 @@ export const initCommand = new Command("init")
         log("");
         log("Next steps:");
         if (name) log(`  cd ${name}`);
-        log("  inkos book create --title '我的小说' --genre xuanhuan --platform tomato");
+        log("  hintos book create --title '我的小说' --genre xuanhuan --platform tomato");
       } else {
         log("Next steps:");
         if (name) log(`  cd ${name}`);
         log("  # Option 1: Set global config (recommended, one-time):");
-        log("  inkos config set-global --provider openai --base-url https://api.openai.com/v1 --api-key sk-xxx --model gpt-4o");
+        log("  hintos config set-global --provider openai --base-url https://api.openai.com/v1 --api-key sk-xxx --model gpt-4o");
         log("  # Option 2: Edit .env for this project only");
         log("");
-        log("  inkos book create --title '我的小说' --genre xuanhuan --platform tomato");
+        log("  hintos book create --title '我的小说' --genre xuanhuan --platform tomato");
       }
-      log("  inkos write next <book-id>");
+      log("  hintos write next <book-id>");
     } catch (e) {
       logError(`Failed to initialize project: ${e}`);
       process.exit(1);

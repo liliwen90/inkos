@@ -229,7 +229,7 @@ function epubCss(lang: 'zh' | 'en'): string {
     ? `Georgia, 'Times New Roman', serif`
     : `'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif`
 
-  return `/* InkOS EPUB Stylesheet */
+  return `/* HintOS EPUB Stylesheet */
 body {
   font-family: ${fontFamily};
   font-size: 1em;

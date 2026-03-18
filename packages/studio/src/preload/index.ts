@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-const inkosAPI = {
+const hintosAPI = {
   // 项目管理
   selectProjectDir: (): Promise<{ path: string; isProject: boolean } | null> =>
     ipcRenderer.invoke('select-project-dir'),
@@ -166,10 +166,10 @@ const inkosAPI = {
 
 if (process.contextIsolated) {
   contextBridge.exposeInMainWorld('electron', electronAPI)
-  contextBridge.exposeInMainWorld('inkos', inkosAPI)
+  contextBridge.exposeInMainWorld('hintos', hintosAPI)
 } else {
   // @ts-expect-error fallback
   window.electron = electronAPI
   // @ts-expect-error fallback
-  window.inkos = inkosAPI
+  window.hintos = hintosAPI
 }

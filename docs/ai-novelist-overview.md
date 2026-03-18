@@ -44,16 +44,16 @@ AI辅助中文小说创作桌面工具：
 | export-manager.js | TXT/HTML导出 | class |
 
 ### src/components/ (11个, about-handler.js已删除)
-| 文件 | 职责 | 移植到InkOS Studio |
+| 文件 | 职责 | 移植到HintOS Studio |
 |------|------|-------------------|
 | app-init.js | 版本号显示 | 不需要(React自带) |
 | modal.js | showModal/showAlert/showConfirm/showEditModal | 不需要(用shadcn/ui Dialog) |
 | window-controls.js | 窗口最小化/最大化/关闭 | 需要移植(自定义标题栏) |
 | menu-handler.js | 侧边栏导航 | 不需要(React Router) |
 | prompt-handler.js | 分类/项目CRUD、仪表盘 | 部分(仪表盘概念) |
-| outline-handler.js | 大纲生成/列表/编辑/删除 | 不需要(InkOS建筑师Agent) |
-| generate-handler.js | 章节生成、进度、质量检查、状态更新 | 不需要(InkOS管线) |
-| settings-handler.js | 角色状态 & 世界设定管理 | 不需要(InkOS真相文件) |
+| outline-handler.js | 大纲生成/列表/编辑/删除 | 不需要(HintOS建筑师Agent) |
+| generate-handler.js | 章节生成、进度、质量检查、状态更新 | 不需要(HintOS管线) |
+| settings-handler.js | 角色状态 & 世界设定管理 | 不需要(HintOS真相文件) |
 | llm-handler.js | 任务路由配置UI、健康检查 | ⭐需要移植(任务路由概念) |
 | humanize-handler.js | 人性化设置、多书导入、风格指纹、声音卡片 | ⭐需要移植(核心增值) |
 | tools-handler.js | 改写工具、章节管理器、导出 | 部分(导出逻辑) |

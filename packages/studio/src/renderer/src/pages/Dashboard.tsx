@@ -73,16 +73,16 @@ export default function Dashboard(): JSX.Element {
   useEffect(() => {
     ;(async () => {
       try {
-        const lastPath = await window.inkos.getLastProject()
+        const lastPath = await window.hintos.getLastProject()
         if (lastPath) {
           setProjectPath(lastPath)
           setProjectLoaded(true)
           // 自动初始化管线
-          const result = await window.inkos.autoInitPipeline()
+          const result = await window.hintos.autoInitPipeline()
           if (result.ok) {
             setPipelineReady(true)
             // 同步 LLM 配置到 store
-            const config = await window.inkos.loadLLMConfig()
+            const config = await window.hintos.loadLLMConfig()
             if (config) setLLMConfig(config)
           }
         }
@@ -95,27 +95,27 @@ export default function Dashboard(): JSX.Element {
   useEffect(() => {
     if (projectLoaded) {
       loadBooks()
-      window.inkos.loadProjectInfo().then((info: { name: string } | null) => {
+      window.hintos.loadProjectInfo().then((info: { name: string } | null) => {
         if (info) setProjectName(info.name)
       })
     }
   }, [projectLoaded])
 
   const loadBooks = async (): Promise<void> => {
-    const data = await window.inkos.listBooks()
+    const data = await window.hintos.listBooks()
     setBooks(data as BookSummary[])
   }
 
   const handleOpenProject = async (): Promise<void> => {
-    const result = await window.inkos.selectProjectDir()
+    const result = await window.hintos.selectProjectDir()
     if (!result) return
     if (result.isProject) {
       setProjectPath(result.path)
       setProjectLoaded(true)
     } else {
-      if (confirm(`${result.path} 不是 InkOS 项目。\n是否在此目录初始化新项目？`)) {
+      if (confirm(`${result.path} 不是 HintOS 项目。\n是否在此目录初始化新项目？`)) {
         const name = prompt('项目名称:', result.path.split(/[\\/]/).pop() ?? 'my-novel') ?? 'my-novel'
-        await window.inkos.initProject(result.path, name)
+        await window.hintos.initProject(result.path, name)
         setProjectPath(result.path)
         setProjectLoaded(true)
       }
@@ -131,7 +131,7 @@ export default function Dashboard(): JSX.Element {
     if (!confirm(`确定要删除《${title}》吗？\n\n此操作将永久删除该书的所有章节、真相文件和配置，不可恢复！`)) return
     try {
       if (currentBookId === bookId) setCurrentBookId(null)
-      await window.inkos.deleteBook(bookId)
+      await window.hintos.deleteBook(bookId)
       await loadBooks()
     } catch (err) {
       alert(`删除失败: ${(err as Error).message}`)
@@ -153,20 +153,20 @@ export default function Dashboard(): JSX.Element {
         <div className="flex items-center gap-3">
           <Feather className="w-12 h-12 text-violet-400" />
           <div>
-            <h1 className="text-3xl font-bold text-zinc-100">InkOS Studio</h1>
+            <h1 className="text-3xl font-bold text-zinc-100">HintOS Studio</h1>
             <p className="text-zinc-500 text-sm">多Agent小说生产系统 · 桌面版</p>
           </div>
         </div>
         <div className="max-w-md text-center space-y-4 mt-4">
           <p className="text-zinc-400 text-sm leading-relaxed">
-            InkOS 通过建筑师、写手、审计员、修订员四个AI Agent协作，
+            HintOS 通过建筑师、写手、审计员、修订员四个AI Agent协作，
             自动完成小说的创作、审计与修订全流程。
           </p>
           <button onClick={handleOpenProject}
             className="inline-flex items-center gap-2 px-6 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-lg text-sm font-medium transition-colors">
-            <FolderOpen className="w-4 h-4" /> 打开 InkOS 项目
+            <FolderOpen className="w-4 h-4" /> 打开 HintOS 项目
           </button>
-          <p className="text-zinc-600 text-xs">选择包含 inkos.json 的项目目录，或选择空目录初始化新项目</p>
+          <p className="text-zinc-600 text-xs">选择包含 HintOS.json 的项目目录，或选择空目录初始化新项目</p>
         </div>
         <div className="grid grid-cols-3 gap-4 mt-8 max-w-lg">
           <StatCard icon={<PenTool className="w-5 h-5" />} label="写→审→改" desc="全自动管线" />
@@ -293,10 +293,10 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
     setCreating(true)
     setError('')
     try {
-      const unsub = window.inkos.onProgress((evt: unknown) => {
+      const unsub = window.hintos.onProgress((evt: unknown) => {
         addProgressEvent(evt as { stage: string; detail: string; timestamp: number })
       })
-      await window.inkos.createBook({
+      await window.hintos.createBook({
         title: title.trim(), genre, platform,
         targetChapters, chapterWordCount: chapterWords,
         context: context.trim() || undefined,
@@ -311,7 +311,7 @@ function CreateBookDialog({ onClose }: { onClose: () => void }): JSX.Element {
   }
 
   const handleSelectStyleBooks = async (): Promise<void> => {
-    const paths = await window.inkos.selectStyleBookFiles()
+    const paths = await window.hintos.selectStyleBookFiles()
     if (paths) setStyleBookPaths(prev => [...prev, ...paths])
   }
 
@@ -448,7 +448,7 @@ function EditBookDialog({ book, onClose }: { book: BookSummary; onClose: () => v
   const [error, setError] = useState('')
 
   useEffect(() => {
-    window.inkos.loadBookConfig(book.bookId).then((cfg: Record<string, unknown> | null) => {
+    window.hintos.loadBookConfig(book.bookId).then((cfg: Record<string, unknown> | null) => {
       if (cfg) {
         setTargetChapters((cfg.targetChapters as number) ?? 200)
         setChapterWords((cfg.chapterWordCount as number) ?? 3000)
@@ -462,7 +462,7 @@ function EditBookDialog({ book, onClose }: { book: BookSummary; onClose: () => v
     setSaving(true)
     setError('')
     try {
-      await window.inkos.updateBookConfig(book.bookId, {
+      await window.hintos.updateBookConfig(book.bookId, {
         title: title.trim(), genre, platform,
         targetChapters, chapterWordCount: chapterWords, status
       })

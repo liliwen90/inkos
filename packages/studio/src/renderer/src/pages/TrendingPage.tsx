@@ -49,7 +49,7 @@ export default function TrendingPage(): JSX.Element {
     for (const target of FETCH_TARGETS) {
       setStatus(`正在抓取 ${target.label}…`)
       try {
-        const res: TrendingResult = await window.inkos.fetchTrending(target.platformId, target.listType, false)
+        const res: TrendingResult = await window.hintos.fetchTrending(target.platformId, target.listType, false)
         for (const n of res.novels) {
           if (!seen.has(n.title)) { seen.add(n.title); allNovels.push(n) }
         }
@@ -67,10 +67,10 @@ export default function TrendingPage(): JSX.Element {
 
     setStatus(`已抓取 ${allNovels.length} 部小说，AI 正在分析选题…`)
     try {
-      const text = await window.inkos.analyzeTrending(allNovels)
+      const text = await window.hintos.analyzeTrending(allNovels)
       setAnalysis(text)
       // 自动保存到创意库
-      await window.inkos.vaultSave({ novelCount: allNovels.length, analysis: text })
+      await window.hintos.vaultSave({ novelCount: allNovels.length, analysis: text })
       setStatus('')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'AI 分析失败')

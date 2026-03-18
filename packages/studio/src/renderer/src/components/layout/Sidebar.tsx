@@ -47,7 +47,7 @@ export default function Sidebar(): JSX.Element {
   const location = useLocation()
 
   const handleOpenProject = async (): Promise<void> => {
-    const result = await window.inkos.selectProjectDir()
+    const result = await window.hintos.selectProjectDir()
     if (result?.isProject) {
       setProjectPath(result.path)
       setProjectLoaded(true)
@@ -61,7 +61,7 @@ export default function Sidebar(): JSX.Element {
         <Feather className="w-6 h-6 text-violet-400 shrink-0" />
         {!collapsed && (
           <div className="flex flex-col leading-tight">
-            <span className="text-sm font-bold text-zinc-100">InkOS</span>
+            <span className="text-sm font-bold text-zinc-100">HintOS</span>
             <span className="text-[10px] text-zinc-500 tracking-wider">STUDIO</span>
           </div>
         )}

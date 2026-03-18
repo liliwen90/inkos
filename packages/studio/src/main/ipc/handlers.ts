@@ -95,7 +95,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle('select-project-dir', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory'],
-      title: '选择 InkOS 项目目录'
+      title: '选择 HintOS 项目目录'
     })
     if (result.canceled || !result.filePaths.length) return null
     const dirPath = result.filePaths[0]
@@ -157,15 +157,15 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       // 读取 LLM 配置
       const config = await stateAdapter.loadProjectConfig()
       const env = await stateAdapter.loadEnvConfig()
-      if (!config || !env.INKOS_LLM_API_KEY) return { ok: false, reason: 'no-config' }
+      if (!config || !env.HINTOS_LLM_API_KEY) return { ok: false, reason: 'no-config' }
       const llm = (config.llm ?? {}) as Record<string, unknown>
       const llmConfig: LLMConfigUI = {
-        provider: (env.INKOS_LLM_PROVIDER || llm.provider as string || 'openai') as LLMConfigUI['provider'],
-        baseUrl: env.INKOS_LLM_BASE_URL || llm.baseUrl as string || 'https://api.openai.com/v1',
-        apiKey: env.INKOS_LLM_API_KEY,
-        model: env.INKOS_LLM_MODEL || llm.model as string || 'gpt-4o',
-        temperature: Number(env.INKOS_LLM_TEMPERATURE || llm.temperature) || 0.7,
-        maxTokens: Number(env.INKOS_LLM_MAX_TOKENS || llm.maxTokens) || 8192
+        provider: (env.HINTOS_LLM_PROVIDER || llm.provider as string || 'openai') as LLMConfigUI['provider'],
+        baseUrl: env.HINTOS_LLM_BASE_URL || llm.baseUrl as string || 'https://api.openai.com/v1',
+        apiKey: env.HINTOS_LLM_API_KEY,
+        model: env.HINTOS_LLM_MODEL || llm.model as string || 'gpt-4o',
+        temperature: Number(env.HINTOS_LLM_TEMPERATURE || llm.temperature) || 0.7,
+        maxTokens: Number(env.HINTOS_LLM_MAX_TOKENS || llm.maxTokens) || 8192
       }
       // 检查是否有任务路由配置
       const routing = await stateAdapter.loadTaskRouting()
@@ -192,24 +192,24 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     if (!config) return null
     const llm = (config.llm ?? {}) as Record<string, unknown>
     return {
-      provider: (env.INKOS_LLM_PROVIDER ?? llm.provider ?? 'openai') as string,
-      baseUrl: (env.INKOS_LLM_BASE_URL ?? llm.baseUrl ?? '') as string,
-      apiKey: (env.INKOS_LLM_API_KEY ?? '') as string,
-      model: (env.INKOS_LLM_MODEL ?? llm.model ?? '') as string,
-      temperature: parseFloat(env.INKOS_LLM_TEMPERATURE ?? String(llm.temperature ?? '0.7')),
-      maxTokens: parseInt(env.INKOS_LLM_MAX_TOKENS ?? String(llm.maxTokens ?? '8192'), 10)
+      provider: (env.HINTOS_LLM_PROVIDER ?? llm.provider ?? 'openai') as string,
+      baseUrl: (env.HINTOS_LLM_BASE_URL ?? llm.baseUrl ?? '') as string,
+      apiKey: (env.HINTOS_LLM_API_KEY ?? '') as string,
+      model: (env.HINTOS_LLM_MODEL ?? llm.model ?? '') as string,
+      temperature: parseFloat(env.HINTOS_LLM_TEMPERATURE ?? String(llm.temperature ?? '0.7')),
+      maxTokens: parseInt(env.HINTOS_LLM_MAX_TOKENS ?? String(llm.maxTokens ?? '8192'), 10)
     }
   })
 
   ipcMain.handle('save-llm-config', async (_e, config: LLMConfigUI) => {
-    // 保存到 .env（密钥）和 inkos.json（非敏感配置）
+    // 保存到 .env（密钥）和 hintos.json（非敏感配置）
     await stateAdapter.saveEnvConfig({
-      INKOS_LLM_PROVIDER: config.provider,
-      INKOS_LLM_BASE_URL: config.baseUrl,
-      INKOS_LLM_API_KEY: config.apiKey,
-      INKOS_LLM_MODEL: config.model,
-      ...(config.temperature != null ? { INKOS_LLM_TEMPERATURE: String(config.temperature) } : {}),
-      ...(config.maxTokens != null ? { INKOS_LLM_MAX_TOKENS: String(config.maxTokens) } : {})
+      HINTOS_LLM_PROVIDER: config.provider,
+      HINTOS_LLM_BASE_URL: config.baseUrl,
+      HINTOS_LLM_API_KEY: config.apiKey,
+      HINTOS_LLM_MODEL: config.model,
+      ...(config.temperature != null ? { HINTOS_LLM_TEMPERATURE: String(config.temperature) } : {}),
+      ...(config.maxTokens != null ? { HINTOS_LLM_MAX_TOKENS: String(config.maxTokens) } : {})
     })
     const projectConfig = await stateAdapter.loadProjectConfig()
     if (projectConfig) {
@@ -616,7 +616,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
     if (client && config && translate) {
-      const { chatCompletion } = await import('@actalk/inkos-core')
+      const { chatCompletion } = await import('@actalk/hintos-core')
       trendingAdapter.setLLMChat(async (messages) => {
         const res = await chatCompletion(client, config.model, messages as never, { maxTokens: 4096, temperature: 0.3 })
         return res.content
@@ -629,7 +629,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
     if (!client || !config) throw new Error('请先在设置中配置 LLM')
-    const { chatCompletion } = await import('@actalk/inkos-core')
+    const { chatCompletion } = await import('@actalk/hintos-core')
     trendingAdapter.setLLMChat(async (messages) => {
       const res = await chatCompletion(client, config.model, messages as never, { maxTokens: 8192, temperature: 0.7 })
       return res.content

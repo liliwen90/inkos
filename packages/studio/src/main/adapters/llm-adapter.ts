@@ -1,4 +1,4 @@
-import type { LLMClient } from '@actalk/inkos-core'
+import type { LLMClient } from '@actalk/hintos-core'
 
 export interface LLMConfigUI {
   provider: 'openai' | 'anthropic' | 'custom'
@@ -51,7 +51,7 @@ export class LLMAdapter {
   private clientPool: Map<string, LLMClient> = new Map()
 
   async createClient(config: LLMConfigUI): Promise<LLMClient> {
-    const { createLLMClient } = await import('@actalk/inkos-core')
+    const { createLLMClient } = await import('@actalk/hintos-core')
     this.client = createLLMClient({
       provider: config.provider === 'custom' ? 'openai' : config.provider,
       baseUrl: config.baseUrl,
@@ -76,7 +76,7 @@ export class LLMAdapter {
     client: LLMClient
     modelOverrides: Record<string, string>
   }> {
-    const { createLLMClient } = await import('@actalk/inkos-core')
+    const { createLLMClient } = await import('@actalk/hintos-core')
 
     this.routingConfig = routing
     this.clientPool.clear()
@@ -173,7 +173,7 @@ export class LLMAdapter {
 
   async testConnection(config: LLMConfigUI): Promise<{ ok: boolean; error?: string; latencyMs?: number }> {
     try {
-      const { createLLMClient, chatCompletion } = await import('@actalk/inkos-core')
+      const { createLLMClient, chatCompletion } = await import('@actalk/hintos-core')
       const testClient = createLLMClient({
         provider: config.provider === 'custom' ? 'openai' : config.provider,
         baseUrl: config.baseUrl,
@@ -184,7 +184,7 @@ export class LLMAdapter {
       })
       const start = Date.now()
       // 使用原始函数测试，避免路由干扰
-      const { chatCompletion: origChat } = await import('@actalk/inkos-core')
+      const { chatCompletion: origChat } = await import('@actalk/hintos-core')
       await origChat(testClient, config.model, [
         { role: 'user', content: '回复OK' }
       ], { maxTokens: 10 })

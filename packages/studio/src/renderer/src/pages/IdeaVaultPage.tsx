@@ -30,7 +30,7 @@ export default function IdeaVaultPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null)
 
   const loadVault = useCallback(async () => {
-    try { setVault(await window.inkos.vaultList()) } catch { /* ignore */ }
+    try { setVault(await window.hintos.vaultList()) } catch { /* ignore */ }
   }, [])
 
   useEffect(() => { loadVault() }, [loadVault])
@@ -38,7 +38,7 @@ export default function IdeaVaultPage(): JSX.Element {
   const handleView = async (id: string): Promise<void> => {
     try {
       setError(null)
-      const detail = await window.inkos.vaultGet(id)
+      const detail = await window.hintos.vaultGet(id)
       setViewing(detail)
       setEditing(false)
     } catch (e) {
@@ -49,7 +49,7 @@ export default function IdeaVaultPage(): JSX.Element {
   const handleDelete = async (id: string): Promise<void> => {
     if (!confirm('确定要删除这条创意记录吗？')) return
     try {
-      await window.inkos.vaultDelete(id)
+      await window.hintos.vaultDelete(id)
       if (viewing?.id === id) { setViewing(null); setEditing(false) }
       await loadVault()
     } catch { /* ignore */ }
@@ -65,7 +65,7 @@ export default function IdeaVaultPage(): JSX.Element {
     if (!viewing) return
     setSaving(true)
     try {
-      await window.inkos.vaultUpdate(viewing.id, editText)
+      await window.hintos.vaultUpdate(viewing.id, editText)
       setViewing({ ...viewing, analysis: editText })
       setEditing(false)
       await loadVault()

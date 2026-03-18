@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { PipelineRunner, type ReviseMode } from "@actalk/inkos-core";
+import { PipelineRunner, type ReviseMode } from "@actalk/hintos-core";
 import { loadConfig, createClient, findProjectRoot, resolveBookId, log, logError } from "../utils.js";
 
 export const reviseCommand = new Command("revise")

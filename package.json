@@ -1,12 +1,12 @@
 {
-  "name": "inkos",
+  "name": "hintos",
   "version": "0.3.6",
   "private": true,
   "description": "Multi-agent novel production system",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Narcooo/inkos"
+    "url": "https://github.com/Narcooo/hintos"
   },
   "scripts": {
     "build": "pnpm -r build",

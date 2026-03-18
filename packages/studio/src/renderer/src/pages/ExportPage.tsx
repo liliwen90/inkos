@@ -175,7 +175,7 @@ export default function ExportPage(): JSX.Element {
 
   useEffect(() => {
     if (projectLoaded) {
-      window.inkos.listBooks().then((data) => setBooks(data as BookSummary[]))
+      window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
     }
   }, [projectLoaded, setBooks])
 
@@ -187,7 +187,7 @@ export default function ExportPage(): JSX.Element {
     if (currentBookId && currentBook) {
       setCoverTitle(currentBook.title.replace(/[《》]/g, ''))
       if (epubLang === 'auto') {
-        window.inkos.resolveBookLanguage(currentBookId).then(() => {})
+        window.hintos.resolveBookLanguage(currentBookId).then(() => {})
       }
     }
   }, [currentBookId, currentBook])
@@ -209,7 +209,7 @@ export default function ExportPage(): JSX.Element {
     setExporting(true)
     setExportedPath(null)
     try {
-      const path = await window.inkos.exportBook(currentBookId, format)
+      const path = await window.hintos.exportBook(currentBookId, format)
       if (path) setExportedPath(path)
     } finally {
       setExporting(false)
@@ -223,7 +223,7 @@ export default function ExportPage(): JSX.Element {
     setExportedPath(null)
     try {
       const lang = epubLang === 'auto'
-        ? await window.inkos.resolveBookLanguage(currentBookId)
+        ? await window.hintos.resolveBookLanguage(currentBookId)
         : epubLang
       const metadata = {
         title: currentBook?.title,
@@ -239,7 +239,7 @@ export default function ExportPage(): JSX.Element {
         includeCopyrightPage: includeCopyright,
         chapterHeadingStyle: headingStyle,
       }
-      const path = await window.inkos.exportEpub(currentBookId, metadata, options)
+      const path = await window.hintos.exportEpub(currentBookId, metadata, options)
       if (path) setExportedPath(path)
     } finally {
       setExporting(false)
@@ -249,7 +249,7 @@ export default function ExportPage(): JSX.Element {
   // 保存封面
   const handleSaveCover = async (): Promise<void> => {
     if (!coverDataUrl) return
-    const path = await window.inkos.saveCoverImage(coverDataUrl)
+    const path = await window.hintos.saveCoverImage(coverDataUrl)
     if (path) setExportedPath(path)
   }
 
@@ -257,7 +257,7 @@ export default function ExportPage(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
         <Download className="w-8 h-8 mb-2" />
-        <p>请先打开 InkOS 项目</p>
+        <p>请先打开 HintOS 项目</p>
       </div>
     )
   }

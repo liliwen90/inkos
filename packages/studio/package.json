@@ -1,7 +1,7 @@
 {
-  "name": "@actalk/inkos-studio",
+  "name": "@actalk/hintos-studio",
   "version": "0.1.0",
-  "description": "InkOS Studio — GUI desktop application for AI novel writing",
+  "description": "HintOS Studio — GUI desktop application for AI novel writing",
   "main": "./out/main/index.js",
   "private": true,
   "scripts": {
@@ -13,7 +13,7 @@
     "dist": "electron-vite build && electron-builder"
   },
   "dependencies": {
-    "@actalk/inkos-core": "workspace:*",
+    "@actalk/hintos-core": "workspace:*",
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
     "abort-controller": "^3.0.0",

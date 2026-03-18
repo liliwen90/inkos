@@ -95,12 +95,12 @@ function wrapLLMError(error: unknown): Error {
       `  1. API Key 无效或过期\n` +
       `  2. API 提供方的内容审查拦截了请求（公益/免费 API 常见）\n` +
       `  3. 账户余额不足\n` +
-      `  建议：用 inkos doctor 测试 API 连通性，或换一个不限制内容的 API 提供方`,
+      `  建议：用 hintos doctor 测试 API 连通性，或换一个不限制内容的 API 提供方`,
     );
   }
   if (msg.includes("401")) {
     return new Error(
-      `API 返回 401 (未授权)。请检查 .env 中的 INKOS_LLM_API_KEY 是否正确。`,
+      `API 返回 401 (未授权)。请检查 .env 中的 HINTOS_LLM_API_KEY 是否正确。`,
     );
   }
   if (msg.includes("429")) {

@@ -48,7 +48,7 @@ export default function ChapterManager(): JSX.Element {
   // 加载书籍列表
   useEffect(() => {
     if (projectLoaded) {
-      window.inkos.listBooks().then((data) => setBooks(data as BookSummary[]))
+      window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
     }
   }, [projectLoaded, setBooks])
 
@@ -63,7 +63,7 @@ export default function ChapterManager(): JSX.Element {
 
   const loadChapters = async (): Promise<void> => {
     if (!currentBookId) return
-    const data = await window.inkos.loadChapterIndex(currentBookId)
+    const data = await window.hintos.loadChapterIndex(currentBookId)
     setChapters(data as ChapterMeta[])
   }
 
@@ -71,9 +71,9 @@ export default function ChapterManager(): JSX.Element {
     if (!currentBookId) return
     setLoading(true)
     try {
-      const filename = await window.inkos.resolveChapterFilename(currentBookId, ch.number)
+      const filename = await window.hintos.resolveChapterFilename(currentBookId, ch.number)
       if (!filename) { setChapterContent('（章节文件未找到）'); setSelectedChapter(ch); return }
-      const content = await window.inkos.loadChapterContent(currentBookId, filename)
+      const content = await window.hintos.loadChapterContent(currentBookId, filename)
       setChapterContent(content)
       setSelectedChapter(ch)
     } catch {
@@ -86,7 +86,7 @@ export default function ChapterManager(): JSX.Element {
 
   const handleApprove = async (ch: ChapterMeta): Promise<void> => {
     if (!currentBookId) return
-    await window.inkos.updateChapterStatus(currentBookId, ch.number, 'approved')
+    await window.hintos.updateChapterStatus(currentBookId, ch.number, 'approved')
     setSelectedChapter(null)
     loadChapters()
   }
@@ -94,21 +94,21 @@ export default function ChapterManager(): JSX.Element {
   const handleReject = async (ch: ChapterMeta): Promise<void> => {
     if (!currentBookId) return
     const note = prompt(lang === 'en' ? 'Rejection reason (optional):' : '驳回理由（可选）:')
-    await window.inkos.updateChapterStatus(currentBookId, ch.number, 'rejected', note ?? undefined)
+    await window.hintos.updateChapterStatus(currentBookId, ch.number, 'rejected', note ?? undefined)
     setSelectedChapter(null)
     loadChapters()
   }
 
   const handleExport = async (): Promise<void> => {
     if (!currentBookId) return
-    await window.inkos.exportBook(currentBookId, 'md')
+    await window.hintos.exportBook(currentBookId, 'md')
   }
 
   if (!projectLoaded) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
         <BookOpen className="w-8 h-8 mb-2" />
-        <p>{lang === 'en' ? 'Please open an InkOS project first' : '请先打开 InkOS 项目'}</p>
+        <p>{lang === 'en' ? 'Please open an HintOS project first' : '请先打开 HintOS 项目'}</p>
       </div>
     )
   }

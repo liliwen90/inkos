@@ -29,7 +29,7 @@ async function extractPackedPackageJson(packDir: string) {
 
 describe("publish packaging", () => {
   it("replaces workspace dependencies before npm pack", async () => {
-    const packDir = await mkdtemp(join(tmpdir(), "inkos-cli-pack-"));
+    const packDir = await mkdtemp(join(tmpdir(), "hintos-cli-pack-"));
 
     try {
       const packedPackageJson = JSON.parse(await extractPackedPackageJson(packDir));
@@ -37,7 +37,7 @@ describe("publish packaging", () => {
         await readFile(resolve(workspaceRoot, "packages/core/package.json"), "utf-8"),
       );
 
-      expect(packedPackageJson.dependencies["@actalk/inkos-core"]).toBe(corePackageJson.version);
+      expect(packedPackageJson.dependencies["@actalk/hintos-core"]).toBe(corePackageJson.version);
     } finally {
       await rm(packDir, { recursive: true, force: true });
     }
