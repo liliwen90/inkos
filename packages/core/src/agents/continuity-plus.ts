@@ -1,7 +1,7 @@
 import { BaseAgent } from "./base.js";
 import type { AuditIssue } from "./continuity.js";
-import { readGenreProfile, readBookRules } from "./rules-reader.js";
-import { readFile } from "node:fs/promises";
+import { readGenreProfile } from "./rules-reader.js";
+import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 
 export interface ContinuityPlusResult {
@@ -64,7 +64,6 @@ export class ContinuityPlusAgent extends BaseAgent {
     // Load genre profile
     const genreId = genre ?? "other";
     const { profile: gp } = await readGenreProfile(this.ctx.projectRoot, genreId);
-    const parsedRules = await readBookRules(bookDir);
     const en = gp.language === "en";
 
     // Parse voice cards for voice fingerprint checking
@@ -330,7 +329,6 @@ ${voiceCards ? `\n已建立的声音卡片:\n${voiceCards}\n` : ""}
     for (let n = Math.max(1, currentNumber - count); n < currentNumber; n++) {
       const paddedNum = String(n).padStart(4, "0");
       try {
-        const { readdir } = await import("node:fs/promises");
         const files = await readdir(chaptersDir);
         const file = files.find((f) => f.startsWith(paddedNum) && f.endsWith(".md"));
         if (file) {

@@ -27,6 +27,8 @@ export interface TaskRoutingConfig {
     writer?: AgentLLMSlot | null
     auditor?: AgentLLMSlot | null
     reviser?: AgentLLMSlot | null
+    'continuity-plus'?: AgentLLMSlot | null
+    polisher?: AgentLLMSlot | null
     radar?: AgentLLMSlot | null
   }
 }
