@@ -53,11 +53,40 @@ export class RadarAgent extends BaseAgent {
     return "radar";
   }
 
-  async scan(): Promise<RadarResult> {
+  async scan(language: "en" | "zh" = "zh"): Promise<RadarResult> {
     const rankings = await Promise.all(this.sources.map((s) => s.fetch()));
     const rankingsText = formatRankingsForPrompt(rankings);
 
-    const systemPrompt = `你是一个专业的网络小说市场分析师。下面是从各平台实时抓取的排行榜数据，请基于这些真实数据分析市场趋势。
+    const systemPrompt = language === "en"
+      ? `You are a professional web fiction market analyst. Below is real-time ranking data scraped from various platforms. Analyze market trends based on this real data.
+
+## Real-Time Rankings Data
+
+${rankingsText}
+
+Analysis dimensions:
+1. Identify currently trending genres and tags from ranking data
+2. Analyze which types of works dominate the charts
+3. Discover market gaps and opportunities (directions absent from charts but with potential)
+4. Risk warnings (genres that are oversaturated on charts)
+
+Output format must be JSON:
+{
+  "recommendations": [
+    {
+      "platform": "platform name",
+      "genre": "genre type",
+      "concept": "one-sentence concept description",
+      "confidence": 0.0-1.0,
+      "reasoning": "recommendation reasoning (cite specific ranking data)",
+      "benchmarkTitles": ["benchmark title 1", "benchmark title 2"]
+    }
+  ],
+  "marketSummary": "overall market overview (based on real ranking data)"
+}
+
+Number of recommendations: 3-5, sorted by confidence descending.`
+      : `你是一个专业的网络小说市场分析师。下面是从各平台实时抓取的排行榜数据，请基于这些真实数据分析市场趋势。
 
 ## 实时排行榜数据
 
@@ -86,13 +115,14 @@ ${rankingsText}
 
 推荐数量：3-5个，按 confidence 降序排列。`;
 
+    const userMessage = language === "en"
+      ? `Based on the real-time ranking data above, analyze current web fiction market trends and provide recommendations for starting a new novel.`
+      : `请基于上面的实时排行榜数据，分析当前网文市场热度，给出开书建议。`;
+
     const response = await this.chat(
       [
         { role: "system", content: systemPrompt },
-        {
-          role: "user",
-          content: `请基于上面的实时排行榜数据，分析当前网文市场热度，给出开书建议。`,
-        },
+        { role: "user", content: userMessage },
       ],
       { temperature: 0.6, maxTokens: 4096 },
     );
