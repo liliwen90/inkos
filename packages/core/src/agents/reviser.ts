@@ -86,15 +86,19 @@ export class ReviserAgent extends BaseAgent {
     const systemPrompt = en
       ? `You are a professional ${gp.name} web fiction revision editor. Your task is to revise chapters according to audit feedback.${protagonistBlock}
 
-Revision mode: ${modeDesc}
+<revision_mode>
+${modeDesc}
+</revision_mode>
 
-Revision principles:
-1. Control revision scope according to mode
+<revision_principles>
+1. Control revision scope strictly according to mode — do not over-revise
 2. Fix root causes, not surface symptoms${numericalRule}
 4. Hook status must sync with hook pool
 5. Do not alter plot direction or core conflicts
 6. Preserve the original language style and rhythm
-7. After revision, update state card${gp.numericalSystem ? ", ledger" : ""}, and hook pool
+7. Preserve word count within ±10% of original
+8. After revision, update state card${gp.numericalSystem ? ", ledger" : ""}, and hook pool
+</revision_principles>
 
 Output format:
 
@@ -111,15 +115,19 @@ ${gp.numericalSystem ? "\n=== UPDATED_LEDGER ===\n(Complete updated resource led
 (Complete updated hook pool)`
       : `你是一位专业的${gp.name}网络小说修稿编辑。你的任务是根据审稿意见对章节进行修正。${protagonistBlock}
 
-修稿模式：${modeDesc}
+<修稿模式>
+${modeDesc}
+</修稿模式>
 
-修稿原则：
-1. 按模式控制修改幅度
+<修稿原则>
+1. 按模式严格控制修改幅度——不过度修改
 2. 修根因，不做表面润色${numericalRule}
 4. 伏笔状态必须与伏笔池同步
 5. 不改变剧情走向和核心冲突
 6. 保持原文的语言风格和节奏
-7. 修改后同步更新状态卡${gp.numericalSystem ? "、账本" : ""}、伏笔池
+7. 字数控制在原文±10%以内
+8. 修改后同步更新状态卡${gp.numericalSystem ? "、账本" : ""}、伏笔池
+</修稿原则>
 
 输出格式：
 

@@ -83,14 +83,23 @@ export class ArchitectAgent extends BaseAgent {
     contextBlock: string, numericalBlock: string, powerBlock: string,
     eraBlock: string, eraTemplate: string,
   ): string {
-    return `You are a professional web fiction architect. Your task is to generate a complete foundation for a new ${gp.name} novel.${contextBlock}
+    return `You are a professional web fiction architect specializing in ${gp.name}. Your task is to generate a complete, production-ready foundation for a new novel.${contextBlock}
 
-Requirements:
+<requirements>
 - Platform: ${book.platform}
 - Genre: ${gp.name} (${book.genre})
 - Target chapters: ${book.targetChapters}
 - Words per chapter: ${book.chapterWordCount}
 - Language: English (all output MUST be in English)
+</requirements>
+
+<golden_three_chapters_rule>
+The first 3 chapters are make-or-break. 80% of readers decide to continue or drop a novel within the first 3 chapters. You MUST design the opening arc to:
+- Ch.1: Drop the core conflict IMMEDIATELY (MC faces crisis/dilemma/threat). NO info-dumps, NO lengthy backstory, NO peaceful daily life.
+- Ch.2: Reveal the MC's edge/power/cheat (show how they respond to Ch.1's crisis). Give readers a TASTE of the payoff they'll get by continuing.
+- Ch.3: Establish a concrete short-term goal (MC commits to a specific, achievable objective). Give readers a clear reason to keep reading.
+EVERY section you generate below must serve this 3-chapter opening.
+</golden_three_chapters_rule>
 
 ## Genre Characteristics
 
@@ -120,11 +129,7 @@ Map/scene design, environmental features, key locations
 
 === SECTION: volume_outline ===
 Volume/arc planning. Each volume: arc name, chapter range, core conflict, key turning points, payoff goals.
-
-### Golden First Three Chapters (MUST follow for chapters 1-3)
-- Chapter 1: Drop the core conflict immediately (MC faces crisis/dilemma/threat). NO info-dumps or lengthy backstory.
-- Chapter 2: Reveal the MC's edge/power/cheat (show how they respond to Ch1's crisis). Give readers a taste of the payoff.
-- Chapter 3: Establish initial short-term goal (MC commits to a specific, achievable objective). Give readers a reason to keep reading.
+The first volume MUST implement the Golden Three Chapters rule defined above.
 
 === SECTION: book_rules ===
 Generate book_rules.md with YAML frontmatter + narrative guidance:
@@ -190,13 +195,22 @@ ${eraBlock}
     contextBlock: string, numericalBlock: string, powerBlock: string,
     eraBlock: string, eraTemplate: string,
   ): string {
-    return `你是一个专业的网络小说架构师。你的任务是为一本新的${gp.name}小说生成完整的基础设定。${contextBlock}
+    return `你是一位专精${gp.name}题材的专业网络小说架构师。你的任务是为一本新小说生成完整的、可直接投入生产的基础设定。${contextBlock}
 
-要求：
+<要求>
 - 平台：${book.platform}
 - 题材：${gp.name}（${book.genre}）
 - 目标章数：${book.targetChapters}章
 - 每章字数：${book.chapterWordCount}字
+</要求>
+
+<黄金三章铁律>
+前3章决定生死。80%的读者在前3章内决定追读还是弃书。你必须将开篇弧线设计为：
+- 第1章：立即抛出核心冲突（主角面临危机/困境/威胁）。禁止大段背景灌输，禁止日常铺垫，禁止慢热开局。
+- 第2章：展示金手指/核心能力（主角如何应对第1章的困境）。让读者尝到"继续读下去会爽到"的甜头。
+- 第3章：明确短期目标（主角确立一个具体可达成的目标）。给读者一个清晰的追读理由。
+你下面生成的每一个板块都必须服务于这个3章开局。
+</黄金三章铁律>
 
 ## 题材特征
 
@@ -226,11 +240,7 @@ ${genreBody}
 
 === SECTION: volume_outline ===
 卷纲规划，每卷包含：卷名、章节范围、核心冲突、关键转折、收益目标
-
-### 黄金三章法则（前三章必须遵循）
-- 第1章：抛出核心冲突（主角立即面临困境/危机/选择），禁止大段背景灌输
-- 第2章：展示金手指/核心能力（主角如何应对第1章的困境），让读者看到爽点预期
-- 第3章：明确短期目标（主角确立第一个具体可达成的目标），给读者追读理由
+第一卷必须实现上面定义的黄金三章铁律。
 
 === SECTION: book_rules ===
 生成 book_rules.md 格式的 YAML frontmatter + 叙事指导，包含：

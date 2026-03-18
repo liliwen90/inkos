@@ -25,9 +25,7 @@ export function buildWriterSystemPrompt(
     buildGenreIntro(book, genreProfile),
     buildCoreRules(book, genreProfile),
     buildCharacterPsychologyMethod(en),
-    buildReaderPsychologyMethod(en),
-    buildEmotionalPacingMethod(en),
-    buildImmersionTechniques(en),
+    buildNarrativeEngagement(en),
     bookRules?.enableFullCastTracking ? buildFullCastTracking(en) : "",
     buildGenreRules(genreProfile, genreBody),
     buildProtagonistRules(bookRules, en),
@@ -97,19 +95,18 @@ function buildCoreRules(book: BookConfig, gp: GenreProfile): string {
 - Emotions through detail: ✗ "He felt extremely angry" → ✓ "He crushed the ceramic mug in his fist. Scalding tea ran between his fingers"
 - No meta-narrative (e.g. "that settled it" or other author's-voice commentary breaking fourth wall)
 
-## Anti-AI Writing Rules
+## Anti-AI & Language Discipline
 
-- [IRONCLAD] The narrator must NEVER draw conclusions for the reader. If readers can infer intent from behavior, the narrator must not state it explicitly. ✗ "He wanted to see if Carl could survive" → ✓ Just write the action of kicking the water canteen away, let readers judge
-- [IRONCLAD] Prose must NEVER contain analytical report language: forbidden terms include "core motivation," "information boundary," "information gap," "core risk," "maximize benefit," "current situation" and other reasoning-framework jargon. Character internal monologue must be colloquial, instinctive. ✗ "The core risk wasn't in winning tonight's argument" → ✓ "He turned it over in his head. Tonight wasn't about winning the argument"
-- [IRONCLAD] Transition/surprise markers (suddenly, as if, unexpectedly, couldn't help but, in that moment) — total count must not exceed 1 per 3000 words. Replace with specific action or sensory detail to convey suddenness
-- [IRONCLAD] Same body sensation/imagery may NOT be rendered more than twice consecutively. Third occurrence of same imagery domain (e.g. "fire flowing through veins") must pivot to new information or new action — no spinning in place
-- [IRONCLAD] Six-step psychology analysis is a WRITING DERIVATION TOOL — its terminology ("current situation," "core motivation," "information boundary," "personality filter") is used ONLY inside PRE_WRITE_CHECK internal reasoning, NEVER in prose narrative
-
-## Hard Bans
-
-- [HARD BAN] Prose must NEVER use "not X, but Y" / "it wasn't X — it was Y" sentence pattern. Use direct statement instead
-- [HARD BAN] Prose must NEVER use em-dash "—" as a pause. Use comma or period to break sentences
-- Prose must NEVER contain hook_id or ledger-style data (e.g. "reserves dropped from X% to Y%"). Numerical settlement goes ONLY in POST_SETTLEMENT`;
+<ironclad_rules>
+1. Narrator NEVER draws conclusions for the reader. If intent is inferrable from behavior, don't state it. ✗ "He wanted to see if Carl could survive" → ✓ Write the action of kicking the water canteen away, let readers judge
+2. Prose NEVER contains analytical jargon: "core motivation", "information boundary", "information gap", "core risk", "maximize benefit", "current situation". Internal monologue must be colloquial, instinctive. ✗ "The core risk wasn't in winning tonight's argument" → ✓ "He turned it over in his head. Tonight wasn't about winning the argument"
+3. Transition markers (suddenly, as if, unexpectedly, couldn't help but, in that moment) — max 1 per 3000 words. Replace with action or sensory detail
+4. Same body sensation/imagery — max 2 consecutive renderings. Third occurrence must pivot to new information or action
+5. NEVER use "not X, but Y" / "it wasn't X — it was Y" pattern. Use direct statement
+6. NEVER use em-dash "—" as a pause. Use comma or period to break sentences
+7. Prose NEVER contains hook_id or ledger-style data (e.g. "reserves dropped from X% to Y%"). Numerical settlement goes ONLY in POST_SETTLEMENT
+8. Six-step psychology terminology is a PRE_WRITE_CHECK derivation tool — NEVER in prose narrative
+</ironclad_rules>`;
   }
   return `## 核心规则
 
@@ -150,19 +147,18 @@ function buildCoreRules(book: BookConfig, gp: GenreProfile): string {
 - 情绪用细节传达：✗"他感到非常愤怒" → ✓"他捏碎了手中的茶杯，滚烫的茶水流过指缝"
 - 禁止元叙事（如"到这里算是钉死了"这类编剧旁白）
 
-## 去AI味铁律
+## 去AI味与语言纪律
 
-- 【铁律】叙述者永远不得替读者下结论。读者能从行为推断的意图，叙述者不得直接说出。✗"他想看陆焚能不能活" → ✓只写踢水囊的动作，让读者自己判断
-- 【铁律】正文中严禁出现分析报告式语言：禁止"核心动机""信息边界""信息落差""核心风险""利益最大化""当前处境"等推理框架术语。人物内心独白必须口语化、直觉化。✗"核心风险不在今晚吵赢" → ✓"他心里转了一圈，知道今晚不是吵赢的问题"
-- 【铁律】转折/惊讶标记词（仿佛、忽然、竟、竟然、猛地、猛然、不禁、宛如）全篇总数不超过每3000字1次。超出时改用具体动作或感官描写传递突然性
-- 【铁律】同一体感/意象禁止连续渲染超过两轮。第三次出现相同意象域（如"火在体内流动"）时必须切换到新信息或新动作，避免原地打转
-- 【铁律】六步走心理分析是写作推导工具，其中的术语（"当前处境""核心动机""信息边界""性格过滤"等）只用于PRE_WRITE_CHECK内部推理，绝不可出现在正文叙事中
-
-## 硬性禁令
-
-- 【硬性禁令】全文严禁出现"不是……而是……""不是……，是……""不是A，是B"句式，出现即判定违规。改用直述句
-- 【硬性禁令】全文严禁出现破折号"——"，用逗号或句号断句
-- 正文中禁止出现hook_id/账本式数据（如"余量由X%降到Y%"），数值结算只放POST_SETTLEMENT`;
+<铁律>
+1. 叙述者永远不替读者下结论。读者能从行为推断的意图，叙述者不得直接说出。✗"他想看陆焚能不能活" → ✓只写踢水囊的动作，让读者自己判断
+2. 正文严禁分析报告式语言："核心动机""信息边界""信息落差""核心风险""利益最大化""当前处境"等推理框架术语。内心独白必须口语化、直觉化。✗"核心风险不在今晚吵赢" → ✓"他心里转了一圈，知道今晚不是吵赢的问题"
+3. 转折/惊讶标记词（仿佛/忽然/竟/竟然/猛地/猛然/不禁/宛如）全篇每3000字最多1次。超出时改用具体动作或感官描写
+4. 同一体感/意象禁止连续渲染超过两轮。第三次出现相同意象域时必须切换到新信息或新动作
+5. 全文严禁"不是……而是……""不是……，是……"句式，改用直述句
+6. 全文严禁破折号"——"，用逗号或句号断句
+7. 正文禁止出现hook_id/账本式数据（如"余量由X%降到Y%"），数值结算只放POST_SETTLEMENT
+8. 六步走术语只用于PRE_WRITE_CHECK内部推理，绝不出现在正文叙事中
+</铁律>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -199,82 +195,61 @@ Never skip steps to jump straight to behavior. If you can't derive reasonable be
 }
 
 // ---------------------------------------------------------------------------
-// 读者心理学框架（新增方法论）
+// Narrative engagement (consolidated from Reader Psychology + Emotional
+// Pacing + Immersion — eliminates cross-section duplicates)
 // ---------------------------------------------------------------------------
 
-function buildReaderPsychologyMethod(en: boolean): string {
+function buildNarrativeEngagement(en: boolean): string {
   if (en) {
-    return `## Reader Psychology Framework
+    return `## Reader Engagement & Narrative Craft
 
-Consider reader's psychological state while writing:
+<reader_psychology>
+- **Expectation Management**: when readers expect release, delay slightly to enhance satisfaction; when readers near impatience, deliver feedback immediately
+- **Information Asymmetry**: dynamically alternate between reader-knows-more-than-character (tension) and reader-knows-less (curiosity)
+- **Emotional Beats**: suppress → release → bigger suppress → bigger release. Every release must exceed reader expectations
+- **Anchoring**: establish the reference point first (how strong the opponent / how big the challenge), THEN show MC's performance
+- **Retention**: every chapter must provide at least one reason to keep reading — respect the reader's invested time
+</reader_psychology>
 
-- **Expectation Management**: When readers expect release, delay slightly to enhance satisfaction; when readers near impatience, deliver feedback immediately
-- **Information Gap**: Let readers know slightly more than the character (tension) or slightly less (curiosity)
-- **Emotional Beat**: Suppress → release → bigger suppress → bigger release. Release must exceed reader expectations
-- **Anchoring Effect**: First give readers a reference point (how strong the opponent is / how big the challenge), then show MC's performance
-- **Sunk Cost**: Reader's invested reading time is key to retention — every chapter must provide a reason to keep reading
-- **Immersion Maintenance**: MC's predicament must be relatable; MC's choices must make readers think "I'd do the same"`;
+<emotional_design>
+- Relationship development must be event-driven: design 3-5 milestone events (shared danger, secret exchange, interest conflict, trust test, sacrifice)
+- Progressive escalation only — no skipping levels (no instant loyalty at first meeting, no deep love from a single encounter)
+- Convey emotions through scene: environmental setting + micro-actions replace direct emotional statements
+- Genre-match emotions: post-apocalypse → "trust through shared hardship"; mystery → "testing and unspoken understanding"; fantasy → "interest-binding evolving to genuine respect"
+- No label-based interaction: brotherhood declarations, love confessions, and closeness changes ALL require event support
+</emotional_design>
+
+<immersion>
+- Open with imagery (action, environment, sound) THEN deliver information — let readers SEE rather than be TOLD
+- Character identity/appearance/background through action and dialogue — NEVER "character sheet" style listing
+- MC's predicament must have universality (being oppressed, unjust treatment, being underestimated) for reader resonance
+- Every chapter must generate at least one "what happens next" curiosity
+</immersion>`;
   }
-  return `## 读者心理学框架
+  return `## 读者参与与叙事工艺
 
-写作时同步考虑读者的心理状态：
+<读者心理>
+- **期待管理**：读者期待释放时适当延迟增强快感；读者即将失去耐心时立即给反馈
+- **信息不对称**：动态切换——读者知道得比角色多（紧张）或少（好奇）
+- **情绪节拍**：压制→释放→更大压制→更大释放。释放要超过读者预期
+- **锚定效应**：先给参照（对手有多强/困难有多大），再展示主角表现
+- **留存**：每章给出至少一个"继续读下去的理由"——尊重读者已投入的时间
+</读者心理>
 
-- **期待管理**：在读者期待释放时，适当延迟以增强快感；在读者即将失去耐心时，立即给反馈
-- **信息落差**：让读者比角色多知道一点（制造紧张），或比角色少知道一点（制造好奇）
-- **情绪节拍**：压制→释放→更大的压制→更大的释放。释放时要超过读者心理预期
-- **锚定效应**：先给读者一个参照（对手有多强/困难有多大），再展示主角的表现
-- **沉没成本**：读者已经投入的阅读时间是留存的关键，每章都要给出"继续读下去的理由"
-- **代入感维护**：主角的困境必须让读者能共情，主角的选择必须让读者觉得"我也会这么做"`;
-}
+<情感设计>
+- 关系发展必须事件驱动：设计3-5个里程碑事件（共同御敌、秘密分享、利益冲突、信任考验、牺牲）
+- 递进升温，禁止跨越式发展（初见即死忠、一面之缘即深情）
+- 情绪用场景传达：环境烘托（暴雨中独坐）+ 微动作（攥拳指尖发白）替代直白抒情
+- 情感与题材匹配：末世→"共患难的信任"、悬疑→"试探与默契"、玄幻→"利益捆绑到真正认可"
+- 禁止标签化互动：称呼变化、结盟宣言、情感告白都需要事件支撑
+</情感设计>
 
-// ---------------------------------------------------------------------------
-// 情感节点设计方法论
-// ---------------------------------------------------------------------------
-
-function buildEmotionalPacingMethod(en: boolean): string {
-  if (en) {
-    return `## Emotional Node Design
-
-Relationship development (friendship, romance, allegiance) must progress through event-driven nodes:
-
-1. **Design 3-5 key events**: fighting together, sharing secrets, interest conflict, trust test, sacrifice/compromise
-2. **Progressive escalation**: each event advances the relationship one level. No skipping (no instant loyalty at first meeting, no deep love from a single encounter)
-3. **Emotion through scene**: environmental setting (sitting alone in a storm) + micro-actions (clenched fist, white knuckles) replace direct emotional statements
-4. **Genre-matched emotion**: post-apocalypse emphasizes "trust forged in shared hardship"; mystery emphasizes "testing and unspoken understanding"; fantasy emphasizes "interest-binding evolving to genuine respect"
-5. **No label-based interaction**: no spontaneous brotherhood declarations or random love confessions. Every change in how characters address each other requires event support`;
-  }
-  return `## 情感节点设计
-
-关系发展（友情、爱情、从属）必须经过事件驱动的节点递进：
-
-1. **设计3-5个关键事件**：共同御敌、秘密分享、利益冲突、信任考验、牺牲/妥协
-2. **递进升温**：每个事件推进关系一个层级，禁止跨越式发展（初见即死忠、一面之缘即深情）
-3. **情绪用场景传达**：环境烘托（暴雨中独坐）+ 微动作（攥拳指尖发白）替代直白抒情
-4. **情感与题材匹配**：末世侧重"共患难的信任"、悬疑侧重"试探与默契"、玄幻侧重"利益捆绑到真正认可"
-5. **禁止标签化互动**：不可突然称兄道弟、莫名深情告白，每次称呼变化都需要事件支撑`;
-}
-
-// ---------------------------------------------------------------------------
-// 代入感具体技法
-// ---------------------------------------------------------------------------
-
-function buildImmersionTechniques(en: boolean): string {
-  if (en) {
-    return `## Immersion Techniques
-
-- **Natural Information Delivery**: character identity/appearance/background delivered through action and dialogue — NEVER "character sheet" style direct listing
-- **Visual-First**: open with imagery (action, environment, sound), then give information. Let readers SEE rather than be TOLD
-- **Resonance Anchors**: MC's predicament must have universality (being oppressed, unjust treatment, being underestimated) to make readers feel "that's me too"
-- **Desire Hooks**: every chapter must generate at least one "what happens next" curiosity in readers
-- **Information Gap Application**: let readers know slightly more than the character (tension) or slightly less (curiosity) — dynamically alternate`;
-  }
-  return `## 代入感技法
-
-- **自然信息交代**：角色身份/外貌/背景通过行动和对话带出，禁止"资料卡式"直接罗列
-- **画面代入法**：开场先给画面（动作、环境、声音），再给信息，让读者"看到"而非"被告知"
-- **共鸣锚点**：主角的困境必须有普遍性（被欺压、不公待遇、被低估），让读者觉得"这也是我"
-- **欲望钩子**：每章至少让读者产生一个"接下来会怎样"的好奇心
-- **信息落差应用**：让读者比角色多知道一点（紧张感）或少知道一点（好奇心），动态切换`;
+<代入感>
+- 开场先给画面（动作、环境、声音），再给信息——让读者"看到"而非"被告知"
+- 角色身份/外貌/背景通过行动和对话带出，禁止"资料卡式"直接罗列
+- 主角困境须有普遍性（被欺压、不公待遇、被低估），让读者共鸣
+- 每章至少让读者产生一个"接下来会怎样"的好奇心
+</代入感>`;
 }
 
 // ---------------------------------------------------------------------------
