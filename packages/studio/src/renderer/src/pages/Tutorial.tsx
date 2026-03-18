@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import {
-  BookOpen, ChevronDown, ChevronRight, Feather, PenTool, ScrollText,
+  BookOpen, ChevronDown, ChevronRight, PenTool, ScrollText,
   Settings, Download, BarChart3, ShieldAlert, Sparkles, Lightbulb,
-  FolderOpen, Plus, Play, Eye, CheckCircle2, Copy, Upload,
-  LayoutDashboard, Zap, HelpCircle, AlertTriangle, ArrowRight, Info, Route, Globe
+  FolderOpen, CheckCircle2,
+  LayoutDashboard, Zap, HelpCircle, AlertTriangle, ArrowRight, Info, Route, Globe,
+  TrendingUp, Archive, Palette
 } from 'lucide-react'
 
 // ===== 教程数据结构 =====
@@ -36,16 +37,26 @@ const sections: TutorialSection[] = [
     title: '快速开始',
     badge: '必读',
     content: [
-      { type: 'text', content: 'HintOS Studio 是一个多 Agent 协作的 AI 小说生产系统。四个 AI Agent（建筑师、写手、审计员、修订者）接力完成小说的创作、质量审核与自动修订，你只需要动动鼠标。' },
+      { type: 'text', content: 'HintOS Studio 是一个多 Agent 协作的 AI 小说生产系统。六个 AI Agent（建筑师、写手、审计员、深度审查、修订者、润色师）接力完成小说的创作、质量审核、修订与润色，你只需要动动鼠标。支持中文和英文双语小说创作，内置 41 种题材。' },
       { type: 'heading', content: '从零开始写第一章' },
       { type: 'steps', items: [
-        '打开项目 — 点击左下角「打开项目」按钮，选择一个空文件夹（系统会自动初始化为 HintOS 项目），或选择已有的 HintOS.json 所在目录。',
+        '打开项目 — 点击左下角「打开项目」按钮，选择一个空文件夹（系统会自动初始化为 HintOS 项目），或选择已有的 hintos.json 所在目录。',
         '配置 LLM — 进入左侧「LLM 配置」页面，填写 API 地址、密钥和模型名称，点击「测试连接」确认可用，然后点击「初始化管线」。',
-        '创建书籍 — 回到「仪表盘」，点击右上角「创建书籍」，填写书名、选择题材和平台，设置每章字数和目标章数，可选填创作指导。',
-        '开始写作 — 进入「写作控制台」，选择刚创建的书籍，设置字数和连续写章数，点击「写下一章」。系统会依次经过：建筑师规划 → 写手创作 → 审计员审查 → 修订者修复，全自动完成。',
+        '创建书籍 — 回到「仪表盘」，点击右上角「创建书籍」，选择语言（中文/English），填写书名、选择题材（41种可选）和平台，设置每章字数和目标章数，可选填创作指导。',
+        '开始写作 — 进入「写作控制台」，选择刚创建的书籍，设置字数和连续写章数，点击「写下一章」。系统会依次经过 7 个阶段全自动完成。',
         '查看成果 — 在「章节管理」中查看生成的章节内容、审计问题，并执行通过/驳回审阅。'
       ]},
-      { type: 'tip', content: '每一章完成后，系统会自动更新 10 个「真相文件」（世界状态、角色关系、伏笔、资源等），确保后续章节的连续性。' },
+      { type: 'heading', content: '7 阶段全自动管线' },
+      { type: 'table', headers: ['阶段', 'Agent', '说明'], rows: [
+        ['1. 管线启动', '—', '加载书籍配置、真相文件、实体注册表'],
+        ['2. 建筑师', '🏗️ Architect', '规划本章大纲：场景节拍、节奏控制、关键事件'],
+        ['3. 写手', '✍️ Writer', '根据大纲 + 世界状态 + 规则 + 实体注册表生成正文'],
+        ['4. 审计', '🔍 Auditor', '27 维度审查：OOC、时间线、AI 痕迹等'],
+        ['5. 深度审查', '🔬 ContinuityPlus', '5 维度叙事连续性：因果链、角色弧光等'],
+        ['6. 修订', '✏️ Reviser', '修复审计发现的问题（仅在有关键问题时触发）'],
+        ['7. 润色', '💎 Polisher', '文学级散文润色，降低 AI 痕迹'],
+      ]},
+      { type: 'tip', content: '每一章完成后，系统会自动更新 10 个「真相文件」和实体注册表（entity_registry.md），确保后续章节的人物和世界状态高度一致。' },
     ]
   },
 
@@ -56,21 +67,23 @@ const sections: TutorialSection[] = [
     title: '项目管理',
     content: [
       { type: 'heading', content: '什么是 HintOS 项目' },
-      { type: 'text', content: '一个 HintOS 项目就是一个文件夹，其中包含 HintOS.json 配置文件。一个项目下可以有多本书，每本书有独立的章节、真相文件和规则。' },
+      { type: 'text', content: '一个 HintOS 项目就是一个文件夹，其中包含 hintos.json 配置文件。一个项目下可以有多本书，每本书有独立的章节、真相文件和规则。' },
       { type: 'heading', content: '项目结构' },
       { type: 'table', headers: ['路径', '说明'], rows: [
-        ['HintOS.json', '项目配置文件（项目名称等）'],
+        ['hintos.json', '项目配置文件（项目名称等）'],
         ['.env', '项目级环境变量（LLM API 密钥等）'],
+        ['task-routing.json', '任务路由配置（多模型协作）'],
         ['books/{书籍ID}/', '每本书的独立目录'],
         ['books/{书籍ID}/book.json', '书籍配置（题材/平台/字数等）'],
         ['books/{书籍ID}/chapters/', '章节文件（0001_xxx.md 格式）'],
-        ['books/{书籍ID}/story/', '10 个真相文件 + 快照'],
+        ['books/{书籍ID}/story/', '10 个真相文件 + 实体注册表 + 快照'],
       ]},
       { type: 'heading', content: '打开 / 初始化项目' },
       { type: 'steps', items: [
         '点击左下角「打开项目」或仪表盘欢迎页的「打开 HintOS 项目」按钮。',
-        '如果选择的目录已包含 HintOS.json，将直接加载。',
+        '如果选择的目录已包含 hintos.json，将直接加载。',
         '如果选择的是空目录，系统会询问是否初始化为新项目，并要求输入项目名称。',
+        '上次打开的项目会自动记忆，下次启动时自动恢复。',
       ]},
       { type: 'heading', content: '切换项目' },
       { type: 'text', content: '直接再次点击左下角「切换项目」按钮，选择另一个项目目录即可。' },
@@ -107,9 +120,10 @@ const sections: TutorialSection[] = [
         ['deepseek-chat', '性价比之王，中文写作质量好', '约 ¥1-2/万字'],
         ['gpt-4o', '综合能力强', '约 ¥5-10/万字'],
         ['claude-sonnet-4-20250514', '文学性强，长文连贯', '约 ¥8-15/万字'],
+        ['gemini-2.5-flash', '分析能力强，适合审计', '约 ¥1-3/万字'],
         ['qwen-max', '通义千问，中文理解好', '约 ¥2-5/万字'],
       ]},
-      { type: 'tip', content: '写一章 3000 字的小说，通常需要 4-6 次 LLM 调用（建筑师 + 写手 + 审计 + 可能的修订），消耗约 2-5 万 token。使用 deepseek-chat 大约花费 ¥0.3-0.5/章。' },
+      { type: 'tip', content: '写一章 3000 字的小说，通常需要 6-8 次 LLM 调用（建筑师 + 写手 + 审计 + 深度审查 + 可能的修订 + 润色 + 实体提取），消耗约 3-8 万 token。使用 deepseek-chat 大约花费 ¥0.3-0.8/章。' },
     ]
   },
 
@@ -120,12 +134,21 @@ const sections: TutorialSection[] = [
     title: '任务路由（多模型协作）',
     badge: '高级',
     content: [
-      { type: 'text', content: 'HintOS 的写作管线包含多个 Agent（建筑师、写手、审计员、修订者），各自擅长不同任务。任务路由功能允许你为每个 Agent 分配不同的 LLM 模型，实现成本和质量的最优配比。' },
+      { type: 'text', content: 'HintOS 的写作管线包含 6 个 Agent（建筑师、写手、审计员、深度审查、修订者、润色师），各自擅长不同任务。任务路由功能允许你为每个 Agent 分配不同的 LLM 模型，实现成本和质量的最优配比。' },
       { type: 'heading', content: '为什么要用任务路由？' },
       { type: 'keyvalue', items: [
-        { key: '省钱', value: '写手 Agent 调用量最大，用便宜的 DeepSeek 就够了；审计和修订对理解力要求高，用 Claude/Gemini 效果更好。' },
+        { key: '省钱', value: '写手 Agent 调用量最大，用便宜的 DeepSeek 就够了；审计和润色对理解力要求高，用 Claude/Gemini 效果更好。' },
         { key: '扬长避短', value: '不同模型各有所长：DeepSeek 中文流畅、Gemini 分析能力强、Claude 文学性好。让它们各司其职。' },
         { key: '灵活切换', value: '随时调整某个 Agent 的模型，无需重新配置整个管线。' },
+      ]},
+      { type: 'heading', content: '6 个可配置 Agent' },
+      { type: 'table', headers: ['Agent', '职责', '推荐模型', '理由'], rows: [
+        ['🏗️ 建筑师', '规划大纲和世界观', 'deepseek-chat', '性价比高，规划能力够用'],
+        ['✍️ 写手', '生成章节正文（最耗 token）', '默认模型', 'token 消耗大户，用最便宜的'],
+        ['🔍 审计员', '27 维度质量审查', 'gemini-2.5-flash', '强推理能力，快速准确'],
+        ['🔬 深度审查', '5 维度叙事连续性', 'gemini-2.5-flash', '需要跨章分析能力'],
+        ['✏️ 修订者', '修复审计问题', 'claude-sonnet-4', '理解上下文并保持文学性'],
+        ['💎 润色师', '文学级散文润色', 'claude-sonnet-4', '最强文学润色能力'],
       ]},
       { type: 'heading', content: '配置方法' },
       { type: 'steps', items: [
@@ -135,19 +158,56 @@ const sections: TutorialSection[] = [
         'API Key 和 Base URL 留空表示继承默认配置（适合同一中转站多 Key 的场景）。',
         '点击「初始化管线」，系统会自动为每个模型创建独立的 LLM 客户端并按路由表分发请求。',
       ]},
-      { type: 'heading', content: '推荐搭配' },
-      { type: 'table', headers: ['Agent', '推荐模型', '理由'], rows: [
-        ['🏗️ 建筑师', 'deepseek-chat', '规划大纲对创意要求高但 token 量适中，DeepSeek 性价比最优'],
-        ['✍️ 写手', '默认模型', '写手是 token 消耗大户，用最便宜的模型控制成本'],
-        ['🔍 审计员', 'gemini-2.5-flash', '26 维度分析需要强推理能力，Gemini Flash 快速且准确'],
-        ['✏️ 修订者', 'claude-sonnet-4', '修订需要理解上下文并保持文学性，Claude 表现最佳'],
-      ]},
-      { type: 'tip', content: '可以点击「✨ 一键填入推荐配置」快速设置。路由配置保存在项目的 task-routing.json 中，不同项目可以有不同的路由策略。' },
-      { type: 'warning', content: '任务路由完全在 Adapter 层实现，不修改 HintOS Core。上游版本更新时路由功能不受影响。' },
+      { type: 'tip', content: '可以点击「✨ 一键填入推荐配置」快速设置。鼠标悬停在 Agent 名称上会显示详细的职责描述。路由配置保存在项目的 task-routing.json 中，不同项目可以有不同的路由策略。' },
     ]
   },
 
-  // ─── 4. 仪表盘 & 书籍 ───
+  // ─── 4. 热榜雷达 ───
+  {
+    id: 'trending',
+    icon: <TrendingUp className="w-4 h-4" />,
+    title: '热榜雷达',
+    badge: '选题',
+    content: [
+      { type: 'text', content: '热榜雷达帮你一键抓取海外热门小说数据，结合 AI 分析生成选题建议，自动保存到创意库。是开始写书之前的第一步。' },
+      { type: 'heading', content: '抓取来源' },
+      { type: 'table', headers: ['平台', '榜单', '说明'], rows: [
+        ['Royal Road', 'Trending', '当前热门连载'],
+        ['Royal Road', 'Rising Stars', '新锐飙升作品'],
+        ['ScribbleHub', 'Weekly Trending', '周热门（ACG向）'],
+      ]},
+      { type: 'heading', content: '使用流程' },
+      { type: 'steps', items: [
+        '点击「一键抓取」按钮，系统会同时抓取所有热榜。',
+        '抓取完成后自动去重，显示小说列表（排名、标题、标签、数据）。',
+        '勾选你感兴趣的小说，点击「AI 分析选题」。',
+        'AI 会分析题材趋势、读者偏好、差异化方向等，生成选题建议。',
+        '分析结果自动保存到创意库，可随时查阅。',
+      ]},
+      { type: 'tip', content: '热榜数据可帮助你发现当前市场最火的题材和设定，但不要盲目跟风。AI 分析会在数据基础上给出差异化建议。' },
+    ]
+  },
+
+  // ─── 5. 创意库 ───
+  {
+    id: 'idea-vault',
+    icon: <Archive className="w-4 h-4" />,
+    title: '创意库',
+    content: [
+      { type: 'text', content: '创意库保存所有 AI 选题分析结果，是你的选题灵感仓库。' },
+      { type: 'heading', content: '功能' },
+      { type: 'keyvalue', items: [
+        { key: '浏览', value: '按时间排列，显示创建日期、分析的小说数量和内容预览。' },
+        { key: '详情', value: '点击卡片查看完整的 AI 分析文本（题材趋势、读者画像、差异化建议等）。' },
+        { key: '编辑', value: '可以直接修改分析文本，加入你自己的想法和笔记。' },
+        { key: '一键开书', value: '点击「发送到创建书籍」按钮，创意内容会自动填入仪表盘的创建书籍对话框，包括书名、题材、平台、字数和创作指导。' },
+        { key: '删除', value: '不需要的创意可以随时删除。' },
+      ]},
+      { type: 'tip', content: '推荐工作流：热榜雷达抓取 → AI 分析 → 保存到创意库 → 挑选最好的 → 一键开书。从市场数据到开始写作只需几分钟。' },
+    ]
+  },
+
+  // ─── 6. 仪表盘 & 书籍 ───
   {
     id: 'dashboard',
     icon: <LayoutDashboard className="w-4 h-4" />,
@@ -157,27 +217,29 @@ const sections: TutorialSection[] = [
       { type: 'heading', content: '创建书籍' },
       { type: 'text', content: '点击右上角「创建书籍」按钮打开创建对话框。' },
       { type: 'keyvalue', items: [
+        { key: '小说语言', value: '选择「中文」或「English」。切换语言后，题材和平台列表会自动切换到对应语言版本。' },
         { key: '书名', value: '必填。建议取一个有记忆点的名字，建筑师 Agent 会基于书名进行初始规划。' },
-        { key: '题材', value: '5 种内置题材，每种自带完整的创作规则体系：\n• 玄幻 — 数值系统、战力体系、升级节奏\n• 仙侠 — 修炼/悟道、法宝体系、天道规则\n• 都市 — 年代考据、商战社交、无数值系统\n• 恐怖 — 氛围递进、恐惧层级、克制叙事\n• 通用 — 最小化规则，适合自定义' },
-        { key: '平台', value: '目标发布平台（番茄/起点/飞卢/其他），影响建筑师对选题和节奏的判断。' },
-        { key: '目标章数', value: '计划写多少章，仅作参考。' },
-        { key: '每章字数', value: '每章的目标字数，推荐 3000-5000 字。' },
-        { key: '创作指导', value: '可选。你可以在这里描述故事方向、主角人设、世界观大纲等。建筑师 Agent 会参考这些信息生成初始规划。' },
+        { key: '题材', value: '中文 27 种、英文 14 种，共 41 种内置题材，每种自带完整的创作规则体系。涵盖玄幻、仙侠、都市、言情、穿越、重生、末世、系统流、LitRPG、Progression Fantasy 等。' },
+        { key: '平台', value: '中文：番茄/起点/飞卢/其他；英文：Royal Road/Kindle/Patreon/ScribbleHub/Wattpad/Other。' },
+        { key: '目标章数', value: '计划写多少章，仅作参考。默认 200。' },
+        { key: '每章字数', value: '每章目标字数。中文默认 3000，英文默认 2500。推荐 3000-5000 字。' },
+        { key: '创作指导', value: '可选。描述故事方向、主角人设、世界观大纲等。建筑师 Agent 会参考这些信息生成初始规划。' },
+        { key: '风格参考书', value: '可选。选择 .txt 格式的参考文本文件，建筑师会参考其风格。' },
       ]},
       { type: 'tip', content: '创建书籍时，建筑师 Agent 会自动生成世界观设定（story_bible.md）、卷纲（volume_outline.md）、本书规则（book_rules.md）等真相文件。这个过程需要几分钟。' },
       { type: 'heading', content: '书籍卡片' },
-      { type: 'text', content: '每本书以卡片形式展示，显示题材标签、平台标签、章节数、总字数和状态（active/completed/paused）。点击卡片跳转到写作控制台。' },
+      { type: 'text', content: '每本书以卡片形式展示，显示题材标签、平台标签、章节数、总字数和状态。点击卡片可展开操作面板（查看详情、编辑配置、跳转写作、删除书籍）。' },
     ]
   },
 
-  // ─── 5. 写作控制台 ───
+  // ─── 7. 写作控制台 ───
   {
     id: 'writing',
     icon: <PenTool className="w-4 h-4" />,
     title: '写作控制台',
     badge: '核心',
     content: [
-      { type: 'text', content: '写作控制台是 HintOS Studio 的核心页面。一键驱动「写→审→改」完整管线。' },
+      { type: 'text', content: '写作控制台是 HintOS Studio 的核心页面。一键驱动「写→审→查→改→润」完整管线。' },
       { type: 'heading', content: '操作步骤' },
       { type: 'steps', items: [
         '从顶部下拉菜单选择要写作的书籍。',
@@ -185,25 +247,27 @@ const sections: TutorialSection[] = [
         '设置「连续写」章数（1-50 章，系统会自动逐章完成）。',
         '点击「写下一章」按钮启动管线。',
       ]},
-      { type: 'heading', content: '管线 5 阶段' },
-      { type: 'text', content: '每一章的创作经过 5 个阶段，顶部进度条会实时显示当前所在阶段：' },
+      { type: 'heading', content: '管线 7 阶段' },
+      { type: 'text', content: '每一章的创作经过 7 个阶段，顶部进度条会实时显示当前所在阶段：' },
       { type: 'table', headers: ['阶段', 'Agent', '说明'], rows: [
-        ['1. 管线启动', '—', '加载书籍配置、真相文件、连续性上下文'],
-        ['2. 建筑师', 'Architect', '规划本章大纲：场景节拍、节奏控制、关键事件'],
-        ['3. 写手', 'Writer', '根据大纲 + 世界状态 + 规则生成正文'],
-        ['4. 审计', 'Auditor', '26 维度审查：OOC、时间线、设定冲突、AI 痕迹等'],
-        ['5. 修订', 'Reviser', '修复审计发现的问题（仅在有关键问题时触发）'],
+        ['1. 管线启动', '—', '加载书籍配置、真相文件、实体注册表、连续性上下文'],
+        ['2. 建筑师', '🏗️ Architect', '规划本章大纲：场景节拍、节奏控制、关键事件'],
+        ['3. 写手', '✍️ Writer', '根据大纲 + 世界状态 + 规则 + 实体注册表生成正文'],
+        ['4. 审计', '🔍 Auditor', '27 维度审查：OOC、时间线、设定冲突、AI 痕迹等'],
+        ['5. 深度审查', '🔬 ContinuityPlus', '5 维度叙事连续性：因果链、角色弧光、伏笔回收等'],
+        ['6. 修订', '✏️ Reviser', '修复审计发现的问题（仅在有关键问题时触发）'],
+        ['7. 润色', '💎 Polisher', '文学级散文润色，消除 AI 痕迹，提升文学质感'],
       ]},
       { type: 'tip', content: '如果审计发现关键问题（critical），管线会自动进入「修订→再审计」循环，直到所有关键问题清零。你不需要手动干预。' },
+      { type: 'heading', content: '实体注册表' },
+      { type: 'text', content: '每章写完后，系统会自动提取章节中出现的所有命名实体（人物、地点、物品等），记录到 entity_registry.md。包括姓名、类型、性别、年龄、外貌、身份、能力等不可变属性。后续章节写作时会参考此注册表，避免第3章出生的女婴到第10章被错写成男孩。' },
       { type: 'heading', content: '进度日志' },
       { type: 'text', content: '页面下方的进度日志实时显示每个阶段的详细信息，包括时间戳、状态（运行中/完成/错误）和具体描述。' },
-      { type: 'heading', content: '写作完成后' },
-      { type: 'text', content: '写作完成后，系统自动更新 10 个真相文件（世界状态、资源账本、伏笔池等），生成章节摘要，保存快照。你可以在「章节管理」中查看和审阅新章节。' },
       { type: 'warning', content: '写作过程中请勿关闭软件或切换项目，否则可能导致数据不一致。连续写多章时每章之间会自动衔接。' },
     ]
   },
 
-  // ─── 6. 章节管理 ───
+  // ─── 8. 章节管理 ───
   {
     id: 'chapters',
     icon: <BookOpen className="w-4 h-4" />,
@@ -230,18 +294,18 @@ const sections: TutorialSection[] = [
         '如果需要修改，点击红色「驳回」按钮，可以填写驳回理由。',
         '审计问题会在章节详情右侧以黄色警告列表展示，帮助你判断是否需要驳回。',
       ]},
-      { type: 'tip', content: '通常建筑师+写手+审计员已经处理了大部分问题，review 状态的章节质量一般可靠。建议重点关注审计问题列表中标记为「critical」的条目。' },
+      { type: 'tip', content: '经过 6 个 Agent 处理后，review 状态的章节质量一般可靠。建议重点关注审计问题列表中标记为「critical」的条目。' },
     ]
   },
 
-  // ─── 7. 真相文件 ───
+  // ─── 9. 真相文件 ───
   {
     id: 'truth',
     icon: <ScrollText className="w-4 h-4" />,
     title: '真相文件系统',
     content: [
       { type: 'text', content: '真相文件是 HintOS 的核心创新。它们是小说世界的唯一事实来源，每章写完后自动更新，确保长篇小说的连续性。' },
-      { type: 'heading', content: '10 个真相文件' },
+      { type: 'heading', content: '10 个真相文件 + 实体注册表' },
       { type: 'table', headers: ['文件', '内容', '用途'], rows: [
         ['当前状态', '角色位置、关系网络、已知信息、情感弧线', '写手参考世界当前状态'],
         ['资源账本', '物品、金钱、物资数量及衰减追踪', '防止无限背包、物品凭空出现'],
@@ -253,22 +317,25 @@ const sections: TutorialSection[] = [
         ['支线进度板', 'A/B/C 线状态追踪、停滞检测', '防止支线断裂或遗忘'],
         ['情感弧线', '按角色追踪情绪变化和成长', '控制角色弧线不平坦'],
         ['角色交互矩阵', '相遇记录、信息边界', '防止信息泄漏（角色不该知道的事）'],
+        ['实体注册表', '所有命名实体的不可变属性表', '防止人物性别、外貌等前后矛盾'],
       ]},
       { type: 'heading', content: '如何使用' },
-      { type: 'text', content: '在「真相文件」页面选择书籍后，左侧列出 10 个文件标签，点击即可查看内容。内容为 Markdown 格式，只读展示。' },
+      { type: 'text', content: '在「真相文件」页面选择书籍后，左侧列出所有文件标签，点击即可查看内容。内容为 Markdown 格式，只读展示。' },
       { type: 'tip', content: '真相文件由系统自动维护，你通常不需要手动编辑。但如果发现信息错误，可以在项目目录的 books/{书籍ID}/story/ 下直接编辑对应的 .md 文件。' },
+      { type: 'heading', content: '实体注册表（entity_registry.md）' },
+      { type: 'text', content: '实体注册表是一张 10 列的 Markdown 表格，每行记录一个命名实体（人物、地点、物品等）。列包括：名称、类型、性别、年龄、外貌、身份、能力、首次出现、最近出现、关键事实。每章写完后 EntityExtractorAgent 自动提取新实体并合并到已有记录中（新增追加、已有更新非空字段）。' },
       { type: 'heading', content: '快照与回滚' },
       { type: 'text', content: '每完成一章，系统会自动对当前真相文件做快照（保存在 story/snapshots/{章节号}/ 下）。如果需要重写某一章，系统会自动回滚世界状态到该章之前的快照，避免数据污染。' },
     ]
   },
 
-  // ─── 8. 26 维度审计 ───
+  // ─── 10. 27 维度审计 ───
   {
     id: 'audit',
     icon: <CheckCircle2 className="w-4 h-4" />,
-    title: '26 维度审计系统',
+    title: '27 维度审计系统',
     content: [
-      { type: 'text', content: 'HintOS 独有的 26 维度审计系统，由连续性审计员 Agent 在每章写完后自动执行。这是保证长篇小说质量的关键。' },
+      { type: 'text', content: 'HintOS 独有的 27 维度审计系统，由审计员 Agent 在每章写完后自动执行。' },
       { type: 'heading', content: '审计维度一览' },
       { type: 'table', headers: ['维度', '检查内容'], rows: [
         ['OOC 检查', '角色是否做出不符合人设的行为'],
@@ -291,51 +358,52 @@ const sections: TutorialSection[] = [
         ['数值检查', '数值系统是否合理（如资源数量）'],
         ['年代考据', '年代背景细节是否准确'],
         ['段落等长*', 'AI 特征：段落是否太过均匀'],
-        ['套话密度*', 'AI 特征：是否充斥常见AI套话'],
+        ['套话密度*', 'AI 特征：是否充斥常见 AI 套话'],
         ['公式化转折*', 'AI 特征：转折是否套路化'],
         ['列表式结构*', 'AI 特征：是否用列表铺陈'],
         ['支线停滞', '支线是否长期未推进'],
         ['弧线平坦', '角色成长弧线是否太平'],
         ['节奏单调', '全篇节奏是否缺乏变化'],
+        ['实体一致性', '人物属性是否与实体注册表矛盾'],
       ]},
-      { type: 'tip', content: '带 * 的 4 个维度（dim 20-23）由纯规则引擎检测，不消耗 LLM 调用。不同题材启用不同的子集：玄幻/仙侠 26 维度、都市 24 维度、恐怖 22 维度。' },
+      { type: 'tip', content: '带 * 的 4 个维度由纯规则引擎检测，不消耗 LLM 调用。不同题材启用不同的子集。' },
+      { type: 'heading', content: '深度审查（ContinuityPlus）' },
+      { type: 'text', content: '在基础 27 维审计之后，ContinuityPlus Agent 会进行 5 维叙事连续性深度审查：因果链完整性、角色弧光连贯性、伏笔回收时机、世界规则一致性、时间线无矛盾。这是基础审计的补充，专注于跨章节的宏观连续性问题。' },
     ]
   },
 
-  // ─── 9. 题材规则体系 ───
+  // ─── 11. 题材规则体系 ───
   {
     id: 'genre',
     icon: <BookOpen className="w-4 h-4" />,
     title: '题材 & 规则体系',
     content: [
-      { type: 'text', content: 'HintOS 内置 5 种题材，每种自带完整的创作规则。规则体系分三层：通用规则 → 题材规则 → 单本书规则。' },
+      { type: 'text', content: 'HintOS 内置 41 种题材（中文 27 种 + 英文 14 种），每种自带完整的创作规则。规则体系分三层：通用规则 → 题材规则 → 单本书规则。' },
       { type: 'heading', content: '三层规则体系' },
       { type: 'table', headers: ['层级', '范围', '示例'], rows: [
         ['通用规则 (~25条)', '所有题材都执行', '人物塑造、叙事技法、逻辑自洽、去AI味'],
         ['题材规则', '特定题材执行', '玄幻：数值系统+战力体系；都市：年代考据；恐怖：氛围递进'],
         ['本书规则 (book_rules.md)', '单本书独有', '主角人设锁定、数值上限、自定义禁令、疲劳词覆盖'],
       ]},
-      { type: 'heading', content: '题材专属语言铁律示例' },
-      { type: 'keyvalue', items: [
-        { key: '玄幻', value: '✗ "火元从12缕增加到24缕" → ✓ "手臂比先前有力了，握拳时指骨发紧"' },
-        { key: '都市', value: '✗ "迅速分析了当前的债务状况" → ✓ "把那叠皱巴巴的白条翻了三遍"' },
-        { key: '恐怖', value: '✗ "感到一阵恐惧" → ✓ "后颈的汗毛一根根立起来"' },
-      ]},
+      { type: 'heading', content: '中文题材（27种）' },
+      { type: 'text', content: '玄幻、仙侠、武侠、奇幻、都市、言情、现实、历史、军事、科幻、悬疑、恐怖、灵异、游戏、体育、二次元、穿越、重生、末世、无限流、诸天、同人、短篇、系统流、种田文、规则怪谈、通用' },
+      { type: 'heading', content: '英文题材（14种）' },
+      { type: 'text', content: 'Progression Fantasy, Cultivation, LitRPG, GameLit, Isekai/Portal Fantasy, Dungeon Core, Epic Fantasy, Urban Fantasy, Cozy Fantasy, Sci-Fi/Space Opera, Horror/Cosmic Horror, Post-Apocalyptic, System Apocalypse, General' },
       { type: 'heading', content: '去 AI 味' },
       { type: 'text', content: '系统多管齐下降低 AI 文本特征：' },
       { type: 'steps', items: [
         'AI 标记词限频：仿佛/忽然/竟然/不禁/宛如/猛地，每 3000 字 ≤ 1 次。',
         '叙述者不替读者下结论，只写动作。',
         '禁止分析报告式语言（"核心动机""信息落差"不入正文）。',
-        '同一意象渲染不超过两轮。',
         '词汇疲劳审计 + AI 痕迹审计（dim 20-23）双重检测。',
-        '文风指纹注入进一步降低 AI 文本特征。',
+        '润色师 Agent 最终一轮文学级润色，进一步消除 AI 痕迹。',
+        '文风指纹注入定制化降低 AI 文本特征。',
       ]},
       { type: 'tip', content: '创建书籍后可以在项目目录手动编辑 books/{书籍ID}/story/book_rules.md，添加自定义禁令、锁定主角人设等。改完下次写章自动生效。' },
     ]
   },
 
-  // ─── 10. 风格分析 ───
+  // ─── 12. 风格分析 ───
   {
     id: 'style',
     icon: <BarChart3 className="w-4 h-4" />,
@@ -344,7 +412,7 @@ const sections: TutorialSection[] = [
       { type: 'text', content: '通过分析参考文本（你喜欢的作者/作品片段），提取文风指纹注入写手 Agent，让 AI 模仿特定写作风格。' },
       { type: 'heading', content: '使用流程' },
       { type: 'steps', items: [
-        '点击「导入参考书」按钮，选择 .txt 格式的参考文本文件。建议选择你想模仿的作者的作品片段（5000 字以上效果更好）。',
+        '点击「导入参考书」按钮，选择 .txt 格式的参考文本文件。建议选择你想模仿的作者的作品片段（5000 字以上效果更好）。也可以通过 URL 直接抓取在线小说章节作为参考。',
         '导入成功后会显示在参考书列表中。',
         '点击「文本统计」按钮，系统会分析文本的基础统计特征：平均句长、段长范围、词汇多样性（TTR）、高频句式、修辞手法等。',
         '点击「深度指纹」按钮（需管线就绪），AI 会深度分析作者的独特文风特征，生成风格指纹文本。',
@@ -363,7 +431,7 @@ const sections: TutorialSection[] = [
     ]
   },
 
-  // ─── 11. AIGC 检测 ───
+  // ─── 13. AIGC 检测 ───
   {
     id: 'detection',
     icon: <ShieldAlert className="w-4 h-4" />,
@@ -375,6 +443,7 @@ const sections: TutorialSection[] = [
         '选择书籍和章节。',
         '点击「检测」按钮对单章检测，或点击「全部检测」扫描所有章节。',
         '检测结果包含 AI 痕迹分析和敏感词扫描两部分。',
+        '检测历史会自动保存，可以跟踪每章的风险变化趋势。',
       ]},
       { type: 'heading', content: 'AI 痕迹 4 维指标' },
       { type: 'table', headers: ['指标', '说明', '低分更好'], rows: [
@@ -384,26 +453,24 @@ const sections: TutorialSection[] = [
         ['列表结构', '是否存在列表式铺陈（AI 爱用1、2、3）', '✓'],
       ]},
       { type: 'text', content: '综合评分 0-10 分，分数越低越好。低于 3 分基本看不出 AI 痕迹。' },
-      { type: 'heading', content: '敏感词扫描' },
-      { type: 'text', content: '系统内置多类敏感词库，扫描结果会展示每个命中词、所属类别和出现次数。常见于网文发布平台的审核需求。' },
       { type: 'heading', content: '风险等级' },
       { type: 'keyvalue', items: [
         { key: '🟢 低风险', value: 'AI 痕迹评分 < 3，敏感词 0-2 个' },
         { key: '🟡 中风险', value: 'AI 痕迹评分 3-6，或敏感词 3-5 个' },
         { key: '🔴 高风险', value: 'AI 痕迹评分 > 6，或敏感词 > 5 个' },
       ]},
-      { type: 'tip', content: '如果某章检测分数偏高，可配合「人性化引擎」的风格设定和风格指纹注入来降低 AI 痕迹。系统的审计阶段也会自动检测 AI 痕迹（dim 20-23）。' },
+      { type: 'tip', content: '如果某章检测分数偏高，可配合「人性化引擎」的风格设定和风格指纹注入来降低 AI 痕迹。润色师 Agent 也会自动在写作管线中进行最终去 AI 痕迹处理。' },
     ]
   },
 
-  // ─── 12. 人性化引擎 ───
+  // ─── 14. 人性化引擎 ───
   {
     id: 'humanize',
     icon: <Sparkles className="w-4 h-4" />,
     title: '人性化引擎',
     content: [
       { type: 'text', content: '人性化引擎通过精细的风格配置，让 AI 写出更有「人味」的文字。配置的所有参数会作为额外指令注入写手 Agent 的 prompt。' },
-      { type: 'heading', content: '风格设定（8 维调节）' },
+      { type: 'heading', content: '风格设定（7 维调节）' },
       { type: 'table', headers: ['维度', '选项', '说明'], rows: [
         ['视角', '第一人称 / 第三有限 / 第三全知', '叙事角度'],
         ['时态', '过去 / 现在', '叙事时态'],
@@ -412,7 +479,6 @@ const sections: TutorialSection[] = [
         ['展示vs叙述', '低 / 中 / 高', '高=更多场景展示，少旁白解说'],
         ['对话风格', '正式 / 自然 / 口语化', '角色说话方式'],
         ['描写密度', '简洁 / 适中 / 丰富', '环境和细节描写量'],
-        ['创意度', '1-10 滑块', '影响温度和遣词造句的大胆程度'],
       ]},
       { type: 'heading', content: '声音卡片' },
       { type: 'text', content: '为每个重要角色创建「声音卡片」，定义他们独特的说话方式：' },
@@ -423,20 +489,14 @@ const sections: TutorialSection[] = [
         { key: '口癖/特点', value: '如「习惯性反问，爱用军事术语」' },
       ]},
       { type: 'heading', content: '场景节拍' },
-      { type: 'text', content: '可以为特定章节预设场景节拍序列，精确控制该章发生的事件节奏。每个节拍是一句简短描述。例如：' },
-      { type: 'steps', items: [
-        '林烬在废墟中醒来，伤势严重',
-        '发现身边有一本古书，翻开后触发传承',
-        '传承带来剧痛，同时获得第一缕火元力',
-        '外面传来打斗声，必须决定躲还是闯',
-      ]},
+      { type: 'text', content: '可以为特定章节预设场景节拍序列，精确控制该章发生的事件节奏。每个节拍是一句简短描述。' },
       { type: 'heading', content: 'Prompt 预览' },
       { type: 'text', content: '「Prompt 预览」标签可以查看所有人性化设定最终会被组装成什么样的指令文本注入给写手 Agent，便于调试。' },
-      { type: 'tip', content: '声音卡片对提升台词质量效果显著，建议至少为 3-5 个核心角色创建声音卡片。场景节拍适合关键章节（高潮/转折）使用，日常章节可以不设。' },
+      { type: 'tip', content: '声音卡片对提升台词质量效果显著，建议至少为 3-5 个核心角色创建声音卡片。场景节拍适合关键章节（高潮/转折）使用。' },
     ]
   },
 
-  // ─── 13. AI 建议 ───
+  // ─── 15. AI 建议 ───
   {
     id: 'suggestions',
     icon: <Lightbulb className="w-4 h-4" />,
@@ -457,35 +517,40 @@ const sections: TutorialSection[] = [
         '确保已在 LLM 配置页初始化管线。',
         '点击「生成建议」按钮，等待 AI 分析（可能需要 1-2 分钟）。',
         '展开各建议模块查看内容。',
-        '点击复制按钮将建议内容复制到剪贴板，自行粘贴到对应功能中。',
+        '点击「一键应用」按钮可以将建议内容直接应用到目标书籍的配置中。',
       ]},
-      { type: 'tip', content: '建议在创建书籍之前先导入一些参考书到「风格分析」，然后生成 AI 建议。这样 AI 会综合参考你的风格偏好给出更贴合的建议。' },
+      { type: 'tip', content: '建议在创建书籍之前先导入参考书到「风格分析」，然后生成 AI 建议。这样 AI 会综合参考你的风格偏好给出更贴合的建议。' },
     ]
   },
 
-  // ─── 14. 导出 ───
+  // ─── 16. 导出 ───
   {
     id: 'export',
     icon: <Download className="w-4 h-4" />,
     title: '导出',
     content: [
-      { type: 'text', content: '将已完成的章节导出为单个文件，方便发布或本地备份。' },
+      { type: 'text', content: '将已完成的章节导出为文件，支持三种格式，适配不同发布需求。' },
       { type: 'heading', content: '支持格式' },
+      { type: 'table', headers: ['格式', '说明', '适用场景'], rows: [
+        ['Markdown (.md)', '保留标题格式和段落结构', '本地编辑或转换'],
+        ['纯文本 (.txt)', '去除所有格式标记', '直接粘贴到网文平台'],
+        ['EPUB3 (.epub)', '标准电子书格式，支持 KDP', 'Amazon Kindle 出版'],
+      ]},
+      { type: 'heading', content: 'EPUB 导出（KDP 级别）' },
+      { type: 'text', content: 'EPUB 导出按照 Amazon KDP 标准生成，包含完整元数据。' },
       { type: 'keyvalue', items: [
-        { key: 'Markdown (.md)', value: '保留标题格式和段落结构，适合进一步编辑或转换。' },
-        { key: '纯文本 (.txt)', value: '去除所有格式标记，适合直接粘贴到网文平台。' },
+        { key: '元数据', value: '作者名、语言（自动检测或手选）、内容简介、关键词' },
+        { key: '目录', value: '自动生成 NCX 导航目录' },
+        { key: '内页', value: '可选包含扉页、版权页' },
+        { key: '章节格式', value: '三种风格：完整标题 / 仅编号 / 仅标题' },
       ]},
-      { type: 'heading', content: '导出流程' },
-      { type: 'steps', items: [
-        '在「导出」页面选择书籍。',
-        '点击 Markdown 或纯文本卡片按钮。',
-        '导出成功后会显示输出文件路径。',
-      ]},
-      { type: 'tip', content: '导出的文件会保存在项目目录的 books/{书籍ID}/ 下。也可以在「章节管理」页面一键导出。' },
+      { type: 'heading', content: '封面生成器' },
+      { type: 'text', content: '内置 8 款网文封面模板，在 Canvas 上实时渲染，可保存为 PNG。模板覆盖：暗黑奇幻、科幻、LitRPG、言情、恐怖、武侠、都市、玄幻。分辨率 1600×2560px，满足 Amazon KDP 封面要求。' },
+      { type: 'tip', content: 'EPUB 配合封面模板，可以直接上传到 Amazon KDP 发布电子书，无需额外工具。' },
     ]
   },
 
-  // ─── 15. 发布平台 ───
+  // ─── 17. 发布平台 ───
   {
     id: 'platforms',
     icon: <Globe className="w-4 h-4" />,
@@ -493,122 +558,54 @@ const sections: TutorialSection[] = [
     badge: '英文供稿',
     content: [
       { type: 'text', content: '使用 HintOS 生成英文小说后，推荐按以下路线发布到海外平台变现。核心策略是「三段火箭」：Royal Road 养粉 → Patreon 提前章节变现 → Amazon KDP 打包出书。' },
-
       { type: 'heading', content: '平台总览' },
       { type: 'table', headers: ['平台', '定位', 'AI 政策', '变现方式', '优先级'],
         rows: [
-          ['Royal Road', '西方网文第一站 (LitRPG/Progression)', '✅ 允许，需打 AI-Generated 标签', '读者打赏 + Stub→KDP + Patreon 提前章', '⭐⭐⭐ 首发'],
-          ['Amazon KDP', '全球最大电子书市场', '✅ 允许，需声明', '70% 版税 ($2.99-$9.99) + KU 页读', '⭐⭐⭐ 变现'],
-          ['Patreon', '创作者订阅平台', '✅ 无限制', '月订阅分级，平台抽 8-12%', '⭐⭐⭐ 加速'],
-          ['ScribbleHub', 'ACG/日系向英文轻小说站', '✅ 建议标注', '无站内变现，引流到 Patreon', '⭐⭐ 同步'],
-          ['Kindle Vella', '亚马逊连载小说', '✅ 允许', '50% Token 收入', '❌ 仅限美国居民'],
-          ['Webnovel', '阅文国际站', '⚠️ 模糊，签约可能拒', '解锁章节分成 50-50', '⭐ 观望，版权风险'],
+          ['Royal Road', '西方网文第一站', '✅ 允许，需打标签', '打赏 + Stub→KDP + Patreon', '⭐⭐⭐ 首发'],
+          ['Amazon KDP', '全球最大电子书', '✅ 允许，需声明', '70% 版税 + KU 页读', '⭐⭐⭐ 变现'],
+          ['Patreon', '创作者订阅', '✅ 无限制', '月订阅，平台抽 8-12%', '⭐⭐⭐ 加速'],
+          ['ScribbleHub', 'ACG 向轻小说', '✅ 建议标注', '无站内变现，引流用', '⭐⭐ 同步'],
         ]
       },
-
-      { type: 'divider' },
-      { type: 'heading', content: 'Royal Road 发布流程' },
-      { type: 'steps', items: [
-        '注册：royalroad.com → Create an account（邮箱+用户名+密码，无国籍限制）。',
-        '发布：Author Dashboard → Add New → 填写标题/简介(≥50字)/封面(400x600px)/Genre/Tags → 附带第一章内容 → 提交。',
-        '审核：人工审核 12-24 小时，检查抄袭/标签合规/AI 标注。约 10% 投稿被拒（主要是抄袭/标签问题）。',
-        'AI 标注：AI 生成内容必须打「AI-Generated」标签。RR 明确不因 AI 标签歧视排名，但要求质量过关。',
-        '如果在其他平台也发过同一作品，需在源站描述加一行 "I will be posting this on RoyalRoad" 做所有权验证。',
-        '审核通过后持续上传新章节，无需再审。建议每周更新 3-5 章保持活跃。',
-      ]},
-      { type: 'tip', content: '可选升级 Author Premium ($59.99/年)：详细数据分析、EPUB 导出、章节导入、自动草稿保存等功能。' },
-
-      { type: 'divider' },
-      { type: 'heading', content: 'Royal Road 变现三条路' },
-      { type: 'keyvalue', items: [
-        { key: '读者打赏 (Reader Support)', value: '读者通过 BlueSnap 打赏。作者需注册 Tipalti 账户接收付款（需税表 W-8BEN）。每月发放，最低起付约 $25-50。支持 PayPal / 银行转账。' },
-        { key: 'Stub + Amazon KDP', value: '前 50-80 章在 RR 免费连载养粉 → 打包成 Volume 1 上 Kindle → 删除 RR 对应章节（称为 Stub）。这是 RR 顶流作者的主要收入来源。' },
-        { key: 'Patreon 提前章节', value: '在 RR 免费连载 → Patreon 上提前 10-20 章。读者为「抢先看」付费。经典联动模式，头部作者月入 $5,000-$20,000+。' },
-      ]},
-
-      { type: 'divider' },
-      { type: 'heading', content: 'Amazon KDP 发布流程' },
-      { type: 'steps', items: [
-        '注册：kdp.amazon.com → 需要 Amazon 账户 + 真实姓名地址 + 税务信息（W-8BEN for 非美国人）+ 银行账户。',
-        '创建电子书：填写语言(English)/书名/作者(笔名)/简介/7个关键词/2个分类 → 上传封面(2560x1600px) → 上传正文(EPUB 或 .docx)。',
-        '定价：$2.99-$9.99 享 70% 版税（建议 Volume 1 定 $4.99）。其他价位 35% 版税。',
-        'KDP Select (可选)：加入 Kindle Unlimited → 获得 KU 页读分成（约 $0.004-0.005/页）。但该书只能在 Amazon 独家销售。',
-        '审核：自动审核，通常 72 小时内上架。',
-      ]},
-      { type: 'tip', content: 'KDP 提现：每月自动打款（月结后 60 天），最低 $100。支持银行电汇到中国银行账户。中美税收协定可将预扣税从 30% 降至 10%。' },
-
-      { type: 'divider' },
-      { type: 'heading', content: 'Patreon 设置' },
-      { type: 'steps', items: [
-        '注册：patreon.com → Create on Patreon → 创建 Creator 页面。',
-        '设置层级：$3/月（提前5章）、$5/月（提前10章+作者笔记）、$10/月（提前20章+大纲投票+Discord VIP）。',
-        '连接 Stripe 或 PayPal 收款。即时生效无审核。',
-        '平台抽成 8-12% + 支付处理费 ~3%，实际到手约 85-88%。',
-        '最低提现 $1。每月初自动打款到 Stripe/PayPal → 银行账户。',
-      ]},
-
-      { type: 'divider' },
       { type: 'heading', content: '三段火箭执行策略' },
       { type: 'table', headers: ['阶段', '时间', '动作', '预期收入'],
         rows: [
-          ['蓄力期', '第 1-3 个月', 'HintOS 生产 → RR + ScribbleHub 同步发，每周 3-5 章', '$0'],
-          ['引爆期', '第 4-8 个月', 'RR 500+ follower → 开 Patreon 提前章 + Vol.1 上 KDP Stub', '$100-500/月'],
-          ['规模化', '第 9 个月+', '多书并行批量走管线，累积 KU 被动收入', '$500-3,000+/月'],
+          ['蓄力期', '第 1-3 月', 'HintOS 生产 → RR+SH 同步发，每周 3-5 章', '$0'],
+          ['引爆期', '第 4-8 月', 'RR 500+ follower → 开 Patreon + KDP Stub', '$100-500/月'],
+          ['规模化', '第 9 月+', '多书并行批量走管线，累积 KU 被动收入', '$500-3,000+/月'],
         ]
       },
-
-      { type: 'divider' },
-      { type: 'heading', content: '提现方式详解（中国公民）' },
-      { type: 'table', headers: ['平台', '提现方式', '最低金额', '到账周期', '手续费'],
-        rows: [
-          ['Royal Road', 'PayPal / 银行电汇 / eCheck（经 Tipalti）', '$25-50', '每月发放（次月月底）', 'PayPal ≈2.5%；电汇约 $15-25/笔；eCheck 免费'],
-          ['Amazon KDP', '银行电汇 (EFT) / 电汇 (Wire) / 支票', '$100', '月结后 60 天（例如 1 月收入 → 3 月底到账）', 'EFT 免费；Wire $15/笔；支票邮寄慢且不推荐'],
-          ['Patreon', 'PayPal / Payoneer / Stripe 直连银行', '$1 (PayPal) / $25 (Payoneer)', '每月初自动打款（当月 1-5 日处理）', 'PayPal ≈2.5%；Payoneer ≈2%；Stripe 视地区'],
-        ]
-      },
-      { type: 'keyvalue', items: [
-        { key: 'Royal Road (Tipalti)', value: '注册 Reader Support 后，RR 邀请你注册 Tipalti 账户。在 Tipalti 中选择付款方式：① PayPal（填 PayPal 邮箱，最常用）；② 银行电汇/Wire（填 SWIFT 代码 + 银行账号，适合大额 $500+）；③ eCheck（仅美国银行）。中国作者推荐 PayPal。' },
-        { key: 'Amazon KDP', value: '在 KDP 后台 → 账户设置 → 付款方式中添加。① EFT 银行转账（推荐）：填中国银行的 SWIFT Code + 银行账号，KDP 直接汇到你的人民币/美元账户，免手续费，速度最快（3-5 工作日）。② Wire 国际电汇：$15/笔手续费，适合无 EFT 的地区。③ 支票：邮寄实体支票，慢数周，不推荐。注：中国地区支持 EFT。' },
-        { key: 'Patreon', value: '在 Creator 设置 → Payouts 中选择。① PayPal（推荐，最简单）：绑定 PayPal 账户，$1 起提，到 PayPal 后再提到银行卡。② Payoneer：注册 Payoneer 账户绑定，$25 起提，支持提到中国银行卡（人民币到账）。③ Stripe 直连：部分国家可直连银行账户（中国暂不直接支持 Stripe 连接，用 PayPal/Payoneer）。' },
-        { key: '中国作者最优路线', value: 'RR 用 PayPal 收 → KDP 用 EFT 电汇到中国银行卡 → Patreon 用 PayPal 或 Payoneer 收。PayPal 余额可绑中国银行卡提现（手续费 ≈35 元/笔），Payoneer 可直接提到中国银行卡（费率 ≈1.2%）。' },
-      ]},
-      { type: 'warning', content: '注意：所有平台收入均需在中国按「稿酬所得」申报个税。PayPal / Payoneer 提现到境内银行账户时，银行可能要求提供收入来源证明（平台 earning report 截图即可）。单笔超 $5,000 需要向外管局申报。' },
-
-      { type: 'divider' },
-      { type: 'heading', content: '税务备忘（中国公民）' },
-      { type: 'keyvalue', items: [
-        { key: 'W-8BEN', value: '非美国人税务身份声明表，在各平台税务面谈中在线填写。填 Foreign TIN（中国身份证号）。' },
-        { key: 'KDP 预扣税', value: '有中美税收协定，版税预扣从 30% 降至 10%。' },
-        { key: 'Patreon 预扣税', value: '按服务收入算，预扣可能为 0%。' },
-        { key: '中国端报税', value: '按「稿酬所得」申报。建议正规申报。' },
-      ]},
-
-      { type: 'divider' },
-      { type: 'heading', content: 'HintOS 已就绪 vs 待补齐' },
-      { type: 'table', headers: ['能力', '状态', '说明'],
-        rows: [
-          ['英文题材 (litrpg / system-apocalypse)', '✅', '已配置完整 genre 文件'],
-          ['英文 writer-prompts 双语', '✅', '14个函数通过 isEnglish() 切换'],
-          ['英文 26 维审计', '✅', 'continuity.ts EN 维度映射'],
-          ['英文 AIGC 检测', '✅', 'ai-tells.ts EN 词表 + 分句规则'],
-          ['英文修订器 5 模式', '✅', 'reviser.ts EN 模式描述'],
-          ['导出 EPUB (KDP 上传需要)', '✅', 'EPUB3 + NCX 目录，导出页可用'],
-          ['封面模板', '✅', '8 款模板，1600×2560px，导出页可用'],
-          ['批量 KDP 格式化', '✅', '章节编号/扉页/版权页/目录自动生成'],
-        ]
-      },
-      { type: 'warning', content: 'Royal Road 要求 AI 生成的内容必须打标签且保证质量。HintOS 的 26 维审计 + AIGC 检测 + 5 模式修订就是为此设计的，但你仍需人工通读确认质量，低质量 AI 内容会被举报删除。' },
+      { type: 'warning', content: 'Royal Road 要求 AI 生成内容必须打标签且保证质量。HintOS 的 27 维审计 + 深度审查 + 润色师就是为此设计的，但仍需人工通读确认。' },
     ]
   },
 
-  // ─── 16. 常见问题 ───
+  // ─── 18. 主题与界面 ───
+  {
+    id: 'themes',
+    icon: <Palette className="w-4 h-4" />,
+    title: '主题与界面',
+    content: [
+      { type: 'text', content: 'HintOS Studio 内置 5 种配色主题，可在侧边栏底部的色盘中一键切换。' },
+      { type: 'heading', content: '可用主题' },
+      { type: 'table', headers: ['主题', '配色', '适合场景'], rows: [
+        ['暗夜紫 (默认)', '#8b5cf6 紫色调', '默认暗色，保护眼睛'],
+        ['碧海蓝', '#60a5fa 蓝色调', '护眼浅蓝背景'],
+        ['青峦绿', '#2dd4bf 绿色调', '护眼浅绿背景'],
+        ['暖纸黄', '#fbbf24 黄色调', '暖色调，类纸张感'],
+        ['薄荷夜', '#14b8a6 薄荷绿', '暗色低蓝光'],
+      ]},
+      { type: 'text', content: '主题设置会自动保存，下次启动时恢复。所有页面元素（侧边栏、按钮、图标、Logo）会跟随主题自动变色。' },
+    ]
+  },
+
+  // ─── 19. 常见问题 ───
   {
     id: 'faq',
     icon: <HelpCircle className="w-4 h-4" />,
     title: '常见问题',
     content: [
       { type: 'heading', content: '管线状态一直显示"未连接"' },
-      { type: 'text', content: '每次打开软件后需要手动前往「LLM 配置」页面点击「初始化管线」。这是设计决策——避免启动时自动消耗 API 额度。确认配置正确后点击初始化即可。' },
+      { type: 'text', content: '每次打开软件后需要手动前往「LLM 配置」页面点击「初始化管线」。确认配置正确后点击初始化即可。' },
       { type: 'divider' },
       { type: 'heading', content: '创建书籍按钮是灰色的' },
       { type: 'text', content: '需要先初始化管线。确认左侧状态指示灯为绿色（管线就绪）后，创建按钮才可用。' },
@@ -617,33 +614,39 @@ const sections: TutorialSection[] = [
       { type: 'text', content: '最常见的原因是 API 调用失败（网络问题/额度用尽/模型不可用）。查看进度日志中的错误信息，解决 API 问题后重新点击写作即可。已经写成功的章节不会丢失。' },
       { type: 'divider' },
       { type: 'heading', content: '能不能手动编辑章节内容' },
-      { type: 'text', content: '可以。章节文件保存在 books/{书籍ID}/chapters/ 目录下，格式为 Markdown（如 0001_第一章.md）。用任何文本编辑器打开即可修改。修改后在 Studio 中刷新列表即可看到最新内容。' },
+      { type: 'text', content: '可以。章节文件保存在 books/{书籍ID}/chapters/ 目录下，格式为 Markdown。用任何文本编辑器打开即可修改。' },
       { type: 'divider' },
       { type: 'heading', content: '一章大概要花多少钱' },
-      { type: 'text', content: '取决于模型和每章字数。以 deepseek-chat 写 3000 字/章为例，一章约 ¥0.3-0.5（含建筑师+写手+审计+可能的修订，总共 4-6 次 LLM 调用）。使用 GPT-4o 约 ¥2-5/章。批量连续写时成本更可预测。' },
+      { type: 'text', content: '取决于模型和每章字数。以 deepseek-chat 写 3000 字/章为例，一章约 ¥0.3-0.8（含建筑师+写手+审计+深度审查+修订+润色+实体提取，总共 6-8 次 LLM 调用）。使用 GPT-4o 约 ¥3-8/章。用任务路由混合模型可以优化成本。' },
       { type: 'divider' },
       { type: 'heading', content: '支持哪些 LLM 模型' },
-      { type: 'text', content: '支持所有 OpenAI 兼容接口（OpenAI、DeepSeek、通义千问、月之暗面、智谱、零一万物、硅基流动等）和 Anthropic 原生接口（Claude 系列）。本地模型（如 Ollama）只要提供兼容 API 也可使用，但写作质量取决于模型能力。' },
+      { type: 'text', content: '支持所有 OpenAI 兼容接口（OpenAI、DeepSeek、通义千问、月之暗面、智谱、零一万物、硅基流动等）和 Anthropic 原生接口（Claude 系列）。本地模型（如 Ollama）只要提供兼容 API 也可使用。' },
       { type: 'divider' },
-      { type: 'heading', content: '真相文件内容出错了怎么办' },
-      { type: 'text', content: '直接在项目目录 books/{书籍ID}/story/ 下编辑对应的 .md 文件即可。改完后下一章写作会使用更新后的内容。此外，每章都有快照（story/snapshots/），如需回到某章之前的状态，可以手动恢复。' },
-      { type: 'divider' },
-      { type: 'heading', content: '能同时写多本书吗' },
-      { type: 'text', content: '可以。一个项目下可以创建多本书，每本有独立的章节、真相文件和规则。在写作控制台顶部下拉菜单切换书籍即可。但不建议同时对多本书并发写作（一次只能一本在跑管线）。' },
+      { type: 'heading', content: '6 个 Agent 分别做什么' },
+      { type: 'table', headers: ['Agent', '职责', '何时运行'], rows: [
+        ['🏗️ 建筑师', '规划章节大纲、生成世界观设定', '每章开头 + 创建书籍时'],
+        ['✍️ 写手', '根据大纲生成章节正文', '每章'],
+        ['🔍 审计员', '27 维度质量检查', '每章写完后'],
+        ['🔬 深度审查', '5 维度跨章连续性审查', '每章审计后'],
+        ['✏️ 修订者', '修复审计发现的关键问题', '仅在有 critical 问题时'],
+        ['💎 润色师', '文学级散文润色，去 AI 味', '每章最后'],
+      ]},
       { type: 'divider' },
       { type: 'heading', content: '如何提升写作质量' },
       { type: 'steps', items: [
-        '选择更强的模型（如 claude-sonnet-4-20250514 文学性最好）。',
+        '选择更强的模型（如 claude-sonnet-4 文学性最好）。',
         '填写详细的创作指导（创建书籍时）。',
         '导入风格参考书 → 启用风格指纹注入。',
         '创建核心角色的声音卡片。',
-        '适当调高温度（0.8-1.0）增加创意。',
+        '使用任务路由，让不同 Agent 用各自最擅长的模型。',
         '手动编辑 book_rules.md 添加更具体的人设和禁令。',
       ]},
+      { type: 'divider' },
+      { type: 'heading', content: '能同时写多本书吗' },
+      { type: 'text', content: '可以。一个项目下可以创建多本书（中英文混合也可以），每本有独立的章节、真相文件和规则。但一次只能一本在跑管线。' },
     ]
   },
 ]
-
 // ===== 教程页面组件 =====
 
 export default function Tutorial(): JSX.Element {
