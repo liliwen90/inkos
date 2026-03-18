@@ -3,6 +3,7 @@ import type { BookConfig } from "../models/book.js";
 import type { ChapterMeta } from "../models/chapter.js";
 import type { NotifyChannel } from "../models/project.js";
 import type { GenreProfile } from "../models/genre-profile.js";
+import type { PlanEntry, PlanIndex, PlanStats, PlanTruthFiles } from "../models/plan.js";
 import { ArchitectAgent } from "../agents/architect.js";
 import { WriterAgent } from "../agents/writer.js";
 import { ContinuityAuditor } from "../agents/continuity.js";
@@ -21,7 +22,7 @@ import type { WebhookEvent } from "../notify/webhook.js";
 import type { AgentContext } from "../agents/base.js";
 import type { AuditResult, AuditIssue } from "../agents/continuity.js";
 import type { RadarResult } from "../agents/radar.js";
-import { readFile, readdir, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 
 export interface PipelineConfig {
@@ -476,6 +477,210 @@ export class PipelineRunner {
   }
 
   // ---------------------------------------------------------------------------
+  // Chapter planning (Architect generates per-chapter plans for user review)
+  // ---------------------------------------------------------------------------
+
+  /** Load the plan index for a book. Returns empty index if file doesn't exist. */
+  async loadPlanIndex(bookId: string): Promise<PlanIndex> {
+    const indexPath = join(this.state.bookDir(bookId), "plans", "plan_index.json");
+    try {
+      const raw = await readFile(indexPath, "utf-8");
+      return JSON.parse(raw) as PlanIndex;
+    } catch {
+      return { plans: [] };
+    }
+  }
+
+  /** Save the plan index for a book. */
+  async savePlanIndex(bookId: string, index: PlanIndex): Promise<void> {
+    const plansDir = join(this.state.bookDir(bookId), "plans");
+    await mkdir(plansDir, { recursive: true });
+    await writeFile(join(plansDir, "plan_index.json"), JSON.stringify(index, null, 2), "utf-8");
+  }
+
+  /** Read a chapter plan file. Returns empty string if not found. */
+  async loadChapterPlan(bookId: string, chapter: number): Promise<string> {
+    const padded = String(chapter).padStart(3, "0");
+    const planPath = join(this.state.bookDir(bookId), "plans", `chapter_plan_${padded}.md`);
+    try {
+      return await readFile(planPath, "utf-8");
+    } catch {
+      return "";
+    }
+  }
+
+  /** Save a chapter plan file. */
+  async saveChapterPlan(bookId: string, chapter: number, content: string): Promise<void> {
+    const plansDir = join(this.state.bookDir(bookId), "plans");
+    await mkdir(plansDir, { recursive: true });
+    const padded = String(chapter).padStart(3, "0");
+    await writeFile(join(plansDir, `chapter_plan_${padded}.md`), content, "utf-8");
+  }
+
+  /** Load all truth files needed for planning context. */
+  private async loadPlanTruthFiles(bookId: string): Promise<PlanTruthFiles> {
+    const bookDir = this.state.bookDir(bookId);
+    const storyDir = join(bookDir, "story");
+    const readSafe = async (path: string): Promise<string> => {
+      try { return await readFile(path, "utf-8"); } catch { return "(文件尚未创建)"; }
+    };
+
+    const [storyBible, volumeOutline, bookRules, currentState, pendingHooks,
+      subplotBoard, emotionalArcs, entityRegistry, chapterSummaries, characterMatrix,
+    ] = await Promise.all([
+      readSafe(join(storyDir, "story_bible.md")),
+      readSafe(join(storyDir, "volume_outline.md")),
+      readSafe(join(storyDir, "book_rules.md")),
+      readSafe(join(storyDir, "current_state.md")),
+      readSafe(join(storyDir, "pending_hooks.md")),
+      readSafe(join(storyDir, "subplot_board.md")),
+      readSafe(join(storyDir, "emotional_arcs.md")),
+      readSafe(join(storyDir, "entity_registry.md")),
+      readSafe(join(storyDir, "chapter_summaries.md")),
+      readSafe(join(storyDir, "character_matrix.md")),
+    ]);
+
+    return {
+      storyBible, volumeOutline, bookRules, currentState, pendingHooks,
+      subplotBoard, emotionalArcs, entityRegistry, chapterSummaries, characterMatrix,
+    };
+  }
+
+  /** Generate a plan for the next unplanned chapter. */
+  async planNextChapter(bookId: string): Promise<PlanEntry> {
+    const book = await this.state.loadBookConfig(bookId);
+    const planIndex = await this.loadPlanIndex(bookId);
+
+    // Find the next chapter to plan: max(planned chapters) + 1, or 1 if none
+    const maxPlanned = planIndex.plans.reduce((max, p) => Math.max(max, p.chapter), 0);
+    const chapterNumber = maxPlanned + 1;
+
+    this.progress("architect", `规划第${chapterNumber}章大纲...`);
+
+    const truthFiles = await this.loadPlanTruthFiles(bookId);
+
+    // Load previous chapter's plan for context
+    let prevPlan: string | undefined;
+    if (chapterNumber > 1) {
+      prevPlan = await this.loadChapterPlan(bookId, chapterNumber - 1);
+      if (!prevPlan) prevPlan = undefined;
+    }
+
+    const architect = new ArchitectAgent(this.agentCtxFor("architect", bookId));
+    const planContent = await architect.planChapter(book, chapterNumber, truthFiles, prevPlan);
+
+    // Save plan file
+    await this.saveChapterPlan(bookId, chapterNumber, planContent);
+
+    // Update plan index
+    const now = new Date().toISOString();
+    const newEntry: PlanEntry = {
+      chapter: chapterNumber,
+      status: "pending",
+      version: 1,
+      createdAt: now,
+    };
+    const updatedPlans = [...planIndex.plans, newEntry];
+    await this.savePlanIndex(bookId, { plans: updatedPlans });
+
+    this.progress("architect-done", `第${chapterNumber}章大纲已生成，待审核`);
+
+    return newEntry;
+  }
+
+  /** Re-plan a rejected chapter with user feedback. */
+  async replanChapter(bookId: string, chapterNumber: number, feedback: string): Promise<PlanEntry> {
+    const book = await this.state.loadBookConfig(bookId);
+    const planIndex = await this.loadPlanIndex(bookId);
+
+    const existing = planIndex.plans.find((p) => p.chapter === chapterNumber);
+    if (!existing) {
+      throw new Error(`No plan found for chapter ${chapterNumber}`);
+    }
+
+    this.progress("architect", `重新规划第${chapterNumber}章大纲...`);
+
+    const truthFiles = await this.loadPlanTruthFiles(bookId);
+    const rejectedPlan = await this.loadChapterPlan(bookId, chapterNumber);
+
+    const architect = new ArchitectAgent(this.agentCtxFor("architect", bookId));
+    const planContent = await architect.replanChapter(book, chapterNumber, truthFiles, rejectedPlan, feedback);
+
+    // Save new plan file (overwrites old version)
+    await this.saveChapterPlan(bookId, chapterNumber, planContent);
+
+    // Update plan index — increment version, reset to pending
+    const now = new Date().toISOString();
+    const updatedEntry: PlanEntry = {
+      chapter: chapterNumber,
+      status: "pending",
+      version: (existing.version ?? 1) + 1,
+      createdAt: now,
+    };
+    const updatedPlans = planIndex.plans.map((p) =>
+      p.chapter === chapterNumber ? updatedEntry : p,
+    );
+    await this.savePlanIndex(bookId, { plans: updatedPlans });
+
+    this.progress("architect-done", `第${chapterNumber}章大纲v${updatedEntry.version}已重新生成，待审核`);
+
+    return updatedEntry;
+  }
+
+  /** Approve a chapter plan. */
+  async approvePlan(bookId: string, chapterNumber: number): Promise<void> {
+    const planIndex = await this.loadPlanIndex(bookId);
+    const entry = planIndex.plans.find((p) => p.chapter === chapterNumber);
+    if (!entry) throw new Error(`No plan found for chapter ${chapterNumber}`);
+
+    const now = new Date().toISOString();
+    const updatedPlans = planIndex.plans.map((p) =>
+      p.chapter === chapterNumber
+        ? { ...p, status: "approved" as const, approvedAt: now }
+        : p,
+    );
+    await this.savePlanIndex(bookId, { plans: updatedPlans });
+  }
+
+  /** Reject a chapter plan with feedback. */
+  async rejectPlan(bookId: string, chapterNumber: number, feedback: string): Promise<void> {
+    const planIndex = await this.loadPlanIndex(bookId);
+    const entry = planIndex.plans.find((p) => p.chapter === chapterNumber);
+    if (!entry) throw new Error(`No plan found for chapter ${chapterNumber}`);
+
+    const now = new Date().toISOString();
+    const updatedPlans = planIndex.plans.map((p) =>
+      p.chapter === chapterNumber
+        ? { ...p, status: "rejected" as const, rejectedAt: now, feedback }
+        : p,
+    );
+    await this.savePlanIndex(bookId, { plans: updatedPlans });
+  }
+
+  /** Update plan content (user micro-edit). Only allowed for pending/approved plans. */
+  async updatePlanContent(bookId: string, chapterNumber: number, content: string): Promise<void> {
+    const planIndex = await this.loadPlanIndex(bookId);
+    const entry = planIndex.plans.find((p) => p.chapter === chapterNumber);
+    if (!entry) throw new Error(`No plan found for chapter ${chapterNumber}`);
+    if (entry.status === "written") throw new Error(`Chapter ${chapterNumber} plan is already written — cannot edit`);
+
+    await this.saveChapterPlan(bookId, chapterNumber, content);
+  }
+
+  /** Get plan progress statistics. */
+  getPlanStats(planIndex: PlanIndex): PlanStats {
+    const plans = planIndex.plans;
+    return {
+      total: plans.length,
+      unplanned: 0, // unplanned chapters aren't in the index
+      pending: plans.filter((p) => p.status === "pending").length,
+      approved: plans.filter((p) => p.status === "approved").length,
+      rejected: plans.filter((p) => p.status === "rejected").length,
+      written: plans.filter((p) => p.status === "written").length,
+    };
+  }
+
+  // ---------------------------------------------------------------------------
   // Full pipeline (convenience — runs draft + audit + revise in one shot)
   // ---------------------------------------------------------------------------
 
@@ -494,6 +699,15 @@ export class PipelineRunner {
     const chapterNumber = await this.state.getNextChapterNumber(bookId);
     const { profile: gp } = await this.loadGenreProfile(book.genre);
 
+    // 0. Load chapter plan if available (inject into writer context)
+    let chapterPlan: string | undefined;
+    const planIndex = await this.loadPlanIndex(bookId);
+    const planEntry = planIndex.plans.find((p) => p.chapter === chapterNumber);
+    if (planEntry?.status === "approved") {
+      chapterPlan = await this.loadChapterPlan(bookId, chapterNumber);
+      if (!chapterPlan) chapterPlan = undefined;
+    }
+
     // 1. Write chapter
     this.progress("writer", "写手Agent正在创作...");
     const writer = new WriterAgent(this.agentCtxFor("writer", bookId));
@@ -502,6 +716,7 @@ export class PipelineRunner {
       bookDir,
       chapterNumber,
       externalContext: this.config.externalContext,
+      chapterPlan,
       ...(wordCount ? { wordCountOverride: wordCount } : {}),
       ...(temperatureOverride ? { temperatureOverride } : {}),
     });
@@ -659,6 +874,18 @@ export class PipelineRunner {
 
     // 7.5 Snapshot state for rollback support
     await this.state.snapshotState(bookId, chapterNumber);
+
+    // 7.6 Mark plan as written (if plan-based writing)
+    if (planEntry?.status === "approved") {
+      const now2 = new Date().toISOString();
+      const latestPlanIndex = await this.loadPlanIndex(bookId);
+      const writtenPlans = latestPlanIndex.plans.map((p) =>
+        p.chapter === chapterNumber
+          ? { ...p, status: "written" as const, writtenAt: now2 }
+          : p,
+      );
+      await this.savePlanIndex(bookId, { plans: writtenPlans });
+    }
 
     // 8. Send notification
     if (this.config.notifyChannels && this.config.notifyChannels.length > 0) {

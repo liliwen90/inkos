@@ -1,9 +1,5 @@
-/**
- * English genre IDs — single source of truth is @actalk/hintos-core models/lang.ts.
- * Renderer cannot import from core barrel (node:path breaks browser build),
- * so we keep a mirrored copy here.
- */
-const EN_GENRES = new Set([
+/** English genre IDs — must match genre markdown files with language: en */
+export const EN_GENRES = new Set([
   'litrpg', 'system-apocalypse', 'progression-fantasy', 'cultivation',
   'isekai', 'dungeon-core', 'urban-fantasy', 'epic-fantasy',
   'scifi', 'cozy-fantasy', 'en-horror', 'gamelit', 'apocalypse'

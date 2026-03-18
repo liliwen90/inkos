@@ -14,6 +14,8 @@ export interface WriteChapterInput {
   readonly externalContext?: string;
   readonly wordCountOverride?: number;
   readonly temperatureOverride?: number;
+  /** Per-chapter plan from Architect — injected as strict directive */
+  readonly chapterPlan?: string;
 }
 
 export interface WriteChapterOutput {
@@ -94,6 +96,7 @@ export class WriterAgent extends BaseAgent {
       entityRegistry,
       dialogueFingerprints,
       relevantSummaries,
+      chapterPlan: input.chapterPlan,
       en: genreProfile.language === "en",
     });
 
@@ -171,10 +174,17 @@ export class WriterAgent extends BaseAgent {
     readonly entityRegistry: string;
     readonly dialogueFingerprints?: string;
     readonly relevantSummaries?: string;
+    readonly chapterPlan?: string;
     readonly en?: boolean;
   }): string {
     const en = params.en ?? false;
     const notCreated = "(文件尚未创建)";
+
+    const planBlock = params.chapterPlan
+      ? en
+        ? `\n## Chapter Plan (STRICTLY FOLLOW)\n${params.chapterPlan}\n`
+        : `\n## 本章大纲（严格遵守）\n${params.chapterPlan}\n`
+      : "";
 
     const contextBlock = params.externalContext
       ? en
@@ -221,7 +231,7 @@ export class WriterAgent extends BaseAgent {
     if (en) {
       const noRecent = params.recentChapters || "(This is Chapter 1, no prior content)";
       return `Please continue writing Chapter ${params.chapterNumber}.
-${contextBlock}
+${planBlock}${contextBlock}
 ## Current State Card
 ${params.currentState}
 ${ledgerBlock}
@@ -245,7 +255,7 @@ Requirements:
     }
 
     return `请续写第${params.chapterNumber}章。
-${contextBlock}
+${planBlock}${contextBlock}
 ## 当前状态卡
 ${params.currentState}
 ${ledgerBlock}

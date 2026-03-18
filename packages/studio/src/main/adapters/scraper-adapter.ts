@@ -255,7 +255,7 @@ export class ScraperAdapter {
   }
 
   private styleBooksDir(bookId: string): string {
-    return join(this.getRoot(), 'books', bookId, 'humanize', 'style_books')
+    return join(this.getRoot(), 'books', bookId, 'humanize', 'style-books')
   }
 
   private async ensureDir(dir: string): Promise<void> {

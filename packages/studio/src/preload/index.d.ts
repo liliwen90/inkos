@@ -133,6 +133,36 @@ interface ScrapeResult {
   savedPath: string
 }
 
+interface PlanEntry {
+  chapter: number
+  status: 'unplanned' | 'pending' | 'approved' | 'rejected' | 'written'
+  version: number
+  createdAt?: string
+  approvedAt?: string
+  rejectedAt?: string
+  writtenAt?: string
+  feedback?: string
+}
+
+interface PlanIndex {
+  plans: PlanEntry[]
+}
+
+interface PlanStats {
+  total: number
+  unplanned: number
+  pending: number
+  approved: number
+  rejected: number
+  written: number
+}
+
+interface OperationLogEntry {
+  ts: string
+  type: string
+  [key: string]: unknown
+}
+
 interface HintOSAPI {
   // 项目管理
   selectProjectDir(): Promise<{ path: string; isProject: boolean } | null>
@@ -180,6 +210,17 @@ interface HintOSAPI {
   reviseChapter(bookId: string, chapterNumber?: number, mode?: string): Promise<unknown>
   checkContinuityPlus(bookId: string, chapterNumber?: number): Promise<unknown>
   polishChapter(bookId: string, chapterNumber?: number): Promise<unknown>
+
+  // 章节大纲规划
+  planNext(bookId: string): Promise<PlanEntry>
+  planReplan(bookId: string, chapter: number, feedback: string): Promise<PlanEntry>
+  planList(bookId: string): Promise<PlanIndex>
+  planGet(bookId: string, chapter: number): Promise<string>
+  planApprove(bookId: string, chapter: number): Promise<boolean>
+  planReject(bookId: string, chapter: number, feedback: string): Promise<boolean>
+  planUpdate(bookId: string, chapter: number, content: string): Promise<boolean>
+  planStats(bookId: string): Promise<PlanStats>
+  readOperationLog(bookId: string, limit?: number): Promise<OperationLogEntry[]>
 
   // 导出
   exportBook(bookId: string, format: 'txt' | 'md'): Promise<string | null>
@@ -238,7 +279,7 @@ interface HintOSAPI {
   }[]): Promise<string>
 
   // 创意库
-  vaultSave(entry: { novelCount: number; analysis: string }): Promise<{ id: string; createdAt: string }>
+  vaultSave(entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }): Promise<{ id: string; createdAt: string }>
   vaultList(): Promise<{ id: string; createdAt: string; novelCount: number; preview: string }[]>
   vaultGet(id: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }>
   vaultDelete(id: string): Promise<void>

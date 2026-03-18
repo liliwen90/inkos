@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, PenTool, BookOpen, ScrollText, Settings,
   PanelLeftClose, PanelLeftOpen, FolderOpen, Download,
-  BarChart3, ShieldAlert, Sparkles, Lightbulb, GraduationCap, Palette, TrendingUp, Archive
+  BarChart3, ShieldAlert, Sparkles, Lightbulb, GraduationCap, Palette, TrendingUp, Archive, FileCheck
 } from 'lucide-react'
 import { useAppStore } from '../../stores/app-store'
 import HintOSLogo from '../icons/HintOSLogo'
@@ -25,6 +25,7 @@ const navItems = [
   { to: '/humanize', icon: Sparkles, label: '人性化引擎' },
   // ── Chapter Production Pipeline ──
   { to: '/writing', icon: PenTool, label: '写作控制台', section: 'production' },
+  { to: '/plan-review', icon: FileCheck, label: '章节企划' },
   { to: '/chapters', icon: BookOpen, label: '章节管理' },
   { to: '/detection', icon: ShieldAlert, label: 'AIGC 检测' },
   { to: '/truth-files', icon: ScrollText, label: '真相文件' },

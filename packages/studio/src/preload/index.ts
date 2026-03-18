@@ -107,7 +107,7 @@ const hintosAPI = {
     ipcRenderer.invoke('analyze-trending', novels),
 
   // 创意库
-  vaultSave: (entry: { novelCount: number; analysis: string }): Promise<{ id: string; createdAt: string }> =>
+  vaultSave: (entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }): Promise<{ id: string; createdAt: string }> =>
     ipcRenderer.invoke('vault-save', entry),
   vaultList: (): Promise<{ id: string; createdAt: string; novelCount: number; preview: string }[]> =>
     ipcRenderer.invoke('vault-list'),
@@ -155,6 +155,26 @@ const hintosAPI = {
   loadDetectionHistory: (bookId: string) => ipcRenderer.invoke('load-detection-history', bookId),
   loadDetectionRecord: (bookId: string, chapterNumber: number) =>
     ipcRenderer.invoke('load-detection-record', bookId, chapterNumber),
+
+  // 章节大纲规划
+  planNext: (bookId: string): Promise<unknown> =>
+    ipcRenderer.invoke('plan-next', bookId),
+  planReplan: (bookId: string, chapter: number, feedback: string): Promise<unknown> =>
+    ipcRenderer.invoke('plan-replan', bookId, chapter, feedback),
+  planList: (bookId: string): Promise<unknown> =>
+    ipcRenderer.invoke('plan-list', bookId),
+  planGet: (bookId: string, chapter: number): Promise<string> =>
+    ipcRenderer.invoke('plan-get', bookId, chapter),
+  planApprove: (bookId: string, chapter: number): Promise<boolean> =>
+    ipcRenderer.invoke('plan-approve', bookId, chapter),
+  planReject: (bookId: string, chapter: number, feedback: string): Promise<boolean> =>
+    ipcRenderer.invoke('plan-reject', bookId, chapter, feedback),
+  planUpdate: (bookId: string, chapter: number, content: string): Promise<boolean> =>
+    ipcRenderer.invoke('plan-update', bookId, chapter, content),
+  planStats: (bookId: string): Promise<unknown> =>
+    ipcRenderer.invoke('plan-stats', bookId),
+  readOperationLog: (bookId: string, limit?: number): Promise<unknown[]> =>
+    ipcRenderer.invoke('read-operation-log', bookId, limit),
 
   // 进度事件
   onProgress: (callback: (event: unknown) => void): (() => void) => {

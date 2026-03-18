@@ -7,6 +7,7 @@ export { type GenreProfile, type ParsedGenreProfile, GenreProfileSchema, parseGe
 export { type BookRules, type ParsedBookRules, BookRulesSchema, parseBookRules } from "./models/book-rules.js";
 export { type DetectionHistoryEntry, type DetectionStats } from "./models/detection.js";
 export { type StyleProfile } from "./models/style-profile.js";
+export { type PlanStatus, type PlanEntry, type PlanIndex, type PlanStats, type PlanTruthFiles } from "./models/plan.js";
 
 // LLM
 export { createLLMClient, chatCompletion, chatWithTools, type LLMClient, type LLMResponse, type LLMMessage, type ToolDefinition, type ToolCall, type AgentMessage, type ChatWithToolsResult } from "./llm/provider.js";
@@ -45,3 +46,6 @@ export { sendTelegram, type TelegramConfig } from "./notify/telegram.js";
 export { sendFeishu, type FeishuConfig } from "./notify/feishu.js";
 export { sendWechatWork, type WechatWorkConfig } from "./notify/wechat-work.js";
 export { sendWebhook, type WebhookConfig, type WebhookEvent, type WebhookPayload } from "./notify/webhook.js";
+
+// Language
+export { EN_GENRES, isEnglishGenre, bookLang } from "./models/lang.js";

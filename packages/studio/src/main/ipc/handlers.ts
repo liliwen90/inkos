@@ -8,6 +8,8 @@ import { HumanizeAdapter } from '../adapters/humanize-adapter'
 import { DetectionAdapter } from '../adapters/detection-adapter'
 import { TrendingAdapter } from '../adapters/trending-adapter'
 import { ScraperAdapter } from '../adapters/scraper-adapter'
+import { matchNovelsByGenre } from '../utils/genre-tag-map'
+import { isEnglishGenre } from '@actalk/hintos-core'
 
 const stateAdapter = new StateAdapter()
 const pipelineAdapter = new PipelineAdapter()
@@ -90,6 +92,9 @@ async function syncStyleGuide(bookId: string): Promise<void> {
 }
 
 export function registerIpcHandlers(mainWindow: BrowserWindow): void {
+  // vault 路径（多处 handler 引用，需提前定义）
+  const vaultDir = join(app.getPath('userData'), 'idea-vault')
+
   // ===== 项目管理 =====
 
   ipcMain.handle('select-project-dir', async () => {
@@ -322,6 +327,90 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       }
     }
 
+    // ===== 自动风格采样：从创意库 vault 中匹配同题材小说 =====
+    if (!opts.styleBookPaths?.length && projectRoot) {
+      try {
+        const emitProgress = (stage: string, detail?: string): void => {
+          mainWindow.webContents.send('pipeline-progress', { stage, detail: detail ?? '', timestamp: Date.now() })
+        }
+        emitProgress('🔍 从创意库筛选同题材小说...')
+
+        // 遍历所有 vault 记录，按语言过滤，提取 novels[]
+        const bookLang = isEnglishGenre(opts.genre) ? 'en' : 'zh'
+        const allVaultNovels: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> = []
+        if (existsSync(vaultDir)) {
+          const vaultFiles = readdirSync(vaultDir).filter(f => f.endsWith('.json'))
+          for (const f of vaultFiles) {
+            try {
+              const data = JSON.parse(readFileSync(join(vaultDir, f), 'utf-8'))
+              // 只加载同语言的 vault 记录（旧记录无 language 字段默认 en）
+              const recordLang = data.language ?? 'en'
+              if (recordLang !== bookLang) continue
+              if (Array.isArray(data.novels)) {
+                for (const n of data.novels) {
+                  if (n.title && n.url) allVaultNovels.push(n)
+                }
+              }
+            } catch { /* skip corrupt vault files */ }
+          }
+        }
+
+        if (allVaultNovels.length > 0) {
+          const matched = matchNovelsByGenre(allVaultNovels, opts.genre, 3)
+          if (matched.length > 0) {
+            emitProgress(`🔍 找到 ${matched.length} 本匹配小说，开始采样...`)
+
+            let sampledCount = 0
+            for (let i = 0; i < matched.length; i++) {
+              const novel = matched[i]
+              emitProgress(`📥 采样参考书 ${i + 1}/${matched.length}: 《${novel.title}》`, `${Math.round(((i + 1) / matched.length) * 50)}%`)
+              try {
+                scraperAdapter.setProgressCallback((p) => {
+                  mainWindow.webContents.send('pipeline-progress', {
+                    stage: p.phase === 'chapters' ? `📥 获取目录: 《${novel.title}》` : `📥 下载 ${p.current}/${p.total}: ${p.chapterTitle ?? ''}`,
+                    detail: `${Math.round((p.current / p.total) * 100)}%`,
+                    timestamp: Date.now(),
+                  })
+                })
+                await scraperAdapter.scrapeForStyleAnalysis(bookId, novel.url, novel.title, 10)
+                sampledCount++
+              } catch {
+                // 采样某本失败不阻塞整个流程
+                emitProgress(`⚠️ 采样《${novel.title}》失败，跳过`)
+              }
+            }
+
+            if (sampledCount > 0) {
+              // 统计分析 + 深度指纹 + 写入 style_guide
+              emitProgress('📊 分析文风统计指纹...', '60%')
+              try { await humanizeAdapter.analyzeStyleFromBooks(bookId) } catch { /* non-fatal */ }
+
+              emitProgress('🧬 生成 AI 深度指纹...', '80%')
+              try {
+                const llmClient = llmAdapter.getClient()
+                const llmConfig = llmAdapter.getConfig()
+                if (llmClient && llmConfig) {
+                  await humanizeAdapter.analyzeDeepFingerprint(bookId, llmClient, llmConfig.model)
+                }
+              } catch { /* non-fatal: LLM 可能未配置本任务模型 */ }
+
+              emitProgress('✅ 风格分析完成，正在合成 style_guide...', '95%')
+              try { await syncStyleGuide(bookId) } catch { /* non-fatal */ }
+              emitProgress('✅ 自动风格采样完成')
+            } else {
+              emitProgress('⚠️ 所有参考书采样失败，跳过风格分析')
+            }
+          } else {
+            emitProgress('⏭️ 创意库中无匹配题材小说，跳过自动风格采样')
+          }
+        } else {
+          emitProgress('⏭️ 创意库为空（未运行过热榜雷达），跳过自动风格采样')
+        }
+      } catch {
+        // 自动采样整体失败不应阻止书籍创建
+      }
+    }
+
     // 检查重复 bookId
     const existingBooks = await stateAdapter.listBooks()
     if (existingBooks.some(b => b.bookId === bookId)) {
@@ -419,6 +508,51 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('polish-chapter', async (_e, bookId: string, chapterNumber?: number) => {
     return pipelineAdapter.polishDraft(bookId, chapterNumber)
+  })
+
+  // ===== 章节大纲规划 =====
+
+  ipcMain.handle('plan-next', async (_e, bookId: string) => {
+    return pipelineAdapter.planNextChapter(bookId)
+  })
+
+  ipcMain.handle('plan-replan', async (_e, bookId: string, chapter: number, feedback: string) => {
+    return pipelineAdapter.replanChapter(bookId, chapter, feedback)
+  })
+
+  ipcMain.handle('plan-list', async (_e, bookId: string) => {
+    return stateAdapter.loadPlanIndex(bookId)
+  })
+
+  ipcMain.handle('plan-get', async (_e, bookId: string, chapter: number) => {
+    return stateAdapter.loadChapterPlan(bookId, chapter)
+  })
+
+  ipcMain.handle('plan-approve', async (_e, bookId: string, chapter: number) => {
+    await stateAdapter.approvePlan(bookId, chapter)
+    await stateAdapter.appendOperationLog(bookId, { type: 'plan_approved', chapter })
+    return true
+  })
+
+  ipcMain.handle('plan-reject', async (_e, bookId: string, chapter: number, feedback: string) => {
+    await stateAdapter.rejectPlan(bookId, chapter, feedback)
+    await stateAdapter.appendOperationLog(bookId, { type: 'plan_rejected', chapter, feedback })
+    return true
+  })
+
+  ipcMain.handle('plan-update', async (_e, bookId: string, chapter: number, content: string) => {
+    await stateAdapter.updatePlanContent(bookId, chapter, content)
+    await stateAdapter.appendOperationLog(bookId, { type: 'plan_edited', chapter })
+    return true
+  })
+
+  ipcMain.handle('plan-stats', async (_e, bookId: string) => {
+    const index = await stateAdapter.loadPlanIndex(bookId)
+    return stateAdapter.getPlanStats(index)
+  })
+
+  ipcMain.handle('read-operation-log', async (_e, bookId: string, limit?: number) => {
+    return stateAdapter.readOperationLog(bookId, limit)
   })
 
   // ===== 导出 =====
@@ -639,8 +773,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   // ===== 创意库 =====
 
-  const vaultDir = join(app.getPath('userData'), 'idea-vault')
-
   // 自动迁移：从旧 inkos-studio 目录迁移 idea-vault 和 app-settings
   {
     const oldUserData = join(app.getPath('userData'), '..', 'inkos-studio')
@@ -661,10 +793,10 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     }
   }
 
-  ipcMain.handle('vault-save', async (_e, entry: { novelCount: number; analysis: string }) => {
+  ipcMain.handle('vault-save', async (_e, entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }) => {
     if (!existsSync(vaultDir)) mkdirSync(vaultDir, { recursive: true })
     const id = Date.now().toString()
-    const record = { id, createdAt: new Date().toISOString(), novelCount: entry.novelCount, analysis: entry.analysis }
+    const record = { id, createdAt: new Date().toISOString(), novelCount: entry.novelCount, analysis: entry.analysis, language: entry.language ?? 'en', novels: entry.novels ?? [] }
     writeFileSync(join(vaultDir, `${id}.json`), JSON.stringify(record, null, 2), 'utf-8')
     return record
   })
