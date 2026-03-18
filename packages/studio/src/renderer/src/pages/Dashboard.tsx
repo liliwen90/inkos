@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { BookOpen, PenTool, Feather, FolderOpen, Plus, ChevronRight, BookOpenCheck, Loader2, Settings2, Trash2, FileText, X } from 'lucide-react'
+import { BookOpen, PenTool, FolderOpen, Plus, ChevronRight, BookOpenCheck, Loader2, Settings2, Trash2, FileText, X } from 'lucide-react'
+import HintOSLogo from '../components/icons/HintOSLogo'
 import { useAppStore, type BookSummary } from '../stores/app-store'
 import { isEnglishGenre } from '../utils/lang'
 
@@ -151,7 +152,7 @@ export default function Dashboard(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-6">
         <div className="flex items-center gap-3">
-          <Feather className="w-12 h-12 text-violet-400" />
+          <HintOSLogo className="w-12 h-12 text-violet-400" />
           <div>
             <h1 className="text-3xl font-bold text-zinc-100">HintOS Studio</h1>
             <p className="text-zinc-500 text-sm">多Agent小说生产系统 · 桌面版</p>

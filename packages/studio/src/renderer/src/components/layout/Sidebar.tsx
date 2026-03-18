@@ -1,10 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, PenTool, BookOpen, ScrollText, Settings,
-  PanelLeftClose, PanelLeftOpen, FolderOpen, Feather, Download,
+  PanelLeftClose, PanelLeftOpen, FolderOpen, Download,
   BarChart3, ShieldAlert, Sparkles, Lightbulb, GraduationCap, Palette, TrendingUp, Archive
 } from 'lucide-react'
 import { useAppStore } from '../../stores/app-store'
+import HintOSLogo from '../icons/HintOSLogo'
 
 const THEMES = [
   { id: 'twilight', name: '暗夜紫', dot: '#8b5cf6' },
@@ -58,7 +59,7 @@ export default function Sidebar(): JSX.Element {
     <aside className={`flex flex-col h-full bg-zinc-900 border-r border-zinc-800 transition-all duration-200 ${collapsed ? 'w-16' : 'w-56'}`}>
       {/* Logo */}
       <div className="flex items-center gap-2 px-4 h-14 border-b border-zinc-800 shrink-0">
-        <Feather className="w-6 h-6 text-violet-400 shrink-0" />
+        <HintOSLogo className="w-6 h-6 text-violet-400 shrink-0" />
         {!collapsed && (
           <div className="flex flex-col leading-tight">
             <span className="text-sm font-bold text-zinc-100">HintOS</span>
