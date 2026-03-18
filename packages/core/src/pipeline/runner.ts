@@ -306,9 +306,13 @@ export class PipelineRunner {
       const paddedNum = String(targetChapter).padStart(4, "0");
       const existingFile = files.find((f) => f.startsWith(paddedNum) && f.endsWith(".md"));
       if (existingFile) {
+        const en = gp.language === "en";
+        const revHeader = en
+          ? `# Chapter ${targetChapter}: ${chapterMeta.title}`
+          : `# 第${targetChapter}章 ${chapterMeta.title}`;
         await writeFile(
           join(chaptersDir, existingFile),
-          `# 第${targetChapter}章 ${chapterMeta.title}\n\n${reviseOutput.revisedContent}`,
+          `${revHeader}\n\n${reviseOutput.revisedContent}`,
           "utf-8",
         );
       }

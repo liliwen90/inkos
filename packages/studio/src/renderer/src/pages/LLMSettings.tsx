@@ -14,10 +14,12 @@ const AGENT_LABELS: Record<string, { label: string; desc: string; emoji: string;
   architect: { label: '建筑师', desc: '规划大纲和世界观', emoji: '🏗️', recommend: '推荐 DeepSeek — 规划能力足够，便宜', modelHint: 'deepseek-chat' },
   writer: { label: '写手', desc: '生成章节正文（最耗 token）', emoji: '✍️', recommend: '推荐 DeepSeek 写中文 / Claude 写英文', modelHint: 'deepseek-chat' },
   auditor: { label: '审计员', desc: '26 维度质量审查', emoji: '🔍', recommend: '推荐 Gemini Flash — 分析型任务强项，超便宜', modelHint: 'gemini-2.5-flash' },
-  reviser: { label: '修订者', desc: '修复审计发现的问题', emoji: '✏️', recommend: '推荐 Claude Sonnet — 文学润色最强', modelHint: 'claude-sonnet-4-20250514' }
+  reviser: { label: '修订者', desc: '修复审计发现的问题', emoji: '✏️', recommend: '推荐 Claude Sonnet — 文学润色最强', modelHint: 'claude-sonnet-4-20250514' },
+  'continuity-plus': { label: '深度审查', desc: '7维度叙事连续性审计', emoji: '🔬', recommend: '推荐 Gemini Flash — 分析逻辑型任务', modelHint: 'gemini-2.5-flash' },
+  polisher: { label: '润色师', desc: '文学级散文润色（反AI）', emoji: '💎', recommend: '推荐 Claude Sonnet — 散文质感最佳', modelHint: 'claude-sonnet-4-20250514' }
 }
 
-const AGENT_NAMES = ['architect', 'writer', 'auditor', 'reviser'] as const
+const AGENT_NAMES = ['architect', 'writer', 'auditor', 'reviser', 'continuity-plus', 'polisher'] as const
 
 const DEFAULT_SLOT: AgentSlot = { model: '', apiKey: '', baseUrl: '', provider: 'openai', enabled: false }
 
@@ -40,7 +42,9 @@ export default function LLMSettings(): JSX.Element {
     architect: { ...DEFAULT_SLOT },
     writer: { ...DEFAULT_SLOT },
     auditor: { ...DEFAULT_SLOT },
-    reviser: { ...DEFAULT_SLOT }
+    reviser: { ...DEFAULT_SLOT },
+    'continuity-plus': { ...DEFAULT_SLOT },
+    polisher: { ...DEFAULT_SLOT }
   })
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null)
 
