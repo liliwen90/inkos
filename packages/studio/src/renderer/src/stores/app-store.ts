@@ -45,6 +45,7 @@ export interface BookDraft {
   targetChapters: number
   chapterWords: number
   context: string
+  language: 'zh' | 'en'
 }
 
 // ===== 活动面板数据类型 =====
@@ -193,7 +194,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const id = `act-${++_activitySeq}-${Date.now()}`
     const ts = new Date().toTimeString().slice(0, 8)
     set((s) => ({
-      activities: [{ id, operation, status: 'running', startedAt: Date.now() }, ...s.activities].slice(0, 50),
+      activities: [{ id, operation, status: 'running' as const, startedAt: Date.now() }, ...s.activities].slice(0, 50),
       panelOpen: true,
       panelMinimized: false
     }))

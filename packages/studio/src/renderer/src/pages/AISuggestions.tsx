@@ -3,11 +3,16 @@ import { Lightbulb, Wand2, Loader2, ChevronDown, ChevronUp, Copy, Check, CheckCi
 import { useAppStore } from '../stores/app-store'
 import { bookLang } from '../utils/lang'
 
+interface HumanizeSettingsLocal {
+  [key: string]: unknown
+  reasons?: Record<string, string>
+}
+
 interface AISuggestions {
   storyIdeas?: Array<{ title: string; content: string }>
   writerRole?: string
   writingRules?: string
-  humanizeSettings?: Record<string, unknown> & { reasons?: Record<string, string> }
+  humanizeSettings?: HumanizeSettingsLocal
   voiceCards?: Array<{ name: string; speech: string; tone: string; quirks: string }>
   sceneBeats?: Array<{ title: string; beats: string[] }>
   storyArc?: { phases: Array<{ name: string; chapters: string; goal: string }> }
@@ -25,7 +30,7 @@ export default function AISuggestionsPage(): JSX.Element {
   const [suggestions, setSuggestions] = useState<AISuggestions | null>(null)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['storyIdeas', 'writerRole', 'writingRules', 'voiceCards', 'sceneBeats', 'storyArc']))
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['storyIdeas', 'writerRole', 'writingRules', 'voiceCards', 'sceneBeats', 'humanizeSettings', 'storyArc']))
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [applying, setApplying] = useState(false)
   const [applied, setApplied] = useState(false)
@@ -41,7 +46,7 @@ export default function AISuggestionsPage(): JSX.Element {
     if (!bookId) return
     try {
       const data = await window.hintos.loadSuggestions(bookId)
-      setSuggestions(data)
+      setSuggestions(data as AISuggestions | null)
     } catch (e) {
       setError((e as Error).message)
     }
@@ -57,7 +62,7 @@ export default function AISuggestionsPage(): JSX.Element {
     setApplied(false)
     try {
       const result = await window.hintos.generateSuggestions(bookId)
-      setSuggestions(result)
+      setSuggestions(result as AISuggestions)
       addToast('success', en ? '✓ Suggestions generated' : '✓ 建议已生成')
       finishActivity(actId)
     } catch (e) {
@@ -175,7 +180,7 @@ export default function AISuggestionsPage(): JSX.Element {
           )}
 
           {/* Story Ideas */}
-          {suggestions.storyIdeas?.length && (
+          {suggestions.storyIdeas?.length ? (
             <CollapsibleSection title={en ? 'Story Ideas' : '故事创意'} icon="💡" expanded={expandedSections.has('storyIdeas')} onToggle={() => toggleSection('storyIdeas')}>
               <div className="space-y-3">
                 {suggestions.storyIdeas.map((idea, i) => (
@@ -186,7 +191,7 @@ export default function AISuggestionsPage(): JSX.Element {
                 ))}
               </div>
             </CollapsibleSection>
-          )}
+          ) : null}
 
           {/* Writer Role */}
           {suggestions.writerRole && (
@@ -209,7 +214,7 @@ export default function AISuggestionsPage(): JSX.Element {
           )}
 
           {/* Voice Cards */}
-          {suggestions.voiceCards?.length && (
+          {suggestions.voiceCards?.length ? (
             <CollapsibleSection title={en ? 'Voice Cards' : '声音卡片建议'} icon="🗣️" expanded={expandedSections.has('voiceCards')} onToggle={() => toggleSection('voiceCards')}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {suggestions.voiceCards.map((c, i) => (
@@ -224,10 +229,10 @@ export default function AISuggestionsPage(): JSX.Element {
                 ))}
               </div>
             </CollapsibleSection>
-          )}
+          ) : null}
 
           {/* Scene Beats */}
-          {suggestions.sceneBeats?.length && (
+          {suggestions.sceneBeats?.length ? (
             <CollapsibleSection title={en ? 'Scene Beat Templates' : '场景节拍模板'} icon="🎬" expanded={expandedSections.has('sceneBeats')} onToggle={() => toggleSection('sceneBeats')}>
               <div className="space-y-3">
                 {suggestions.sceneBeats.map((sb, i) => (
@@ -244,10 +249,27 @@ export default function AISuggestionsPage(): JSX.Element {
                 ))}
               </div>
             </CollapsibleSection>
+          ) : null}
+
+          {/* Humanize Settings + Reasons */}
+          {suggestions.humanizeSettings && (
+            <CollapsibleSection title={en ? 'Humanize Settings' : '人性化参数建议'} icon="⚙️" expanded={expandedSections.has('humanizeSettings')} onToggle={() => toggleSection('humanizeSettings')}>
+              <div className="space-y-2">
+                {Object.entries(suggestions.humanizeSettings).filter(([k]) => k !== 'reasons').map(([key, val]) => (
+                  <div key={key} className="flex items-start gap-3 bg-zinc-800 rounded-lg px-3 py-2">
+                    <span className="text-xs font-mono text-violet-400 w-24 shrink-0">{key}</span>
+                    <span className="text-xs text-zinc-200">{String(val)}</span>
+                    {suggestions.humanizeSettings?.reasons?.[key] && (
+                      <span className="text-xs text-zinc-500 italic ml-auto">— {suggestions.humanizeSettings.reasons[key]}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CollapsibleSection>
           )}
 
           {/* Story Arc */}
-          {suggestions.storyArc?.phases?.length && (
+          {suggestions.storyArc?.phases?.length ? (
             <CollapsibleSection title={en ? 'Story Arc' : '故事弧线'} icon="📈" expanded={expandedSections.has('storyArc')} onToggle={() => toggleSection('storyArc')}>
               <div className="space-y-2">
                 {suggestions.storyArc.phases.map((p, i) => (
@@ -264,7 +286,7 @@ export default function AISuggestionsPage(): JSX.Element {
                 ))}
               </div>
             </CollapsibleSection>
-          )}
+          ) : null}
         </div>
       )}
 

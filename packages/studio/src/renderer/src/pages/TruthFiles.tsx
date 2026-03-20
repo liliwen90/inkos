@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ScrollText, Loader2 } from 'lucide-react'
 import { useAppStore, type BookSummary } from '../stores/app-store'
+import StepGate from '../components/StepGate'
 
 const TRUTH_FILES = [
   { file: 'current_state.md', label: '当前状态', desc: '角色位置/状态/情绪' },
@@ -58,6 +59,9 @@ export default function TruthFiles(): JSX.Element {
   }
 
   return (
+    <StepGate requirements={[
+      { met: !!currentBookId, label: '请先选择一本书', fixRoute: '/', fixLabel: '仪表盘' }
+    ]}>
     <div className="space-y-6 h-full flex flex-col">
       <div>
         <h1 className="text-2xl font-bold text-zinc-100">真相文件</h1>
@@ -114,5 +118,6 @@ export default function TruthFiles(): JSX.Element {
         </div>
       )}
     </div>
+    </StepGate>
   )
 }

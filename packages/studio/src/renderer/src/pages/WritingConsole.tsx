@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { PenTool, Play, Loader2, CheckCircle2, XCircle, AlertTriangle, FileCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore, type ProgressEvent, type BookSummary } from '../stores/app-store'
+import StepGate from '../components/StepGate'
 
 const STAGES = [
   { key: 'pipeline', label: '管线' },
@@ -39,10 +40,12 @@ export default function WritingConsole(): JSX.Element {
   const setIsWriting = useAppStore((s) => s.setIsWriting)
   const setBooks = useAppStore((s) => s.setBooks)
   const addToast = useAppStore((s) => s.addToast)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
 
   const [wordCount, setWordCount] = useState(3000)
   const [batchCount, setBatchCount] = useState(1)
-  const [result, setResult] = useState<unknown>(null)
+  const [result, setResult] = useState<Record<string, unknown> | null>(null)
   const [error, setError] = useState('')
   const [completedChapters, setCompletedChapters] = useState(0)
   const [nextChapterPlanStatus, setNextChapterPlanStatus] = useState<string | null>(null)
@@ -78,6 +81,7 @@ export default function WritingConsole(): JSX.Element {
 
   const handleWriteNext = useCallback(async () => {
     if (!currentBookId || !pipelineReady) return
+    const actId = startActivity(`写作 ${batchCount > 1 ? batchCount + '章' : '下一章'}`)
     setIsWriting(true)
     clearProgress()
     setResult(null)
@@ -89,8 +93,9 @@ export default function WritingConsole(): JSX.Element {
       for (let i = 0; i < batchCount; i++) {
         try {
           const res = await window.hintos.writeNext(currentBookId, wordCount)
-          setResult(res)
+          setResult(res as Record<string, unknown>)
           setCompletedChapters(i + 1)
+          useAppStore.getState().updateActivity(actId, `完成 ${i + 1}/${batchCount}`)
         } catch (chapterErr) {
           hadError = true
           setError(`第${i + 1}章失败: ${(chapterErr as Error).message}${i > 0 ? `（已成功${i}章）` : ''}`)
@@ -100,9 +105,15 @@ export default function WritingConsole(): JSX.Element {
       }
       // 刷新书籍列表
       window.hintos.listBooks().then((data) => setBooks(data as BookSummary[]))
-      if (!hadError) addToast('success', `✓ ${batchCount > 1 ? batchCount + '章' : '一章'}写作完成`)
+      if (!hadError) {
+        addToast('success', `✓ ${batchCount > 1 ? batchCount + '章' : '一章'}写作完成`)
+        finishActivity(actId)
+      } else {
+        finishActivity(actId, '部分章节失败')
+      }
     } catch (err) {
       setError((err as Error).message)
+      finishActivity(actId, (err as Error).message)
     } finally {
       setIsWriting(false)
     }
@@ -121,6 +132,10 @@ export default function WritingConsole(): JSX.Element {
   const currentBook = books.find(b => b.bookId === currentBookId)
 
   return (
+    <StepGate requirements={[
+      { met: !!currentBookId, label: '请先选择一本书', fixRoute: '/', fixLabel: '仪表盘' },
+      { met: pipelineReady, label: '请先配置 LLM 连接', fixRoute: '/settings', fixLabel: '设置' }
+    ]}>
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-zinc-100">写作控制台</h1>
@@ -254,6 +269,7 @@ export default function WritingConsole(): JSX.Element {
         </div>
       )}
     </div>
+    </StepGate>
   )
 }
 

@@ -282,14 +282,15 @@ interface HintOSAPI {
     stats: string
     platform: string
     url: string
-  }[]): Promise<string>
+  }[], language?: 'en' | 'zh'): Promise<string>
 
   // 创意库
   vaultSave(entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }): Promise<{ id: string; createdAt: string }>
-  vaultList(): Promise<{ id: string; createdAt: string; novelCount: number; preview: string }[]>
-  vaultGet(id: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }>
+  vaultList(): Promise<{ id: string; createdAt: string; novelCount: number; language: 'en' | 'zh'; preview: string }[]>
+  vaultGet(id: string): Promise<{ id: string; createdAt: string; novelCount: number; language: 'en' | 'zh'; analysis: string }>
   vaultDelete(id: string): Promise<void>
   vaultUpdate(id: string, analysis: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }>
+  vaultAllNovels(lang?: 'en' | 'zh'): Promise<Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }>>
   importStyleBook(bookId: string): Promise<string[] | null>
   removeStyleBook(bookId: string, fileName: string): Promise<boolean>
   analyzeStyleBooks(bookId: string): Promise<StyleProfile | null>
@@ -325,6 +326,7 @@ interface HintOSAPI {
 
   // 进度事件
   onProgress(callback: (event: ProgressEvent) => void): () => void
+  onCyberFeed(callback: (event: { source: string; level: string; message: string; detail?: string }) => void): () => void
 }
 
 declare global {

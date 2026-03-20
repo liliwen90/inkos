@@ -66,6 +66,8 @@ export default function HumanizeEngine(): JSX.Element {
   const bookId = useAppStore((s) => s.currentBookId)
   const books = useAppStore((s) => s.books)
   const addToast = useAppStore((s) => s.addToast)
+  const startActivity = useAppStore((s) => s.startActivity)
+  const finishActivity = useAppStore((s) => s.finishActivity)
 
   const [settings, setSettings] = useState<HumanizeSettings>({
     pov: 'third-limited', tense: 'past', creativity: 5,
@@ -113,6 +115,7 @@ export default function HumanizeEngine(): JSX.Element {
 
   const handleSave = async (): Promise<void> => {
     if (!bookId) return
+    const actId = startActivity(en ? 'Save Humanize Settings' : '保存人性化设置')
     setSaving(true)
     try {
       await Promise.all([
@@ -122,10 +125,12 @@ export default function HumanizeEngine(): JSX.Element {
       ])
       setSaved(true)
       addToast('success', en ? '✓ Settings saved' : '✓ 人性化设置已保存')
+      finishActivity(actId)
       setTimeout(() => setSaved(false), 2000)
     } catch (e) {
       setError((e as Error).message)
       addToast('error', en ? `Save failed: ${(e as Error).message}` : `保存失败: ${(e as Error).message}`)
+      finishActivity(actId, (e as Error).message)
     } finally {
       setSaving(false)
     }

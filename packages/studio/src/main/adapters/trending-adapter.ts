@@ -321,7 +321,7 @@ export class TrendingAdapter {
   }
 
   /** 基于已抓取的热榜数据，让 AI 推荐 10 个最佳选题 */
-  async analyzeTrending(allNovels: TrendingNovel[]): Promise<string> {
+  async analyzeTrending(allNovels: TrendingNovel[], language: 'en' | 'zh' = 'en'): Promise<string> {
     if (!this.llmChat) throw new Error('请先在设置中配置 LLM')
     if (allNovels.length === 0) throw new Error('没有热榜数据，请先抓取')
 
@@ -329,7 +329,18 @@ export class TrendingAdapter {
       `${i + 1}. 「${n.title}」${n.titleZh ? `（${n.titleZh}）` : ''} [${n.tags}] ${n.stats} (${n.platform})`
     ).join('\n')
 
-    const prompt = `你是一位深谙中英文网络小说市场的资深策划编辑和创意总监。以下是当前英文网络小说平台（Royal Road / ScribbleHub）上最热门的作品列表：
+    const prompt = language === 'en'
+      ? this.buildEnglishAnalysisPrompt(novelsSummary)
+      : this.buildChineseAnalysisPrompt(novelsSummary)
+
+    return this.llmChat([
+      { role: 'system', content: '你是网络小说市场分析专家兼资深策划编辑，精通中英文网文市场趋势和读者偏好。你的选题建议要具体到可以直接开书的程度，包含完整的世界观、角色、冲突和创作策略。' },
+      { role: 'user', content: prompt }
+    ])
+  }
+
+  private buildEnglishAnalysisPrompt(novelsSummary: string): string {
+    return `你是一位深谙中英文网络小说市场的资深策划编辑和创意总监。以下是当前英文网络小说平台（Royal Road / ScribbleHub）上最热门的作品列表：
 
 ${novelsSummary}
 
@@ -342,12 +353,12 @@ ${novelsSummary}
 ---
 ### 选题 N：《中文书名》/ English Title
 
-**题材分类**：（从以下选择一个，优先选择英文市场常见分类：LitRPG/System Apocalypse/奇幻/科幻/悬疑/恐怖/灵异/游戏/玄幻/仙侠/武侠/都市/言情/历史/军事/体育/二次元/穿越/重生/末世/无限流/诸天/同人/短篇/系统流/种田文/规则怪谈/通用）
+**题材分类**：（必须从以下英文题材中选择一个：Progression Fantasy / Cultivation / LitRPG / GameLit / Isekai / Dungeon Core / Epic Fantasy / Urban Fantasy / Cozy Fantasy / Sci-Fi / Horror / Post-Apocalyptic / System Apocalypse）
 
-**建议平台**：（从以下选择，因为是英文市场选题请优先选英文平台：Royal Road/Kindle/KU/Patreon/番茄/起点/飞卢/其他，可多选）
+**建议平台**：（必须从以下英文平台中选择：Royal Road / Kindle / Patreon / ScribbleHub / Wattpad，可多选）
 
 **建议章数**：（根据题材和平台推荐合理的目标总章数，如200、300、500等）
-**每章字数**：（根据平台推荐每章字数，中文平台建议2000-3000，英文平台建议1500-2500）
+**每章字数**：（英文平台建议1500-2500英文单词）
 
 **核心卖点**：（2-3句话概括这本书最吸引读者的独特之处）
 
@@ -372,16 +383,64 @@ ${novelsSummary}
 ---
 
 要求：
-1. 选题要结合当前榜单热门元素（如 LitRPG、修仙/Cultivation、Isekai、Progression 等），但要有差异化创新
-2. 优先推荐中国作者有文化优势的方向（如东方修仙、武侠、玄幻与西方元素融合）
+1. 选题要结合当前榜单热门元素（如 LitRPG、Cultivation、Isekai、Progression Fantasy 等），但要有差异化创新
+2. 优先推荐中国作者有文化优势的方向（如东方修仙 Cultivation、武侠与西方元素融合）
 3. 考虑市场空白和蓝海机会，不要只跟风已有热门
 4. 每个选题的"故事核心创意"和"创作指导"要足够具体、可直接用于开书
 5. 10个选题要覆盖不同的题材和风格，避免同质化
-6. 用中文回答，格式清晰`
+6. 题材分类必须严格使用上面列出的英文题材名称，不要使用中文题材名
+7. 建议平台必须严格使用上面列出的英文平台名称，不要使用中文平台名
+8. 用中文回答，格式清晰`
+  }
 
-    return this.llmChat([
-      { role: 'system', content: '你是网络小说市场分析专家兼资深策划编辑，精通中英文网文市场趋势和读者偏好。你的选题建议要具体到可以直接开书的程度，包含完整的世界观、角色、冲突和创作策略。' },
-      { role: 'user', content: prompt }
-    ])
+  private buildChineseAnalysisPrompt(novelsSummary: string): string {
+    return `你是一位深谙中文网络小说市场的资深策划编辑和创意总监。以下是当前中文网络小说平台上的热门作品列表：
+
+${novelsSummary}
+
+请基于以上数据，综合分析当前中文网文市场的热门趋势，然后推荐 **10 个最佳选题方向**。
+
+每个选题必须包含以下完整信息（请严格按此格式）：
+
+---
+### 选题 N：《书名》
+
+**题材分类**：（必须从以下中文题材中选择一个：玄幻 / 仙侠 / 武侠 / 奇幻 / 都市 / 言情 / 现实 / 历史 / 军事 / 科幻 / 悬疑 / 恐怖 / 灵异 / 游戏 / 体育 / 二次元 / 穿越 / 重生 / 末世 / 无限流 / 诸天 / 同人 / 短篇 / 系统流 / 种田文 / 规则怪谈 / 通用）
+
+**建议平台**：（必须从以下中文平台中选择：番茄 / 起点 / 飞卢 / 其他，可多选）
+
+**建议章数**：（根据题材和平台推荐合理的目标总章数，如200、300、500等）
+**每章字数**：（中文平台建议2000-3000字）
+
+**核心卖点**：（2-3句话概括这本书最吸引读者的独特之处）
+
+**故事核心创意**：
+- **世界观设定**：（3-5句话描述独特的世界观架构）
+- **主角设定**：（主角身份、性格特征、核心矛盾）
+- **核心冲突**：（推动故事发展的主要矛盾和对抗力量）
+- **关键金手指/系统**：（如有，描述主角的特殊能力或系统机制）
+- **故事走向**：（前30章的大致节奏和爽点节奏安排）
+
+**创作指导**：
+- **开篇策略**：（前3章如何抓住读者，建议的开场场景）
+- **爽点设计**：（每10章左右的爽点节奏规划）
+- **差异化策略**：（相比同类作品，如何做出差异化）
+- **文风建议**：（推荐的叙事风格和节奏控制）
+
+**推荐标签**：（5-8个标签）
+**目标读者群**：（精确描述目标受众）
+**预估热度**：（高/中高/中，并说明判断依据）
+**市场空白分析**：（为什么这个方向有机会，竞品少在哪里）
+
+---
+
+要求：
+1. 选题要结合当前榜单热门元素，但要有差异化创新
+2. 考虑市场空白和蓝海机会，不要只跟风已有热门
+3. 每个选题的"故事核心创意"和"创作指导"要足够具体、可直接用于开书
+4. 10个选题要覆盖不同的题材和风格，避免同质化
+5. 题材分类必须严格使用上面列出的中文题材名称
+6. 建议平台必须严格使用上面列出的中文平台名称
+7. 用中文回答，格式清晰`
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { FileCheck, Loader2, Check, X, Edit3, Play, RefreshCw, ChevronRight } from 'lucide-react'
 import { useAppStore, type BookSummary, type ProgressEvent } from '../stores/app-store'
+import StepGate from '../components/StepGate'
 
 type PlanStatus = 'unplanned' | 'pending' | 'approved' | 'rejected' | 'written'
 
@@ -221,6 +222,10 @@ export default function PlanReview(): JSX.Element {
   }
 
   return (
+    <StepGate requirements={[
+      { met: !!currentBookId, label: '请先选择一本书', fixRoute: '/', fixLabel: '仪表盘' },
+      { met: pipelineReady, label: '请先配置 LLM 连接', fixRoute: '/settings', fixLabel: '设置' }
+    ]}>
     <div className="space-y-4 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -402,5 +407,6 @@ export default function PlanReview(): JSX.Element {
         </div>
       )}
     </div>
+    </StepGate>
   )
 }

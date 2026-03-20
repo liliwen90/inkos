@@ -103,20 +103,22 @@ const hintosAPI = {
     ipcRenderer.invoke('trending-platforms'),
   fetchTrending: (platformId: string, listType: string, translate: boolean): Promise<unknown> =>
     ipcRenderer.invoke('fetch-trending', platformId, listType, translate),
-  analyzeTrending: (novels: unknown[]): Promise<string> =>
-    ipcRenderer.invoke('analyze-trending', novels),
+  analyzeTrending: (novels: unknown[], language?: 'en' | 'zh'): Promise<string> =>
+    ipcRenderer.invoke('analyze-trending', novels, language),
 
   // 创意库
   vaultSave: (entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }): Promise<{ id: string; createdAt: string }> =>
     ipcRenderer.invoke('vault-save', entry),
-  vaultList: (): Promise<{ id: string; createdAt: string; novelCount: number; preview: string }[]> =>
+  vaultList: (): Promise<{ id: string; createdAt: string; novelCount: number; language: 'en' | 'zh'; preview: string }[]> =>
     ipcRenderer.invoke('vault-list'),
-  vaultGet: (id: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }> =>
+  vaultGet: (id: string): Promise<{ id: string; createdAt: string; novelCount: number; language: 'en' | 'zh'; analysis: string }> =>
     ipcRenderer.invoke('vault-get', id),
   vaultDelete: (id: string): Promise<void> =>
     ipcRenderer.invoke('vault-delete', id),
   vaultUpdate: (id: string, analysis: string): Promise<unknown> =>
     ipcRenderer.invoke('vault-update', id, analysis),
+  vaultAllNovels: (lang?: 'en' | 'zh'): Promise<Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }>> =>
+    ipcRenderer.invoke('vault-all-novels', lang),
   importStyleBook: (bookId: string): Promise<string[] | null> =>
     ipcRenderer.invoke('import-style-book', bookId),
   removeStyleBook: (bookId: string, fileName: string): Promise<boolean> =>
@@ -186,6 +188,13 @@ const hintosAPI = {
     const listener = (_: unknown, event: unknown): void => { callback(event) }
     ipcRenderer.on('pipeline-progress', listener as never)
     return () => { ipcRenderer.removeListener('pipeline-progress', listener as never) }
+  },
+
+  // CyberFeed 事件
+  onCyberFeed: (callback: (event: { source: string; level: string; message: string; detail?: string }) => void): (() => void) => {
+    const listener = (_: unknown, event: { source: string; level: string; message: string; detail?: string }): void => { callback(event) }
+    ipcRenderer.on('cyber-feed', listener as never)
+    return () => { ipcRenderer.removeListener('cyber-feed', listener as never) }
   }
 }
 

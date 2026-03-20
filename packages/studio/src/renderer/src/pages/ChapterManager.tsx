@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BookOpen, Check, X, Eye, Download, ChevronLeft, Loader2 } from 'lucide-react'
 import { useAppStore, type BookSummary, type ChapterMeta } from '../stores/app-store'
 import { bookLang } from '../utils/lang'
+import StepGate from '../components/StepGate'
 
 const STATUS_LABELS: Record<'zh' | 'en', Record<string, { label: string; color: string }>> = {
   zh: {
@@ -96,8 +97,15 @@ export default function ChapterManager(): JSX.Element {
 
   const handleApprove = async (ch: ChapterMeta): Promise<void> => {
     if (!currentBookId) return
-    await window.hintos.updateChapterStatus(currentBookId, ch.number, 'approved')
-    addToast('success', `✓ 第${ch.number}章已通过`)
+    const actId = startActivity(`审核通过 第${ch.number}章`)
+    try {
+      await window.hintos.updateChapterStatus(currentBookId, ch.number, 'approved')
+      addToast('success', `✓ 第${ch.number}章已通过`)
+      finishActivity(actId)
+    } catch (e) {
+      addToast('error', `审核失败: ${(e as Error).message}`)
+      finishActivity(actId, (e as Error).message)
+    }
     setSelectedChapter(null)
     loadChapters()
   }
@@ -105,8 +113,15 @@ export default function ChapterManager(): JSX.Element {
   const handleReject = async (ch: ChapterMeta): Promise<void> => {
     if (!currentBookId) return
     const note = prompt(lang === 'en' ? 'Rejection reason (optional):' : '驳回理由（可选）:')
-    await window.hintos.updateChapterStatus(currentBookId, ch.number, 'rejected', note ?? undefined)
-    addToast('info', `第${ch.number}章已驳回`)
+    const actId = startActivity(`驳回 第${ch.number}章`)
+    try {
+      await window.hintos.updateChapterStatus(currentBookId, ch.number, 'rejected', note ?? undefined)
+      addToast('info', `第${ch.number}章已驳回`)
+      finishActivity(actId)
+    } catch (e) {
+      addToast('error', `驳回失败: ${(e as Error).message}`)
+      finishActivity(actId, (e as Error).message)
+    }
     setSelectedChapter(null)
     loadChapters()
   }
@@ -132,6 +147,10 @@ export default function ChapterManager(): JSX.Element {
       </div>
     )
   }
+
+  const gateReqs = [
+    { met: !!currentBookId, label: lang === 'en' ? 'Select a book first' : '请先选择一本书', fixRoute: '/', fixLabel: lang === 'en' ? 'Dashboard' : '仪表盘' }
+  ]
 
   // 章节详情视图
   if (selectedChapter) {
@@ -187,6 +206,7 @@ export default function ChapterManager(): JSX.Element {
 
   // 章节列表视图
   return (
+    <StepGate requirements={gateReqs}>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -257,5 +277,6 @@ export default function ChapterManager(): JSX.Element {
         </div>
       )}
     </div>
+    </StepGate>
   )
 }

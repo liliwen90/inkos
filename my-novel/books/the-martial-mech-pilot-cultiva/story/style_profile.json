@@ -1,0 +1,20 @@
+{
+  "avgSentenceLength": 83,
+  "sentenceLengthStdDev": 86.4,
+  "avgParagraphLength": 2498,
+  "paragraphLengthRange": {
+    "min": 30,
+    "max": 9029
+  },
+  "vocabularyDiversity": 0.003,
+  "topPatterns": [
+    "Th...(42次)",
+    "He...(32次)",
+    "Sh...(24次)",
+    "# ...(18次)",
+    "No...(17次)"
+  ],
+  "rhetoricalFeatures": [],
+  "sourceName": "Ivaline Chronicle _ A Record of an Unbroken Will [royalroad].txt, Reincarnated as a Brewer (Against My Better judgement) [royalroad].txt, The Solitary Path to Divinity [royalroad].txt",
+  "analyzedAt": "2026-03-19T19:10:51.829Z"
+}
