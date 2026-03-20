@@ -84,7 +84,7 @@ export default function TrendingPage(): JSX.Element {
     setStatus(`已抓取 ${allNovels.length} 部小说，AI 正在分析选题…`)
     useAppStore.getState().updateActivity(actId, `AI分析 ${allNovels.length} 部小说`)
     try {
-      const text = await window.hintos.analyzeTrending(allNovels)
+      const text = await window.hintos.analyzeTrending(allNovels, lang)
       setAnalysis(text)
       // 自动保存到创意库
       await window.hintos.vaultSave({ novelCount: allNovels.length, analysis: text, novels: allNovels, language: lang })
@@ -107,7 +107,8 @@ export default function TrendingPage(): JSX.Element {
       platform: idea.platform,
       targetChapters: idea.targetChapters,
       chapterWords: idea.chapterWords,
-      context: idea.context
+      context: idea.context,
+      language: idea.language
     })
     navigate('/')
   }
@@ -200,7 +201,7 @@ export default function TrendingPage(): JSX.Element {
               基于 {novelCount} 部热门小说
             </span>
           </div>
-          <AnalysisRenderer analysis={analysis} onSendIdea={handleSendIdea} />
+          <AnalysisRenderer analysis={analysis} onSendIdea={handleSendIdea} language={lang} />
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => navigate('/idea-vault')}

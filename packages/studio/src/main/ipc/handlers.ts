@@ -98,6 +98,11 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // 当前操作标识（Token 追踪用）
   let currentOperation = '未知操作'
 
+  // CyberFeed 广播
+  function emitFeed(source: string, level: string, message: string, detail?: string): void {
+    mainWindow.webContents.send('cyber-feed', { source, level, message, detail })
+  }
+
   // === 日志系统 ===
   const logDir = join(app.getPath('userData'), 'activity-logs')
   if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true })
@@ -326,6 +331,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     context?: string; styleBookPaths?: string[]
   }) => {
     currentOperation = '创建书籍'
+    emitFeed('system', 'info', `创建书籍: ${opts.title}`, `${opts.genre} / ${opts.platform}`)
     if (!pipelineAdapter.isInitialized()) throw new Error('请先配置LLM连接')
     // 确保题材文件可用（electron-vite 打包后 Core 内置路径偏移）
     const projectRoot = stateAdapter.getProjectRoot()
@@ -375,10 +381,10 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     // ===== 自动风格采样：从创意库 vault 中匹配同题材小说 =====
     if (!opts.styleBookPaths?.length && projectRoot) {
       try {
-        const emitProgress = (stage: string, detail?: string): void => {
-          mainWindow.webContents.send('pipeline-progress', { stage, detail: detail ?? '', timestamp: Date.now() })
+        const emitStyle = (detail: string): void => {
+          mainWindow.webContents.send('pipeline-progress', { stage: 'auto-style', detail, timestamp: Date.now() })
         }
-        emitProgress('🔍 从创意库筛选同题材小说...')
+        emitStyle('🔍 从创意库筛选同题材小说...')
 
         // 遍历所有 vault 记录，按语言过滤，提取 novels[]
         const bookLang = isEnglishGenre(opts.genre) ? 'en' : 'zh'
@@ -403,17 +409,17 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
         if (allVaultNovels.length > 0) {
           const matched = matchNovelsByGenre(allVaultNovels, opts.genre, 3)
           if (matched.length > 0) {
-            emitProgress(`🔍 找到 ${matched.length} 本匹配小说，开始采样...`)
+            emitStyle(`🔍 找到 ${matched.length} 本匹配小说，开始采样...`)
 
             let sampledCount = 0
             for (let i = 0; i < matched.length; i++) {
               const novel = matched[i]
-              emitProgress(`📥 采样参考书 ${i + 1}/${matched.length}: 《${novel.title}》`, `${Math.round(((i + 1) / matched.length) * 50)}%`)
+              emitStyle(`📥 采样参考书 ${i + 1}/${matched.length}: 《${novel.title}》 ${Math.round(((i + 1) / matched.length) * 50)}%`)
               try {
                 scraperAdapter.setProgressCallback((p) => {
                   mainWindow.webContents.send('pipeline-progress', {
-                    stage: p.phase === 'chapters' ? `📥 获取目录: 《${novel.title}》` : `📥 下载 ${p.current}/${p.total}: ${p.chapterTitle ?? ''}`,
-                    detail: `${Math.round((p.current / p.total) * 100)}%`,
+                    stage: 'auto-style',
+                    detail: p.phase === 'chapters' ? `📥 获取目录: 《${novel.title}》` : `📥 下载 ${p.current}/${p.total}: ${p.chapterTitle ?? ''} ${Math.round((p.current / p.total) * 100)}%`,
                     timestamp: Date.now(),
                   })
                 })
@@ -421,16 +427,16 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
                 sampledCount++
               } catch {
                 // 采样某本失败不阻塞整个流程
-                emitProgress(`⚠️ 采样《${novel.title}》失败，跳过`)
+                emitStyle(`⚠️ 采样《${novel.title}》失败，跳过`)
               }
             }
 
             if (sampledCount > 0) {
               // 统计分析 + 深度指纹 + 写入 style_guide
-              emitProgress('📊 分析文风统计指纹...', '60%')
+              emitStyle('📊 分析文风统计指纹... 60%')
               try { await humanizeAdapter.analyzeStyleFromBooks(bookId) } catch { /* non-fatal */ }
 
-              emitProgress('🧬 生成 AI 深度指纹...', '80%')
+              emitStyle('🧬 生成 AI 深度指纹... 80%')
               try {
                 const llmClient = llmAdapter.getClient()
                 const llmConfig = llmAdapter.getConfig()
@@ -439,17 +445,17 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
                 }
               } catch { /* non-fatal: LLM 可能未配置本任务模型 */ }
 
-              emitProgress('✅ 风格分析完成，正在合成 style_guide...', '95%')
+              emitStyle('✅ 风格分析完成，正在合成 style_guide... 95%')
               try { await syncStyleGuide(bookId) } catch { /* non-fatal */ }
-              emitProgress('✅ 自动风格采样完成')
+              mainWindow.webContents.send('pipeline-progress', { stage: 'auto-style-done', detail: '✅ 自动风格采样完成', timestamp: Date.now() })
             } else {
-              emitProgress('⚠️ 所有参考书采样失败，跳过风格分析')
+              mainWindow.webContents.send('pipeline-progress', { stage: 'auto-style-done', detail: '⚠️ 所有参考书采样失败，跳过风格分析', timestamp: Date.now() })
             }
           } else {
-            emitProgress('⏭️ 创意库中无匹配题材小说，跳过自动风格采样')
+            mainWindow.webContents.send('pipeline-progress', { stage: 'auto-style-done', detail: '⏭️ 创意库中无匹配题材小说，跳过自动风格采样', timestamp: Date.now() })
           }
         } else {
-          emitProgress('⏭️ 创意库为空（未运行过热榜雷达），跳过自动风格采样')
+          mainWindow.webContents.send('pipeline-progress', { stage: 'auto-style-done', detail: '⏭️ 创意库为空，跳过自动风格采样', timestamp: Date.now() })
         }
       } catch {
         // 自动采样整体失败不应阻止书籍创建
@@ -473,6 +479,13 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       createdAt: now,
       updatedAt: now
     }, combinedContext || undefined)
+
+    // 持久化用户原始创作指导——写手每章都会读取，不再蒸发
+    if (opts.context?.trim() && projectRoot) {
+      const storyDir = join(projectRoot, 'books', bookId, 'story')
+      mkdirSync(storyDir, { recursive: true })
+      writeFileSync(join(storyDir, 'creative_context.md'), opts.context.trim(), 'utf-8')
+    }
 
     return { bookId }
   })
@@ -728,6 +741,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   })
 
   ipcMain.handle('analyze-style-books', async (_e, bookId: string) => {
+    emitFeed('pipeline', 'info', '文本统计分析', bookId)
     return humanizeAdapter.analyzeStyleFromBooks(bookId)
   })
 
@@ -749,6 +763,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('analyze-deep-fingerprint', async (_e, bookId: string) => {
     currentOperation = 'AI深度指纹'
+    emitFeed('llm', 'info', 'AI深度指纹分析', bookId)
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
     if (!client || !config) throw new Error('请先配置LLM连接')
@@ -761,6 +776,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('generate-suggestions', async (_e, bookId: string) => {
     currentOperation = 'AI建议生成'
+    emitFeed('llm', 'info', 'AI建议生成', bookId)
     const client = llmAdapter.getClient()
     const config = llmAdapter.getConfig()
     if (!client || !config) throw new Error('请先配置LLM连接')
@@ -826,7 +842,8 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     return trendingAdapter.fetchTrending(platformId, listType, translate)
   })
 
-  ipcMain.handle('analyze-trending', async (_e, novels: unknown[]) => {
+  ipcMain.handle('analyze-trending', async (_e, novels: unknown[], language?: 'en' | 'zh') => {
+    const lang = language ?? 'en'
     currentOperation = 'AI选题分析'
     mainWindow.webContents.send('pipeline-progress', { stage: '🤖 AI 正在分析选题趋势...', detail: `基于 ${(novels as unknown[]).length} 部小说`, timestamp: Date.now() })
     const client = llmAdapter.getClient()
@@ -837,7 +854,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       const res = await chatCompletion(client, config.model, messages as never, { maxTokens: 8192, temperature: 0.7 })
       return res.content
     })
-    const result = await trendingAdapter.analyzeTrending(novels as never)
+    const result = await trendingAdapter.analyzeTrending(novels as never, lang)
     mainWindow.webContents.send('pipeline-progress', { stage: '✅ AI 选题分析完成', detail: '', timestamp: Date.now() })
     return result
   })
@@ -878,7 +895,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     return files.map(f => {
       try {
         const data = JSON.parse(readFileSync(join(vaultDir, f), 'utf-8'))
-        return { id: data.id, createdAt: data.createdAt, novelCount: data.novelCount, preview: (data.analysis as string).slice(0, 120) }
+        return { id: data.id, createdAt: data.createdAt, novelCount: data.novelCount, language: data.language ?? 'en', preview: (data.analysis as string).slice(0, 120) }
       } catch { return null }
     }).filter(Boolean)
   })
@@ -903,6 +920,29 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     return data
   })
 
+  ipcMain.handle('vault-all-novels', async (_e, lang?: 'en' | 'zh') => {
+    if (!existsSync(vaultDir)) return []
+    const novels: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> = []
+    for (const f of readdirSync(vaultDir).filter(x => x.endsWith('.json'))) {
+      try {
+        const data = JSON.parse(readFileSync(join(vaultDir, f), 'utf-8'))
+        if (lang && (data.language ?? 'en') !== lang) continue
+        if (Array.isArray(data.novels)) {
+          for (const n of data.novels) {
+            if (n.title && n.url) novels.push(n)
+          }
+        }
+      } catch { /* skip corrupt */ }
+    }
+    // 按 url 去重
+    const seen = new Set<string>()
+    return novels.filter(n => {
+      if (seen.has(n.url)) return false
+      seen.add(n.url)
+      return true
+    })
+  })
+
   // ===== Online Scraper (Book Inception Pipeline) =====
 
   ipcMain.handle('scraper-fetch-chapters', async (_e, fictionUrl: string) => {
@@ -910,6 +950,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   })
 
   ipcMain.handle('scraper-scrape-for-analysis', async (_e, bookId: string, fictionUrl: string, fictionTitle: string, maxSamples: number) => {
+    emitFeed('scraper', 'info', `在线采样: ${fictionTitle}`, fictionUrl)
     scraperAdapter.setProgressCallback((p) => {
       mainWindow.webContents.send('pipeline-progress', {
         stage: p.phase === 'chapters' ? 'Fetching chapter list...' : `Sampling ${p.current}/${p.total}: ${p.chapterTitle ?? ''}`,
@@ -930,6 +971,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // ===== Apply AI Suggestions to Humanize Engine =====
 
   ipcMain.handle('apply-suggestions', async (_e, bookId: string) => {
+    emitFeed('system', 'info', '应用AI建议', bookId)
     const suggestions = await humanizeAdapter.loadSuggestions(bookId)
     if (!suggestions) throw new Error('No suggestions found')
 
@@ -946,11 +988,35 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       await humanizeAdapter.saveVoiceCards(bookId, suggestions.voiceCards as never)
     }
 
-    // Apply scene beats (save as chapter 1 template)
+    // Apply ALL scene beats (not just [0]) — 修复死数据
     if (suggestions.sceneBeats?.length) {
-      const beats = suggestions.sceneBeats[0]?.beats
-      if (beats?.length) {
-        await humanizeAdapter.saveSceneBeats(bookId, 1, beats)
+      for (let i = 0; i < suggestions.sceneBeats.length; i++) {
+        const entry = suggestions.sceneBeats[i]
+        if (entry?.beats?.length) {
+          await humanizeAdapter.saveSceneBeats(bookId, i + 1, entry.beats)
+        }
+      }
+    }
+
+    // Apply storyArc → volume_outline.md — 修复死数据
+    if (suggestions.storyArc?.phases?.length) {
+      emitFeed('system', 'info', '写入故事弧线到 volume_outline.md', `${suggestions.storyArc.phases.length} 个阶段`)
+      const root = stateAdapter.getProjectRoot()
+      if (root) {
+        const storyDir = join(root, 'books', bookId, 'story')
+        mkdirSync(storyDir, { recursive: true })
+        const outlinePath = join(storyDir, 'volume_outline.md')
+        let arcContent = '# Story Arc\n\n'
+        for (const phase of suggestions.storyArc.phases) {
+          arcContent += `## ${phase.name} (Ch. ${phase.chapters})\n${phase.goal}\n\n`
+        }
+        // 如果已有大纲，追加到末尾
+        if (existsSync(outlinePath)) {
+          const existing = readFileSync(outlinePath, 'utf-8')
+          writeFileSync(outlinePath, existing + '\n---\n\n' + arcContent, 'utf-8')
+        } else {
+          writeFileSync(outlinePath, arcContent, 'utf-8')
+        }
       }
     }
 

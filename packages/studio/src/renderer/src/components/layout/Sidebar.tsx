@@ -16,19 +16,22 @@ const THEMES = [
 ]
 
 const navItems = [
-  // ── Book Inception Pipeline ──
+  // ── 总览 ──
+  { to: '/', icon: LayoutDashboard, label: '仪表盘', section: 'overview' },
+  // ── 选题 ──
   { to: '/trending', icon: TrendingUp, label: '热榜雷达', section: 'inception' },
   { to: '/idea-vault', icon: Archive, label: '创意库' },
-  { to: '/', icon: LayoutDashboard, label: '仪表盘' },
-  { to: '/style-analysis', icon: BarChart3, label: '风格分析' },
+  // ── 配置 ──
+  { to: '/style-analysis', icon: BarChart3, label: '风格分析', section: 'config' },
   { to: '/suggestions', icon: Lightbulb, label: 'AI 建议' },
   { to: '/humanize', icon: Sparkles, label: '人性化引擎' },
-  // ── Chapter Production Pipeline ──
-  { to: '/writing', icon: PenTool, label: '写作控制台', section: 'production' },
-  { to: '/plan-review', icon: FileCheck, label: '章节企划' },
+  // ── 生产线 ──
+  { to: '/plan-review', icon: FileCheck, label: '章节企划', section: 'production' },
+  { to: '/writing', icon: PenTool, label: '写作控制台' },
   { to: '/chapters', icon: BookOpen, label: '章节管理' },
-  { to: '/detection', icon: ShieldAlert, label: 'AIGC 检测' },
   { to: '/truth-files', icon: ScrollText, label: '真相文件' },
+  // ── 交付 ──
+  { to: '/detection', icon: ShieldAlert, label: 'AIGC 检测', section: 'delivery' },
   { to: '/export', icon: Download, label: '导出' },
 ]
 
@@ -85,8 +88,12 @@ export default function Sidebar(): JSX.Element {
       <nav className="flex-1 py-1 px-2 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to
+          const sectionMap: Record<string, string> = {
+            overview: '总览', inception: '选题', config: '配置',
+            production: '生产线', delivery: '交付'
+          }
           const sectionLabel = 'section' in item
-            ? (item as { section: string }).section === 'production' ? '生产线' : '选题'
+            ? sectionMap[(item as { section: string }).section] ?? null
             : null
           return (
             <div key={item.to}>

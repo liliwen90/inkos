@@ -4,6 +4,7 @@ import {
   Package, ChevronDown, ChevronRight, Palette, Loader2
 } from 'lucide-react'
 import { useAppStore, type BookSummary } from '../stores/app-store'
+import StepGate from '../components/StepGate'
 
 // ─── 封面模板 ───
 
@@ -287,6 +288,9 @@ export default function ExportPage(): JSX.Element {
   const cbxLabel = 'flex items-center gap-2 text-sm text-zinc-300 cursor-pointer'
 
   return (
+    <StepGate requirements={[
+      { met: !!currentBookId, label: '请先选择一本书', fixRoute: '/', fixLabel: '仪表盘' }
+    ]}>
     <div className="space-y-5 max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-zinc-100">导出</h1>
@@ -450,5 +454,6 @@ export default function ExportPage(): JSX.Element {
         </div>
       )}
     </div>
+    </StepGate>
   )
 }

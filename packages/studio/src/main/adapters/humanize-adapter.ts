@@ -368,6 +368,21 @@ ${samples}`
 
     onProgress?.(en ? 'AI generating comprehensive suggestions...' : 'AI正在生成全方位建议...', 30)
 
+    // 注入 style_profile 和 fingerprint 到 prompt（修复死数据）
+    let contextBlock = ''
+    const profileData = await this.loadStyleProfile(bookId)
+    if (profileData) {
+      contextBlock += en
+        ? `\n[Statistical Profile of Reference Books]\nAvg sentence length: ${profileData.avgSentenceLength.toFixed(1)} words | Std dev: ${profileData.sentenceLengthStdDev.toFixed(1)}\nAvg paragraph length: ${profileData.avgParagraphLength.toFixed(1)} sentences | Range: ${profileData.paragraphLengthRange.min}-${profileData.paragraphLengthRange.max}\nVocabulary diversity (TTR): ${(profileData.vocabularyDiversity * 100).toFixed(1)}%\nTop patterns: ${profileData.topPatterns.slice(0, 8).join(', ')}\nRhetorical features: ${profileData.rhetoricalFeatures.join(', ')}\n`
+        : `\n【参考书统计画像】\n平均句长: ${profileData.avgSentenceLength.toFixed(1)}字 | 句长标准差: ${profileData.sentenceLengthStdDev.toFixed(1)}\n平均段长: ${profileData.avgParagraphLength.toFixed(1)}句 | 段长范围: ${profileData.paragraphLengthRange.min}-${profileData.paragraphLengthRange.max}\n词汇多样性(TTR): ${(profileData.vocabularyDiversity * 100).toFixed(1)}%\n高频句式: ${profileData.topPatterns.slice(0, 8).join('、')}\n修辞特征: ${profileData.rhetoricalFeatures.join('、')}\n`
+    }
+    const fpData = await this.loadFingerprint(bookId)
+    if (fpData?.fingerprint) {
+      contextBlock += en
+        ? `\n[AI Style Fingerprint]\n${fpData.fingerprint.substring(0, 1500)}\n`
+        : `\n【AI风格指纹】\n${fpData.fingerprint.substring(0, 1500)}\n`
+    }
+
     const systemContent = en
       ? 'You are a senior novel writing consultant. Output content suggestions strictly in the required JSON format. Do not output any text outside the JSON.'
       : '你是一位精通各类型小说创作的资深顾问。请严格按要求的JSON格式输出内容建议，不要输出任何JSON以外的文字。'
@@ -386,7 +401,8 @@ ${samples}`
 }
 
 Novel samples:
-${samples}`
+${samples}
+${contextBlock}`
       : `基于以下小说样本，生成完整的创作建议。严格按JSON格式输出：
 
 {
@@ -400,7 +416,8 @@ ${samples}`
 }
 
 小说样本：
-${samples}`
+${samples}
+${contextBlock}`
 
     const res = await chatCompletion(client, model, [
       { role: 'system', content: systemContent },
@@ -483,6 +500,26 @@ ${samples}`
         : `\n【风格指纹 (模仿强度:${fp.strength}/10)】\n${fp.fingerprint.substring(0, 2000)}\n`
     }
 
+    // 风格统计量化指标——给写手精确的句长/节奏/词汇目标
+    const profile = await this.loadStyleProfile(bookId)
+    if (profile) {
+      if (en) {
+        guidance += `\n[Quantitative Style Targets]\n`
+        guidance += `Target avg sentence length: ${profile.avgSentenceLength.toFixed(1)} words (±${profile.sentenceLengthStdDev.toFixed(1)})\n`
+        guidance += `Target avg paragraph length: ${profile.avgParagraphLength.toFixed(1)} sentences (range ${profile.paragraphLengthRange.min}-${profile.paragraphLengthRange.max})\n`
+        guidance += `Vocabulary diversity (TTR): ${(profile.vocabularyDiversity * 100).toFixed(1)}%\n`
+        if (profile.topPatterns.length > 0) guidance += `Frequent sentence patterns: ${profile.topPatterns.slice(0, 6).join(', ')}\n`
+        if (profile.rhetoricalFeatures.length > 0) guidance += `Rhetorical features to use: ${profile.rhetoricalFeatures.join(', ')}\n`
+      } else {
+        guidance += `\n【风格量化指标】\n`
+        guidance += `目标平均句长：${profile.avgSentenceLength.toFixed(1)}字（标准差±${profile.sentenceLengthStdDev.toFixed(1)}）\n`
+        guidance += `目标平均段长：${profile.avgParagraphLength.toFixed(1)}句（范围${profile.paragraphLengthRange.min}-${profile.paragraphLengthRange.max}）\n`
+        guidance += `词汇多样性(TTR)：${(profile.vocabularyDiversity * 100).toFixed(1)}%\n`
+        if (profile.topPatterns.length > 0) guidance += `高频句式：${profile.topPatterns.slice(0, 6).join('、')}\n`
+        if (profile.rhetoricalFeatures.length > 0) guidance += `应使用的修辞手法：${profile.rhetoricalFeatures.join('、')}\n`
+      }
+    }
+
     // 声音卡片
     const cards = await this.loadVoiceCards(bookId)
     if (cards.length > 0) {
@@ -498,6 +535,25 @@ ${samples}`
       if (beats?.length) {
         guidance += en ? '\n[Scene Beats for This Chapter]\n' : '\n【本章场景节拍】\n'
         beats.forEach((b, i) => { guidance += `${i + 1}. ${b}\n` })
+      }
+    }
+
+    // 注入 writingRules + writerRole + storyIdeas
+    const suggestions = await this.loadSuggestions(bookId)
+    if (suggestions) {
+      if (suggestions.writerRole) {
+        guidance += en ? '\n[Author Role Definition]\n' : '\n【作者角色定义】\n'
+        guidance += suggestions.writerRole + '\n'
+      }
+      if (suggestions.writingRules) {
+        guidance += en ? '\n[Writing Rules]\n' : '\n【创作规则】\n'
+        guidance += suggestions.writingRules + '\n'
+      }
+      if (suggestions.storyIdeas?.length) {
+        guidance += en ? '\n[Story Direction Ideas (reference only)]\n' : '\n【故事方向参考】\n'
+        for (const idea of suggestions.storyIdeas) {
+          guidance += `• ${idea.title}：${idea.content}\n`
+        }
       }
     }
 

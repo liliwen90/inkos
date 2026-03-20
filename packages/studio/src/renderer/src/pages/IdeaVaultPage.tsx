@@ -1,13 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Archive, Clock, Trash2, Sparkles, Pencil, Save, X, Loader2 } from 'lucide-react'
+import { Archive, Clock, Trash2, Sparkles, Pencil, Save, X, Loader2, Plus } from 'lucide-react'
 import { useAppStore } from '../stores/app-store'
 import { AnalysisRenderer, type ParsedIdea } from '../components/AnalysisRenderer'
+import CreateBookDialog from '../components/CreateBookDialog'
 
 interface VaultEntry {
   id: string
   createdAt: string
   novelCount: number
+  language: 'en' | 'zh'
   preview: string
 }
 
@@ -15,6 +17,7 @@ interface VaultDetail {
   id: string
   createdAt: string
   novelCount: number
+  language: 'en' | 'zh'
   analysis: string
 }
 
@@ -22,6 +25,9 @@ export default function IdeaVaultPage(): JSX.Element {
   const navigate = useNavigate()
   const setPendingBookDraft = useAppStore((s) => s.setPendingBookDraft)
   const addToast = useAppStore((s) => s.addToast)
+  const pipelineReady = useAppStore((s) => s.pipelineReady)
+  const projectLoaded = useAppStore((s) => s.projectLoaded)
+  const [showCreate, setShowCreate] = useState(false)
 
   const [vault, setVault] = useState<VaultEntry[]>([])
   const [viewing, setViewing] = useState<VaultDetail | null>(null)
@@ -91,8 +97,15 @@ export default function IdeaVaultPage(): JSX.Element {
       platform: idea.platform,
       targetChapters: idea.targetChapters,
       chapterWords: idea.chapterWords,
-      context: idea.context
+      context: idea.context,
+      language: idea.language
     })
+    setShowCreate(true)
+  }
+
+  const handleCreateClose = (): void => {
+    setShowCreate(false)
+    // 创建完成后跳转到仪表盘查看新书
     navigate('/')
   }
 
@@ -150,6 +163,13 @@ export default function IdeaVaultPage(): JSX.Element {
             <h2 className="text-lg font-semibold text-zinc-200">AI 选题推荐</h2>
             <span className="text-xs text-zinc-500 ml-auto">
               {new Date(viewing.createdAt).toLocaleString('zh-CN')} · 基于 {viewing.novelCount} 部热门小说
+              <span className={`ml-2 inline-block text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                viewing.language === 'en'
+                  ? 'bg-blue-900/50 text-blue-400'
+                  : 'bg-amber-900/50 text-amber-400'
+              }`}>
+                {viewing.language === 'en' ? 'EN 英文小说' : 'ZH 中文小说'}
+              </span>
             </span>
           </div>
 
@@ -160,7 +180,7 @@ export default function IdeaVaultPage(): JSX.Element {
               className="w-full h-[calc(100vh-280px)] bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-3 text-sm text-zinc-300 font-mono leading-relaxed focus:outline-none focus:border-violet-500 resize-none"
             />
           ) : (
-            <AnalysisRenderer analysis={viewing.analysis} onSendIdea={handleSendIdea} />
+            <AnalysisRenderer analysis={viewing.analysis} onSendIdea={handleSendIdea} language={viewing.language} />
           )}
         </div>
 
@@ -174,11 +194,20 @@ export default function IdeaVaultPage(): JSX.Element {
   // 列表视图
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Archive className="w-7 h-7 text-violet-400" />
-        <h1 className="text-2xl font-bold text-zinc-100">创意库</h1>
-        <span className="text-sm text-zinc-500">管理你的 AI 选题推荐记录</span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Archive className="w-7 h-7 text-violet-400" />
+          <h1 className="text-2xl font-bold text-zinc-100">创意库</h1>
+          <span className="text-sm text-zinc-500">管理你的 AI 选题推荐记录</span>
+        </div>
+        <button onClick={() => setShowCreate(true)} disabled={!pipelineReady || !projectLoaded}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+          title={!pipelineReady ? '请先配置 LLM 连接' : ''}>
+          <Plus className="w-4 h-4" /> 新建空白书籍
+        </button>
       </div>
+
+      {showCreate && <CreateBookDialog onClose={handleCreateClose} />}
 
       {error && (
         <div className="bg-red-900/30 border border-red-700 rounded-lg p-3 text-sm text-red-300">{error}</div>
@@ -211,6 +240,13 @@ export default function IdeaVaultPage(): JSX.Element {
                     {new Date(entry.createdAt).toLocaleString('zh-CN')}
                   </span>
                   <span className="text-xs text-zinc-500">{entry.novelCount} 部小说</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                    entry.language === 'en'
+                      ? 'bg-blue-900/50 text-blue-400'
+                      : 'bg-amber-900/50 text-amber-400'
+                  }`}>
+                    {entry.language === 'en' ? 'EN 英文' : 'ZH 中文'}
+                  </span>
                 </div>
                 <p className="text-xs text-zinc-500 truncate">{entry.preview}</p>
               </div>

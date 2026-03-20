@@ -44,6 +44,7 @@ export interface ParsedIdea {
   targetChapters: number
   chapterWords: number
   context: string
+  language: 'zh' | 'en'
 }
 
 /** 将 AI 分析结果拆分为 intro + 各个选题段落 */
@@ -74,11 +75,20 @@ export function splitAnalysisIntoIdeas(text: string): { intro: string; ideas: { 
 }
 
 /** 从单个选题文本中解析结构化信息 */
-export function parseIdeaFromSection(text: string): ParsedIdea {
-  const titleMatch = text.match(/《([^》]+)》/)
-  const title = titleMatch?.[1] ?? ''
+export function parseIdeaFromSection(text: string, language: 'zh' | 'en' = 'zh'): ParsedIdea {
+  // 英文选题格式: 《中文书名》/ English Title  →  提取 English Title
+  // 中文选题格式: 《中文书名》                  →  提取 中文书名
+  const isEn = language === 'en'
+  let title = ''
+  const titleLineMatch = text.match(/《([^》]+)》\s*[/／]\s*(.+)/m)
+  if (titleLineMatch) {
+    title = isEn ? titleLineMatch[2].trim() : titleLineMatch[1].trim()
+  } else {
+    const fallbackMatch = text.match(/《([^》]+)》/)
+    title = fallbackMatch?.[1] ?? ''
+  }
 
-  let genre = 'qihuan'
+  let genre = isEn ? 'progression-fantasy' : 'qihuan'
   // 新格式：**题材分类**：xxx
   const genreMatch = text.match(/题材分类\*{0,2}[：:]\s*(.+)/m)
   if (genreMatch) {
@@ -87,7 +97,7 @@ export function parseIdeaFromSection(text: string): ParsedIdea {
     }
   }
 
-  let platform = 'royalroad'
+  let platform = isEn ? 'royalroad' : 'tomato'
   const platformMatch = text.match(/建议平台\*{0,2}[：:]\s*(.+)/m)
   if (platformMatch) {
     for (const [keyword, key] of Object.entries(PLATFORM_KEYWORDS)) {
@@ -95,34 +105,19 @@ export function parseIdeaFromSection(text: string): ParsedIdea {
     }
   }
 
-  // 构建创作指导
-  const contextParts: string[] = []
-
-  const sellMatch = text.match(/核心卖点\*{0,2}[：:]\s*([\s\S]*?)(?=\n\*{0,2}(?:推荐标签|故事核心|创作指导|目标读者|题材分类|建议平台)|\n#{2,3}\s|$)/m)
-  if (sellMatch) contextParts.push(`【核心卖点】${sellMatch[1].trim()}`)
-
-  const creativityMatch = text.match(/故事核心创意\*{0,2}[：:]([\s\S]*?)(?=\n\*{0,2}创作指导|\n\*{0,2}推荐标签|\n---|\n#{2,3}\s|$)/m)
-  if (creativityMatch) contextParts.push(`【故事核心创意】\n${creativityMatch[1].trim()}`)
-
-  const guidanceMatch = text.match(/创作指导\*{0,2}[：:]([\s\S]*?)(?=\n\*{0,2}推荐标签|\n\*{0,2}目标读者|\n---|\n#{2,3}\s|$)/m)
-  if (guidanceMatch) contextParts.push(`【创作指导】\n${guidanceMatch[1].trim()}`)
-
-  const marketMatch = text.match(/市场空白分析\*{0,2}[：:]\s*([\s\S]*?)(?=\n---|\n#{2,3}\s|$)/m)
-  if (marketMatch) contextParts.push(`【市场分析】${marketMatch[1].trim()}`)
-
-  // 旧格式 fallback：如果没有匹配到结构化字段，就把整段内容当 context
-  const context = contextParts.length > 0 ? contextParts.join('\n\n') : text.trim()
+  // 将完整 AI 分析原文作为 context，用户在 CreateBookDialog 中可编辑后再传给架构师
+  const context = text.trim()
 
   // 解析建议章数和每章字数
-  let targetChapters = 200
+  let targetChapters = isEn ? 300 : 200
   const chaptersMatch = text.match(/建议章数\*{0,2}[：:]\s*(\d+)/m)
   if (chaptersMatch) targetChapters = parseInt(chaptersMatch[1], 10)
 
-  let chapterWords = 3000
+  let chapterWords = isEn ? 2500 : 3000
   const wordsMatch = text.match(/每章字数\*{0,2}[：:]\s*(\d+)/m)
   if (wordsMatch) chapterWords = parseInt(wordsMatch[1], 10)
 
-  return { title, genre, platform, targetChapters, chapterWords, context }
+  return { title, genre, platform, targetChapters, chapterWords, context, language }
 }
 
 /** 已知的题材关键词集（用于高亮） */
@@ -236,9 +231,11 @@ function renderRichBlock(text: string, baseKey: string): JSX.Element {
 export function AnalysisRenderer({
   analysis,
   onSendIdea,
+  language = 'zh',
 }: {
   analysis: string
   onSendIdea: (idea: ParsedIdea) => void
+  language?: 'zh' | 'en'
 }): JSX.Element {
   const { intro, ideas } = splitAnalysisIntoIdeas(analysis)
 
@@ -261,7 +258,7 @@ export function AnalysisRenderer({
                 {renderRichInline(idea.heading.slice(0, 80))}
               </span>
               <button
-                onClick={() => onSendIdea(parseIdeaFromSection(fullText))}
+                onClick={() => onSendIdea(parseIdeaFromSection(fullText, language))}
                 className="flex items-center gap-1.5 px-3 py-1 bg-violet-600 hover:bg-violet-500 text-white rounded text-xs font-medium transition-colors shrink-0 ml-3"
                 title={displayTitle ? `将${displayTitle}发送到「创建新书」` : '发送到创建新书'}
               >

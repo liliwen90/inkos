@@ -7,6 +7,8 @@ import {
   TrendingUp, Archive, Palette
 } from 'lucide-react'
 
+import WorkflowShowcase from '../components/WorkflowShowcase'
+
 // ===== 教程数据结构 =====
 
 interface TutorialSection {
@@ -15,6 +17,7 @@ interface TutorialSection {
   title: string
   badge?: string
   content: TutorialBlock[]
+  customRender?: () => JSX.Element
 }
 
 type TutorialBlock =
@@ -30,37 +33,34 @@ type TutorialBlock =
 // ===== 所有教程内容 =====
 
 const sections: TutorialSection[] = [
+  // ─── 0. 软件工作流程总览 ───
+  {
+    id: 'workflow',
+    icon: <Route className="w-4 h-4" />,
+    title: '工作流程总览：从灵感到出版',
+    badge: '必读',
+    content: [],
+    customRender: () => <WorkflowShowcase />,
+  },
+
   // ─── 1. 快速开始 ───
   {
     id: 'quickstart',
     icon: <Zap className="w-4 h-4" />,
     title: '快速开始',
-    badge: '必读',
     content: [
-      { type: 'text', content: 'HintOS Studio 是一个多 Agent 协作的 AI 小说生产系统。六个 AI Agent（建筑师、写手、审计员、深度审查、修订者、润色师）接力完成小说的创作、质量审核、修订与润色，你只需要动动鼠标。支持中文和英文双语小说创作，内置 41 种题材。' },
-      { type: 'text', content: '侧边栏按「双管线」排列：上半部分是选题管线（从市场数据到开始写书），下半部分是章节生产线（从写作到导出）。推荐按从上到下的顺序使用。' },
-      { type: 'heading', content: '完整流程：从选题到出书' },
+      { type: 'text', content: '5 分钟从零到写出第一章：' },
       { type: 'steps', items: [
-        '打开项目 — 首次启动时，仪表盘中央会显示欢迎页面，点击「🗂️ 打开 HintOS 项目」大按钮，选择一个空文件夹（系统会询问是否初始化为新项目并让你输入项目名），或选择已有的 hintos.json 所在目录。下次启动时会自动恢复上次打开的项目。',
-        '配置 LLM — 进入左侧底部「⚙ LLM 配置」页面，填写 Provider、API 地址、密钥和模型名称。可选点击「测试连接」验证 API 可用性。然后点击「⚡ 初始化管线」按钮（紫色高亮），等待左侧状态指示灯变绿即表示管线就绪。',
-        '选题（可选）— 进入「热榜雷达」，点击「AI 选题推荐」一键抓取 Royal Road + ScribbleHub 热榜数据并自动进行 AI 选题分析。分析结果自动保存到「创意库」。',
-        '开书 — 在热榜雷达的选题卡片上点击「发送到创建新书」，或进入「创意库」挑选之前保存的创意后点击「发送到创建新书」。系统会自动跳转到仪表盘并弹出创建书籍对话框，书名、题材、平台、字数等 6 个字段自动预填充。确认后点击「创建」即可。当然，你也可以在仪表盘手动点击「➕ 创建书籍」从零开始。',
-        '风格配置（可选）— 进入「风格分析」导入参考书或从 URL 在线采样，生成文风统计画像和 AI 深度指纹。然后进入「AI 建议」生成完整创作方案，点击「一键应用」将建议自动写入「人性化引擎」的风格设定和角色声音卡片。',
-        '开始写作 — 进入「写作控制台」，从顶部下拉菜单选择书籍，设置每章字数和连续写章数，点击「▶ 写下一章」。系统会依次经过 7 个阶段全自动完成，顶部进度条实时显示当前阶段。',
-        '查看成果 — 在「章节管理」中查看生成的章节内容、审计问题，点击眼睛图标查看全文，然后执行「✓ 通过」或「✗ 驳回」审阅。',
-        '导出发布 — 在「导出」页面将完成的章节导出为 TXT/MD/EPUB 格式，配合封面模板发布到各平台。',
+        '打开项目 — 首次启动时，仪表盘中央会显示欢迎页面，点击「打开 HintOS 项目」大按钮，选择一个空文件夹（系统会询问是否初始化为新项目并让你输入项目名），或选择已有的 hintos.json 所在目录。下次启动时会自动恢复上次打开的项目。',
+        '配置 LLM — 进入左侧底部「LLM 配置」页面，填写 Provider、API 地址、密钥和模型名称。可选点击「测试连接」验证 API 可用性。然后点击「⚡ 初始化管线」按钮，等待左侧状态指示灯变绿即表示管线就绪。',
+        '选题（可选）— 进入「热榜雷达」，一键抓取 Royal Road + ScribbleHub 热榜数据并自动进行 AI 选题分析。分析结果自动保存到「创意库」。',
+        '开书 — 进入「创意库」挑选保存的创意，点击「发送到创建新书」。创建书籍对话框会自动弹出，书名、题材、平台、字数等字段自动预填。你也可以在创意库页面点击「新建空白书籍」从零开始。确认后点击「创建」，AI 建筑师会自动生成世界观和规则。',
+        '风格配置（可选但强烈推荐）— 进入「风格分析」导入参考书（本地 .txt 或在线 URL，也可直接从热榜导入），运行文本统计 + AI 深度指纹。然后进入「AI 建议」生成完整创作方案（故事创意/角色声音/创作规则/故事弧线），点击「一键应用」自动填入「人性化引擎」。最后在「人性化引擎」微调笔法设定并保存。',
+        '开始写作 — 进入「写作控制台」，选择书籍，设置字数和连续写章数，点击「写下一章」。7 阶段全自动完成，底部终端实时显示进度。',
+        '审阅 — 在「章节管理」中逐章阅读，点击「通过」或「驳回」。',
+        '导出 — 在「导出」页从已通过的章节生成 TXT / MD / EPUB 文件，配合内置封面模板发布到各平台。',
       ]},
-      { type: 'heading', content: '7 阶段全自动管线' },
-      { type: 'table', headers: ['阶段', 'Agent', '说明'], rows: [
-        ['1. 管线启动', '—', '加载书籍配置、真相文件、实体注册表'],
-        ['2. 建筑师', '🏗️ Architect', '规划本章大纲：场景节拍、节奏控制、关键事件'],
-        ['3. 写手', '✍️ Writer', '根据大纲 + 世界状态 + 规则 + 实体注册表生成正文'],
-        ['4. 审计', '🔍 Auditor', '27 维度审查：OOC、时间线、AI 痕迹等'],
-        ['5. 深度审查', '🔬 ContinuityPlus', '5 维度叙事连续性：因果链、角色弧光等'],
-        ['6. 修订', '✏️ Reviser', '修复审计发现的问题（仅在有关键问题时触发）'],
-        ['7. 润色', '💎 Polisher', '文学级散文润色，降低 AI 痕迹'],
-      ]},
-      { type: 'tip', content: '每一章完成后，系统会自动更新 10 个「真相文件」和实体注册表（entity_registry.md），确保后续章节的人物和世界状态高度一致。' },
+      { type: 'tip', content: '如果不做选题和风格配置，也能直接创建书籍并开始写作——系统会使用默认设定。但配置步骤能显著提升写作质量和风格一致性，强烈推荐完整走一遍。' },
     ]
   },
 
@@ -197,16 +197,17 @@ const sections: TutorialSection[] = [
     icon: <Archive className="w-4 h-4" />,
     title: '创意库',
     content: [
-      { type: 'text', content: '创意库保存所有 AI 选题分析结果，是你的选题灵感仓库。' },
+      { type: 'text', content: '创意库保存所有 AI 选题分析结果，也是创建新书的入口。这里是将市场灵感转化为实际项目的中枢。' },
       { type: 'heading', content: '功能' },
       { type: 'keyvalue', items: [
         { key: '浏览', value: '按时间排列，显示创建日期、分析的小说数量和内容预览。' },
         { key: '详情', value: '点击卡片查看完整的 AI 分析文本（题材趋势、读者画像、差异化建议等）。' },
         { key: '编辑', value: '可以直接修改分析文本，加入你自己的想法和笔记。' },
-        { key: '一键开书', value: '点击「发送到创建书籍」按钮，创意内容会自动填入仪表盘的创建书籍对话框，包括书名、题材、平台、字数和创作指导。' },
+        { key: '一键开书', value: '点击卡片上的「发送到创建新书」按钮，创建书籍对话框自动弹出并预填书名、题材、平台、字数和创作指导。' },
+        { key: '新建空白书籍', value: '页面顶部有「新建空白书籍」按钮，无需任何创意数据也能直接开书。' },
         { key: '删除', value: '不需要的创意可以随时删除。' },
       ]},
-      { type: 'tip', content: '推荐工作流：热榜雷达抓取 → AI 分析 → 保存到创意库 → 挑选最好的 → 一键开书。从市场数据到开始写作只需几分钟。' },
+      { type: 'tip', content: '推荐工作流：热榜雷达抓取 → AI 分析 → 保存到创意库 → 挑选最好的 → 一键开书。从市场数据到开始写作只需几分钟。如果不需要选题，也可以在创意库直接点「新建空白书籍」从零开始。' },
     ]
   },
 
@@ -214,15 +215,20 @@ const sections: TutorialSection[] = [
   {
     id: 'dashboard',
     icon: <LayoutDashboard className="w-4 h-4" />,
-    title: '仪表盘 & 创建书籍',
+    title: '仪表盘 & 书籍管理',
     content: [
-      { type: 'text', content: '仪表盘是你的主控台，展示当前项目下所有书籍的状态总览。' },
-      { type: 'heading', content: '创建书籍' },
-      { type: 'text', content: '点击右上角「创建书籍」按钮打开创建对话框。' },
+      { type: 'text', content: '仪表盘是你的主控台，展示当前项目下所有书籍的状态总览。创建书籍的入口已迁移到「创意库」页面——仪表盘专注于展示和管理。' },
+      { type: 'heading', content: '如何创建书籍' },
+      { type: 'text', content: '仪表盘不再直接提供创建书籍按钮。有两种方式开书：' },
+      { type: 'steps', items: [
+        '从创意库开书 — 进入「创意库」，选择一条创意后点击「发送到创建新书」，或直接点击「新建空白书籍」。创建对话框会在创意库页面弹出。',
+        '仪表盘跳转 — 如果仪表盘没有任何书籍，页面会显示一个琥珀色的「从创意库新建」按钮，点击即可跳转到创意库。',
+      ]},
+      { type: 'heading', content: '创建书籍对话框' },
       { type: 'keyvalue', items: [
         { key: '小说语言', value: '选择「中文」或「English」。切换语言后，题材和平台列表会自动切换到对应语言版本。' },
         { key: '书名', value: '必填。建议取一个有记忆点的名字，建筑师 Agent 会基于书名进行初始规划。' },
-        { key: '题材', value: '中文 27 种、英文 14 种，共 41 种内置题材，每种自带完整的创作规则体系。涵盖玄幻、仙侠、都市、言情、穿越、重生、末世、系统流、LitRPG、Progression Fantasy 等。' },
+        { key: '题材', value: '中文 27 种、英文 14 种，共 41 种内置题材，每种自带完整的创作规则体系。' },
         { key: '平台', value: '中文：番茄/起点/飞卢/其他；英文：Royal Road/Kindle/Patreon/ScribbleHub/Wattpad/Other。' },
         { key: '目标章数', value: '计划写多少章，仅作参考。默认 200。' },
         { key: '每章字数', value: '每章目标字数。中文默认 3000，英文默认 2500。推荐 3000-5000 字。' },
@@ -242,20 +248,22 @@ const sections: TutorialSection[] = [
     title: '写作控制台',
     badge: '核心',
     content: [
-      { type: 'text', content: '写作控制台是 HintOS Studio 的核心页面。一键驱动「写→审→查→改→润」完整管线。' },
+      { type: 'text', content: '写作控制台是 HintOS Studio 的核心页面。一键驱动「写→审→查→改→润」完整管线，底部赛博终端实时显示进度，右侧活动面板记录每步操作。' },
+      { type: 'heading', content: '步骤守卫' },
+      { type: 'text', content: '如果你还没有选择书籍，或管线未就绪，此页面会显示锁定画面（StepGate），列出待完成的前置条件和一键跳转按钮。只有所有前置条件满足后才能操作。' },
       { type: 'heading', content: '操作步骤' },
       { type: 'steps', items: [
         '从顶部下拉菜单选择要写作的书籍。',
         '设置「每章字数」（推荐 3000-5000）。',
         '设置「连续写」章数（1-50 章，系统会自动逐章完成）。',
-        '点击「写下一章」按钮启动管线。',
+        '点击「写下一章」按钮启动管线。每次写作操作会自动创建一条活动记录（类型 write-chapter），显示在右侧活动面板和底部终端中。',
       ]},
       { type: 'heading', content: '管线 7 阶段' },
-      { type: 'text', content: '每一章的创作经过 7 个阶段，顶部进度条会实时显示当前所在阶段：' },
+      { type: 'text', content: '每一章的创作经过 7 个阶段：' },
       { type: 'table', headers: ['阶段', 'Agent', '说明'], rows: [
         ['1. 管线启动', '—', '加载书籍配置、真相文件、实体注册表、连续性上下文'],
         ['2. 建筑师', '🏗️ Architect', '规划本章大纲：场景节拍、节奏控制、关键事件'],
-        ['3. 写手', '✍️ Writer', '根据大纲 + 世界状态 + 规则 + 实体注册表生成正文'],
+        ['3. 写手', '✍️ Writer', '根据大纲 + 世界状态 + 规则 + 风格指导 + 实体注册表生成正文'],
         ['4. 审计', '🔍 Auditor', '27 维度审查：OOC、时间线、设定冲突、AI 痕迹等'],
         ['5. 深度审查', '🔬 ContinuityPlus', '5 维度叙事连续性：因果链、角色弧光、伏笔回收等'],
         ['6. 修订', '✏️ Reviser', '修复审计发现的问题（仅在有关键问题时触发）'],
@@ -264,8 +272,8 @@ const sections: TutorialSection[] = [
       { type: 'tip', content: '如果审计发现关键问题（critical），管线会自动进入「修订→再审计」循环，直到所有关键问题清零。你不需要手动干预。' },
       { type: 'heading', content: '实体注册表' },
       { type: 'text', content: '每章写完后，系统会自动提取章节中出现的所有命名实体（人物、地点、物品等），记录到 entity_registry.md。包括姓名、类型、性别、年龄、外貌、身份、能力等不可变属性。后续章节写作时会参考此注册表，避免第3章出生的女婴到第10章被错写成男孩。' },
-      { type: 'heading', content: '进度日志' },
-      { type: 'text', content: '页面下方的进度日志实时显示每个阶段的详细信息，包括时间戳、状态（运行中/完成/错误）和具体描述。' },
+      { type: 'heading', content: 'CyberFeed 终端 & 活动面板' },
+      { type: 'text', content: '底部 CyberFeed 赛博终端以实时滚动的方式显示系统操作日志（管线阶段、LLM 调用、错误信息等），右侧活动面板记录每个操作的类型、状态和起止时间。这两个面板在整个应用中全局可见——无论你在哪个页面，都能看到系统当前的工作状态。' },
       { type: 'warning', content: '写作过程中请勿关闭软件或切换项目，否则可能导致数据不一致。连续写多章时每章之间会自动衔接。' },
     ]
   },
@@ -412,12 +420,18 @@ const sections: TutorialSection[] = [
     icon: <BarChart3 className="w-4 h-4" />,
     title: '风格分析',
     content: [
-      { type: 'text', content: '通过分析参考文本（你喜欢的作者/作品片段），提取文风指纹注入写手 Agent，让 AI 模仿特定写作风格。' },
-      { type: 'heading', content: '使用流程' },
+      { type: 'text', content: '通过分析参考文本（你喜欢的作者/作品片段），提取文风指纹注入写手 Agent，让 AI 模仿特定写作风格。支持三种数据来源。' },
+      { type: 'heading', content: '三种数据来源' },
+      { type: 'table', headers: ['来源', '说明', '用法'], rows: [
+        ['热榜导入', '直接将热榜雷达抓取的小说文本导入为参考书', '在热榜雷达页面选择小说，点击「导入到风格分析」'],
+        ['在线采样', '输入 URL，系统自动抓取网页文本内容', '点击「在线采样」按钮填入 URL'],
+        ['本地导入', '选择本地 .txt 文件导入', '点击「导入参考书」按钮选择文件'],
+      ]},
+      { type: 'heading', content: '分析流程' },
       { type: 'steps', items: [
-        '点击「导入参考书」按钮，选择 .txt 格式的参考文本文件。建议选择你想模仿的作者的作品片段（5000 字以上效果更好）。也可以通过 URL 直接抓取在线小说章节作为参考。',
+        '通过上述三种方式之一导入参考文本（建议 5000 字以上效果更好）。',
         '导入成功后会显示在参考书列表中。',
-        '点击「文本统计」按钮，系统会分析文本的基础统计特征：平均句长、段长范围、词汇多样性（TTR）、高频句式、修辞手法等。',
+        '点击醒目的琥珀色「运行文本统计」大按钮，系统会分析文本的基础统计特征：平均句长、段长范围、词汇多样性（TTR）、高频句式、修辞手法等。',
         '点击「深度指纹」按钮（需管线就绪），AI 会深度分析作者的独特文风特征，生成风格指纹文本。',
         '启用「注入」开关，调节强度（1-10），指纹将在后续写作时自动注入写手 Agent 的 prompt 中。',
       ]},
@@ -430,7 +444,7 @@ const sections: TutorialSection[] = [
         { key: '高频句式', value: '常见句式结构标签' },
         { key: '修辞手法', value: '文本中使用的修辞标签' },
       ]},
-      { type: 'tip', content: '风格指纹注入强度建议 5-7。太高可能导致生硬模仿，太低则效果不明显。建议导入 1-3 本参考书，系统会综合分析。' },
+      { type: 'tip', content: '风格指纹注入强度建议 5-7。太高可能导致生硬模仿，太低则效果不明显。建议导入 1-3 本参考书（可混合三种来源），系统会综合分析。' },
     ]
   },
 
@@ -472,7 +486,9 @@ const sections: TutorialSection[] = [
     icon: <Sparkles className="w-4 h-4" />,
     title: '人性化引擎',
     content: [
-      { type: 'text', content: '人性化引擎通过精细的风格配置，让 AI 写出更有「人味」的文字。配置的所有参数会作为额外指令注入写手 Agent 的 prompt。' },
+      { type: 'text', content: '人性化引擎通过精细的风格配置，让 AI 写出更有「人味」的文字。配置的所有参数会作为额外指令注入写手 Agent 的 prompt。如果你已在「AI 建议」中点击了一键应用，这里的风格设定、声音卡片和场景节拍会被自动预填——你只需要微调即可。' },
+      { type: 'heading', content: '与 AI 建议的数据链路' },
+      { type: 'text', content: 'AI 建议页面的「一键应用」会将以下数据写入人性化引擎：humanizeSettings → 7 维风格设定（POV/时态/节奏/基调/展示度/对话风格/描写密度）、voiceCards → 声音卡片、sceneBeats → 场景节拍、writingRules → 创作规则。每个预填值旁边会显示建议理由（如："基于参考书分析，三本参考书均使用第三人称有限视角"），帮你理解 AI 为什么推荐这个设定。' },
       { type: 'heading', content: '风格设定（7 维调节）' },
       { type: 'table', headers: ['维度', '选项', '说明'], rows: [
         ['视角', '第一人称 / 第三有限 / 第三全知', '叙事角度'],
@@ -505,24 +521,36 @@ const sections: TutorialSection[] = [
     icon: <Lightbulb className="w-4 h-4" />,
     title: 'AI 创作建议',
     content: [
-      { type: 'text', content: 'AI 建议系统可以基于你的风格参考书和书籍设定，自动生成完整的创作方案。' },
+      { type: 'text', content: 'AI 建议系统基于你的风格参考书和书籍设定，自动生成完整的创作方案——这是从"配置"到"生产"的关键桥梁。' },
       { type: 'heading', content: '生成的建议类型' },
       { type: 'table', headers: ['类型', '内容', '用途'], rows: [
         ['💡 故事创意', '多个故事方向标题 + 简介', '选题参考'],
         ['🎭 作者角色', '为你定义一个作者人格', '统一写作风格'],
-        ['📏 创作规则', '一组写作纪律', '注入 prompt 约束质量'],
-        ['🗣️ 声音卡片', '核心角色的说话风格建议', '直接填入人性化引擎'],
-        ['🎬 场景节拍', '节拍模板', '直接填入人性化引擎'],
-        ['📈 故事弧线', '分阶段规划（名称/章节范围/目标）', '全局节奏参考'],
+        ['📏 创作规则', '一组写作纪律（writingRules）', '注入建筑师和写手 prompt'],
+        ['🗣️ 声音卡片', '核心角色的说话风格建议（voiceCards）', '一键应用到人性化引擎'],
+        ['🎬 场景节拍', '节拍模板（sceneBeats）', '一键应用到人性化引擎'],
+        ['📈 故事弧线', '分阶段规划：名称/章节范围/目标（storyArc）', '写入 volume_outline.md'],
+        ['⚙️ 风格设定', '7 维笔法建议 + 理由（humanizeSettings）', '一键应用到人性化引擎'],
+      ]},
+      { type: 'heading', content: '数据流向详解' },
+      { type: 'text', content: '点击「一键应用」后，数据会自动分发到多个目标：' },
+      { type: 'keyvalue', items: [
+        { key: 'humanizeSettings', value: '写入人性化引擎 → 7 维风格设定。每个维度附带 reason 字段解释推荐理由。' },
+        { key: 'voiceCards', value: '写入人性化引擎 → 声音卡片列表。定义核心角色的独特说话方式。' },
+        { key: 'sceneBeats', value: '写入人性化引擎 → 场景节拍。为关键章节预设事件节奏。' },
+        { key: 'writingRules', value: '写入书籍配置 → 注入每章建筑师和写手的 prompt。' },
+        { key: 'storyArc', value: '写入 story/volume_outline.md → 建筑师规划大纲时参考。' },
       ]},
       { type: 'heading', content: '使用方法' },
       { type: 'steps', items: [
         '确保已在 LLM 配置页初始化管线。',
+        '（推荐）先在「风格分析」中导入参考书并运行分析——AI 建议会读取这些数据。',
         '点击「生成建议」按钮，等待 AI 分析（可能需要 1-2 分钟）。',
-        '展开各建议模块查看内容。',
-        '点击「一键应用」按钮可以将建议内容直接应用到目标书籍的配置中。',
+        '展开各建议模块查看内容，检查 humanizeSettings 中每个维度的建议值和理由。',
+        '点击「一键应用」将所有建议自动分发到人性化引擎和书籍配置。',
+        '进入「人性化引擎」微调预填的值，然后进入「写作控制台」开始生产。',
       ]},
-      { type: 'tip', content: '建议在创建书籍之前先导入参考书到「风格分析」，然后生成 AI 建议。这样 AI 会综合参考你的风格偏好给出更贴合的建议。' },
+      { type: 'tip', content: 'AI 建议 → 人性化引擎 → 写作控制台 是设计好的三步链路。一键应用不会覆盖你之前手动设置的值——它只填充空的字段和追加新条目。' },
     ]
   },
 
@@ -610,8 +638,8 @@ const sections: TutorialSection[] = [
       { type: 'heading', content: '管线状态一直显示"未连接"' },
       { type: 'text', content: '每次打开软件后需要手动前往「LLM 配置」页面点击「初始化管线」。确认配置正确后点击初始化即可。' },
       { type: 'divider' },
-      { type: 'heading', content: '创建书籍按钮是灰色的' },
-      { type: 'text', content: '需要先初始化管线。确认左侧状态指示灯为绿色（管线就绪）后，创建按钮才可用。' },
+      { type: 'heading', content: '仪表盘没有创建书籍按钮' },
+      { type: 'text', content: '创建书籍的入口已迁移到「创意库」页面。在创意库中可以选择一条创意后「发送到创建新书」，或直接点击「新建空白书籍」。仪表盘没有书时会显示一个「从创意库新建」跳转按钮。' },
       { type: 'divider' },
       { type: 'heading', content: '写作过程中报错了怎么办' },
       { type: 'text', content: '最常见的原因是 API 调用失败（网络问题/额度用尽/模型不可用）。查看进度日志中的错误信息，解决 API 问题后重新点击写作即可。已经写成功的章节不会丢失。' },
@@ -653,7 +681,7 @@ const sections: TutorialSection[] = [
 // ===== 教程页面组件 =====
 
 export default function Tutorial(): JSX.Element {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['quickstart']))
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['workflow']))
 
   const toggleSection = (id: string): void => {
     setExpandedSections((prev) => {
@@ -735,9 +763,11 @@ export default function Tutorial(): JSX.Element {
 
               {isExpanded && (
                 <div className="px-5 pb-5 space-y-4">
-                  {section.content.map((block, i) => (
-                    <TutorialBlockRenderer key={i} block={block} />
-                  ))}
+                  {section.customRender
+                    ? section.customRender()
+                    : section.content.map((block, i) => (
+                        <TutorialBlockRenderer key={i} block={block} />
+                      ))}
                 </div>
               )}
             </div>

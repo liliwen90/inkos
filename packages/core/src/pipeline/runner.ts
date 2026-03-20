@@ -161,12 +161,21 @@ export class PipelineRunner {
 
       const { profile: gp } = await this.loadGenreProfile(book.genre);
 
+      // Load persisted creative context as fallback
+      let effectiveContext = context ?? this.config.externalContext;
+      if (!effectiveContext) {
+        try {
+          const cc = await readFile(join(bookDir, "story", "creative_context.md"), "utf-8");
+          if (cc.trim()) effectiveContext = cc.trim();
+        } catch { /* file may not exist */ }
+      }
+
       const writer = new WriterAgent(this.agentCtxFor("writer", bookId));
       const output = await writer.writeChapter({
         book,
         bookDir,
         chapterNumber,
-        externalContext: context ?? this.config.externalContext,
+        externalContext: effectiveContext,
         ...(wordCount ? { wordCountOverride: wordCount } : {}),
       });
 
@@ -708,6 +717,14 @@ export class PipelineRunner {
       if (!chapterPlan) chapterPlan = undefined;
     }
 
+    // 0b. Load persisted creative context (user's original creative guidance)
+    let creativeContext = this.config.externalContext;
+    try {
+      const ccPath = join(bookDir, "story", "creative_context.md");
+      const cc = await readFile(ccPath, "utf-8");
+      if (cc.trim()) creativeContext = cc.trim();
+    } catch { /* file may not exist for older books */ }
+
     // 1. Write chapter
     this.progress("writer", "写手Agent正在创作...");
     const writer = new WriterAgent(this.agentCtxFor("writer", bookId));
@@ -715,7 +732,7 @@ export class PipelineRunner {
       book,
       bookDir,
       chapterNumber,
-      externalContext: this.config.externalContext,
+      externalContext: creativeContext,
       chapterPlan,
       ...(wordCount ? { wordCountOverride: wordCount } : {}),
       ...(temperatureOverride ? { temperatureOverride } : {}),
@@ -810,7 +827,9 @@ export class PipelineRunner {
       }
     }
 
-    if (revised) this.progress("reviser-done", "修订完成");
+    if (!auditResult.passed && hasCritical) {
+      this.progress("reviser-done", revised ? "修订完成" : "修订无变更");
+    }
 
     // 5. Polish for literary quality (always runs — final pass)
     this.progress("polisher", "文学润色中(7维度)...");
