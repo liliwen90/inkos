@@ -424,8 +424,8 @@ export default function AgentChatPanel(): JSX.Element {
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={pendingGate ? '回复 Agent...' : '@ 选择Agent / 输入消息'}
-          rows={1}
-          className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 resize-none focus:outline-none focus:border-violet-500 max-h-24 overflow-y-auto"
+          rows={2}
+          className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 resize-y focus:outline-none focus:border-violet-500 min-h-[44px] max-h-40 overflow-y-auto"
         />
         <button onClick={handleSend}
           disabled={!inputText.trim() || isStreaming}
