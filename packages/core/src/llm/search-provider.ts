@@ -20,7 +20,7 @@ export interface SearchResult {
 export interface SearchProviderConfig {
   readonly id: string;
   readonly label: string;
-  readonly type: "tavily" | "brave-search" | "deepseek-search" | "web-agent";
+  readonly type: "tavily" | "deepseek-search" | "web-agent";
   readonly apiKey?: string;
   readonly apiUrl?: string;
   /** web-agent 登录用户名（未来浏览器自动化搜索代理） */
@@ -79,54 +79,6 @@ export class TavilySearchProvider implements SearchProvider {
       url: r.url,
       snippet: r.content,
       source: "tavily",
-    }));
-  }
-}
-
-// === Brave Search ===
-
-export class BraveSearchProvider implements SearchProvider {
-  readonly name = "brave-search";
-  private readonly apiKey: string;
-
-  constructor(config: SearchProviderConfig) {
-    this.apiKey = config.apiKey ?? "";
-  }
-
-  async search(query: string, options?: { language?: "zh" | "en"; maxResults?: number }): Promise<SearchResult[]> {
-    const maxResults = options?.maxResults ?? 5;
-    const params = new URLSearchParams({
-      q: query,
-      count: String(maxResults),
-    });
-    // Improve Chinese search results
-    if (options?.language === "zh") {
-      params.set("search_lang", "zh-hans");
-      params.set("ui_lang", "zh-hans");
-    }
-
-    const resp = await fetch(`https://api.search.brave.com/res/v1/web/search?${params}`, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Accept-Encoding": "gzip",
-        "X-Subscription-Token": this.apiKey,
-      },
-    });
-
-    if (!resp.ok) {
-      throw new Error(`Brave search failed: ${resp.status} ${resp.statusText}`);
-    }
-
-    const data = (await resp.json()) as {
-      web?: { results?: Array<{ title: string; url: string; description: string }> };
-    };
-
-    return (data.web?.results ?? []).slice(0, maxResults).map((r) => ({
-      title: r.title,
-      url: r.url,
-      snippet: r.description,
-      source: "brave",
     }));
   }
 }
@@ -205,9 +157,6 @@ export class SearchRouter {
       switch (pc.type) {
         case "tavily":
           this.providers.set(pc.id, new TavilySearchProvider(pc));
-          break;
-        case "brave-search":
-          this.providers.set(pc.id, new BraveSearchProvider(pc));
           break;
         case "deepseek-search":
           this.providers.set(pc.id, new DeepSeekSearchProvider(pc));
