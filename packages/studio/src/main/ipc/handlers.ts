@@ -10,6 +10,7 @@ import { TrendingAdapter } from '../adapters/trending-adapter'
 import { ScraperAdapter } from '../adapters/scraper-adapter'
 import { matchNovelsByGenre } from '../utils/genre-tag-map'
 import { isEnglishGenre } from '@actalk/hintos-core'
+import { initAgentChatHandler, handleUserChatMessage, clearAgentHistory } from './agent-chat-handler'
 
 const stateAdapter = new StateAdapter()
 const pipelineAdapter = new PipelineAdapter()
@@ -157,6 +158,31 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       appendLog('ACTIVITY', `Gate ${stage} not found (already resolved or expired)`)
     }
     return resolved
+  })
+
+  // ===== Agent Chat 对话 =====
+  initAgentChatHandler({
+    mainWindow,
+    getClient: () => llmAdapter.getClient(),
+    getModel: () => llmAdapter.getConfig()?.model ?? null,
+    getProjectRoot: () => stateAdapter.getProjectRoot(),
+    getModelOverride: (_agentName: string) => undefined,
+    appendLog,
+  })
+
+  ipcMain.handle('agent-chat-send', async (_e, text: string, messageId: string) => {
+    try {
+      await handleUserChatMessage(text, messageId)
+      return true
+    } catch (err) {
+      appendLog('ERROR', `Agent chat send error: ${(err as Error).message}`)
+      return false
+    }
+  })
+
+  ipcMain.handle('agent-chat-clear', (_e, agentName?: string) => {
+    clearAgentHistory(agentName)
+    return true
   })
 
   // ===== 项目管理 =====

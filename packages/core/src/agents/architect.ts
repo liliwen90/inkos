@@ -2,6 +2,7 @@ import { BaseAgent } from "./base.js";
 import type { BookConfig } from "../models/book.js";
 import type { GenreProfile } from "../models/genre-profile.js";
 import type { PlanTruthFiles } from "../models/plan.js";
+import type { LLMMessage, LLMResponse } from "../llm/provider.js";
 import { readGenreProfile } from "./rules-reader.js";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -17,6 +18,21 @@ export interface ArchitectOutput {
 export class ArchitectAgent extends BaseAgent {
   get name(): string {
     return "architect";
+  }
+
+  /**
+   * Multi-turn chat round — sends full conversation history to LLM, returns streaming response.
+   * Used by the Agent Chat system for interactive conversations with the Architect.
+   */
+  async chatRound(
+    messages: ReadonlyArray<LLMMessage>,
+    onChunk: (text: string) => void,
+    options?: { readonly temperature?: number; readonly maxTokens?: number },
+  ): Promise<LLMResponse> {
+    return this.chatStreaming(messages, onChunk, {
+      temperature: options?.temperature ?? 0.7,
+      maxTokens: options?.maxTokens ?? 4096,
+    });
   }
 
   async generateFoundation(book: BookConfig, externalContext?: string): Promise<ArchitectOutput> {

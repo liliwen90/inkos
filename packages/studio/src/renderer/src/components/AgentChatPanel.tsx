@@ -138,9 +138,10 @@ export default function AgentChatPanel(): JSX.Element {
   const handleSend = useCallback(() => {
     const text = inputText.trim()
     if (!text) return
-    addMessage({ type: 'user-text', content: text })
+    const msgId = addMessage({ type: 'user-text', content: text })
     setInputText('')
-    // TODO Phase 4+6: Route through Conductor → Agent
+    // Route through IPC → Agent Chat Handler → LLM
+    window.hintos.sendAgentChat(text, msgId)
   }, [inputText, addMessage])
 
   const handleKeyDown = (e: React.KeyboardEvent): void => {

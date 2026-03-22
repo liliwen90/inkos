@@ -31,6 +31,7 @@ export { analyzeSensitiveWords, type SensitiveWordResult, type SensitiveWordMatc
 export { detectAIContent, type DetectionResult } from "./agents/detector.js";
 export { analyzeStyle } from "./agents/style-analyzer.js";
 export { analyzeDetectionInsights } from "./agents/detection-insights.js";
+export { ConversationManager, type ConversationPhase, type ConversationState } from "./agents/conversation-manager.js";
 
 // Pipeline
 export { PipelineRunner, type PipelineConfig, type ChapterPipelineResult, type DraftResult, type ReviseResult, type TruthFiles, type BookStatusInfo, type GatePayload, type GateDecision, type GateAction, type ChapterLandmarkPayload } from "./pipeline/runner.js";

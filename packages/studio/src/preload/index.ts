@@ -219,7 +219,15 @@ const hintosAPI = {
 
   // Agent Chat 用户响应 Gate
   respondToGate: (stage: string, action: string, feedback?: string): Promise<boolean> =>
-    ipcRenderer.invoke('agent-chat-respond', stage, action, feedback)
+    ipcRenderer.invoke('agent-chat-respond', stage, action, feedback),
+
+  // Agent Chat 发送用户消息
+  sendAgentChat: (text: string, messageId: string): Promise<boolean> =>
+    ipcRenderer.invoke('agent-chat-send', text, messageId),
+
+  // Agent Chat 清空历史
+  clearAgentChat: (agentName?: string): Promise<boolean> =>
+    ipcRenderer.invoke('agent-chat-clear', agentName),
 }
 
 if (process.contextIsolated) {
