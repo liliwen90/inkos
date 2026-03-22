@@ -4,7 +4,12 @@
  */
 
 import type { BrowserWindow } from 'electron'
-import type { LLMClient } from '@actalk/hintos-core'
+import type { LLMClient, SearchProviderConfig } from '@actalk/hintos-core'
+
+interface SearchConfig {
+  providers: SearchProviderConfig[]
+  routing: { zh: string[]; en: string[] }
+}
 
 interface AgentChatConfig {
   mainWindow: BrowserWindow
@@ -12,6 +17,7 @@ interface AgentChatConfig {
   getModel: () => string | null
   getProjectRoot: () => string | null
   getModelOverride: (agentName: string) => string | undefined
+  getSearchConfig: () => SearchConfig | null
   appendLog: (type: 'ACTIVITY' | 'TOKEN' | 'ERROR', msg: string) => void
 }
 
@@ -97,8 +103,10 @@ const AGENT_SYSTEM_PROMPTS: Record<string, string> = {
   polisher: `你是HintOS的「润色师」Agent。你负责文学品质提升。
 保持对话简洁，每次回复不超过300字。`,
 
-  radar: `你是HintOS的「雷达」Agent。你负责市场趋势分析和热榜监测。
-保持对话简洁，每次回复不超过300字。`,
+  radar: `你是HintOS的「雷达」Agent。你负责市场趋势分析、热榜监测和在线搜索。
+当用户询问市场趋势、竞品分析、题材热度等问题时，你可能会收到搜索引擎的实时结果。
+请基于搜索结果给出有数据支撑的分析和建议。如果没有搜索结果，则基于你的知识回答。
+保持对话简洁，每次回复不超过500字。`,
 
   'continuity-plus': `你是HintOS的「深度检查员」Agent。你负责七维度深度连续性审查（时间线、空间、性格、伏笔、功法、阵营、核心逻辑）。
 与用户对话时：
@@ -120,6 +128,75 @@ let _currentAgent: string | null = null
 
 export function initAgentChatHandler(config: AgentChatConfig): void {
   _config = config
+}
+
+/** Detect language from text — simple heuristic */
+function detectLanguage(text: string): 'zh' | 'en' {
+  const cjk = text.match(/[\u4e00-\u9fff\u3400-\u4dbf]/g)
+  return (cjk && cjk.length > text.length * 0.15) ? 'zh' : 'en'
+}
+
+/** Strip @mentions, slashes, and emoji prefixes to extract search query */
+function extractSearchQuery(text: string): string {
+  return text
+    .replace(/@[\u4e00-\u9fff\w-]+/g, '')
+    .replace(/^\/\u641c\u7d22\s*/i, '')
+    .replace(/^\ud83d\udd0d\s*/, '')
+    .trim()
+}
+
+/** Perform a search using the configured SearchRouter, return formatted context string */
+async function performSearch(text: string): Promise<string> {
+  if (!_config) return ''
+  const searchConfig = _config.getSearchConfig()
+  if (!searchConfig || searchConfig.providers.length === 0) return ''
+
+  try {
+    const { SearchRouter } = await import('@actalk/hintos-core')
+    const router = new SearchRouter({
+      providers: searchConfig.providers,
+      zh: searchConfig.routing.zh,
+      en: searchConfig.routing.en,
+    })
+
+    const lang = detectLanguage(text)
+    if (!router.hasProviders(lang)) return ''
+
+    const query = extractSearchQuery(text)
+    if (!query) return ''
+
+    _config.appendLog('ACTIVITY', `Search: querying "${query}" (${lang})`)
+
+    // Emit searching indicator to frontend
+    _config.mainWindow.webContents.send('agent-chat-message', {
+      type: 'system-info',
+      content: `🔍 正在搜索: ${query}`,
+    })
+
+    const results = await router.search(query, lang, 5)
+    if (results.length === 0) {
+      _config.appendLog('ACTIVITY', 'Search: no results found')
+      return ''
+    }
+
+    _config.appendLog('ACTIVITY', `Search: found ${results.length} results`)
+
+    // Send search results as a data-card to chat
+    _config.mainWindow.webContents.send('agent-chat-message', {
+      type: 'search-result',
+      agentName: 'radar',
+      content: `🔍 找到 ${results.length} 条搜索结果`,
+      richData: results,
+    })
+
+    // Format for LLM context injection
+    return results.map((r, i) =>
+      `[${i + 1}] ${r.title}\n来源: ${r.source}\n${r.snippet}`
+    ).join('\n\n')
+  } catch (err) {
+    _config.appendLog('ERROR', `Search failed: ${(err as Error).message}`)
+    return ''
+  }
 }
 
 /**
@@ -147,6 +224,17 @@ export async function handleUserChatMessage(
   _currentAgent = targetAgent
   const agentModel = _config.getModelOverride(targetAgent) ?? model
 
+  // === Search augmentation ===
+  // Trigger search when: routed to radar, or explicit 🔍 prefix, or /搜索 command
+  const needsSearch = targetAgent === 'radar'
+    || text.startsWith('🔍')
+    || text.startsWith('/搜索')
+    || /搜索|search|查一下|帮我查/i.test(text)
+  let searchContext = ''
+  if (needsSearch) {
+    searchContext = await performSearch(text)
+  }
+
   // Build conversation
   const systemPrompt = AGENT_SYSTEM_PROMPTS[targetAgent] ?? AGENT_SYSTEM_PROMPTS.architect
   const history = getHistory(targetAgent)
@@ -156,8 +244,11 @@ export async function handleUserChatMessage(
     history.unshift({ role: 'system', content: systemPrompt })
   }
 
-  // Add user message
-  addTurn(targetAgent, { role: 'user', content: text })
+  // Add user message (with search context injected if available)
+  const userContent = searchContext
+    ? `${text}\n\n<search_results>\n${searchContext}\n</search_results>`
+    : text
+  addTurn(targetAgent, { role: 'user', content: userContent })
 
   // Build messages for LLM
   const messages = history.map(t => ({ role: t.role as 'user' | 'assistant' | 'system', content: t.content }))

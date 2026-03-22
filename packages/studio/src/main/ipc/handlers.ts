@@ -162,6 +162,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     getModel: () => llmAdapter.getConfig()?.model ?? null,
     getProjectRoot: () => stateAdapter.getProjectRoot(),
     getModelOverride: (_agentName: string) => undefined,
+    getSearchConfig: () => llmAdapter.getRoutingConfig()?.searchProviders ?? null,
     appendLog,
   })
 
