@@ -72,6 +72,10 @@ function routeMessage(text: string, currentAgent: string | null): string {
   // 实体提取师 (Entity Extractor)：人物关系、实体库
   if (/实体|人物关系|角色.*关系|人物.*库|角色.*列表|势力.*关系|地图|道具.*列表|entity|character.*list|关系图|谱系|族谱|帮派|门派|宗门/i.test(text)) return 'entity-extractor'
 
+  // ── 3.5 General / help / greeting — always route to architect (conductor) ──
+  // Catches: greetings, help requests, system questions, vague inputs that no specialist should handle
+  if (/^(你好|hi|hello|hey|嗨|哈喽|在吗|help|帮助|怎么用|怎么操作|有什么功能|能做什么|介绍一下|说说你|你是谁|who are you|你能干嘛|使用指南|教程|指引|新手|不知道该|不确定|迷茫|没头绪|不懂|求助|谢谢|thanks|再见|bye|晚安|早上好|下午好|晚上好)/i.test(text)) return 'architect'
+
   // ── 4. Default: stay with current agent, or architect as conductor ──
   return currentAgent ?? 'architect'
 }
