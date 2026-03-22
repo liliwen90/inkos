@@ -27,7 +27,7 @@ const GENRES_EN: Record<string, string> = {
   other: 'General'
 }
 const GENRES: Record<string, string> = { ...GENRES_ZH, ...GENRES_EN }
-const PLATFORMS_ZH: Record<string, string> = { tomato: '番茄', qidian: '起点', feilu: '飞卢' }
+const PLATFORMS_ZH: Record<string, string> = { qimao: '七猫', tomato: '番茄', qidian: '起点', feilu: '飞卢', other: '其他' }
 const PLATFORMS_EN: Record<string, string> = {
   royalroad: 'Royal Road', kindle: 'Kindle / KU', patreon: 'Patreon',
   scribblehub: 'ScribbleHub', wattpad: 'Wattpad', other: 'Other'

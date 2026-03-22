@@ -58,7 +58,7 @@ const TOOLS: ReadonlyArray<ToolDefinition> = [
       properties: {
         title: { type: "string", description: "书名" },
         genre: { type: "string", description: "题材ID，如 xuanhuan/xianxia/wuxia/qihuan/urban/yanqing/xianshi/lishi/junshi/kehuan/xuanyi/horror/lingyi/youxi/tiyu/erciyuan/chuanyue/chongsheng/moshi/wuxianliu/zhutian/tongren/duanpian/xitong/zhongtian/guize/litrpg/system-apocalypse/other" },
-        platform: { type: "string", description: "目标平台，如 tomato/qidian/feilu/royalroad/kindle/patreon/other" },
+        platform: { type: "string", description: "目标平台，如 qimao/tomato/qidian/feilu/royalroad/kindle/patreon/other" },
         brief: { type: "string", description: "创作简述/需求（自然语言）" },
       },
       required: ["title", "genre", "platform"],

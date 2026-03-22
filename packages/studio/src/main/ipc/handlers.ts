@@ -203,7 +203,27 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     const root = stateAdapter.getProjectRoot()
     if (!root) return { ok: false, reason: 'no-project' }
     try {
-      // 读取 LLM 配置
+      // 优先检查新格式（语言池） — task-routing.json 中含 pools + 已解析的 default/agents
+      const routing = await stateAdapter.loadTaskRouting()
+      if (routing && typeof routing === 'object') {
+        const r = routing as Record<string, unknown>
+        if (r.pools && r.default && (r.default as Record<string, unknown>).apiKey) {
+          // 新格式：pools 模式 — 直接使用已保存的 default + agents
+          const taskRouting = routing as TaskRoutingConfig
+          if (taskRouting.agents && Object.keys(taskRouting.agents).length > 0) {
+            const { client, modelOverrides } = await llmAdapter.createRoutingClient(taskRouting)
+            registerTokenCallback()
+            await pipelineAdapter.initialize(client, taskRouting.default.model, root, modelOverrides)
+          } else {
+            const client = await llmAdapter.createClient(taskRouting.default)
+            registerTokenCallback()
+            await pipelineAdapter.initialize(client, taskRouting.default.model, root)
+          }
+          return { ok: true }
+        }
+      }
+
+      // 旧格式：从 .env + hintos.json 构建配置
       const config = await stateAdapter.loadProjectConfig()
       const env = await stateAdapter.loadEnvConfig()
       if (!config || !env.HINTOS_LLM_API_KEY) return { ok: false, reason: 'no-config' }
@@ -216,8 +236,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
         temperature: Number(env.HINTOS_LLM_TEMPERATURE || llm.temperature) || 0.7,
         maxTokens: Number(env.HINTOS_LLM_MAX_TOKENS || llm.maxTokens) || 8192
       }
-      // 检查是否有任务路由配置
-      const routing = await stateAdapter.loadTaskRouting()
+      // 检查是否有旧式任务路由配置
       if (routing && typeof routing === 'object' && (routing as Record<string, unknown>).agents) {
         const r = routing as TaskRoutingConfig
         r.default = llmConfig
@@ -388,7 +407,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
         // 遍历所有 vault 记录，按语言过滤，提取 novels[]
         const bookLang = isEnglishGenre(opts.genre) ? 'en' : 'zh'
-        const allVaultNovels: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> = []
+        const allVaultNovels: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string; localPath?: string }> = []
         if (existsSync(vaultDir)) {
           const vaultFiles = readdirSync(vaultDir).filter(f => f.endsWith('.json'))
           for (const f of vaultFiles) {
@@ -399,7 +418,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
               if (recordLang !== bookLang) continue
               if (Array.isArray(data.novels)) {
                 for (const n of data.novels) {
-                  if (n.title && n.url) allVaultNovels.push(n)
+                  if (n.title && (n.url || n.localPath)) allVaultNovels.push(n)
                 }
               }
             } catch { /* skip corrupt vault files */ }
@@ -416,15 +435,25 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
               const novel = matched[i]
               emitStyle(`📥 采样参考书 ${i + 1}/${matched.length}: 《${novel.title}》 ${Math.round(((i + 1) / matched.length) * 50)}%`)
               try {
-                scraperAdapter.setProgressCallback((p) => {
-                  mainWindow.webContents.send('pipeline-progress', {
-                    stage: 'auto-style',
-                    detail: p.phase === 'chapters' ? `📥 获取目录: 《${novel.title}》` : `📥 下载 ${p.current}/${p.total}: ${p.chapterTitle ?? ''} ${Math.round((p.current / p.total) * 100)}%`,
-                    timestamp: Date.now(),
+                if (novel.localPath && existsSync(novel.localPath)) {
+                  // 中文导入的本地 TXT：直接复制到 style-books/
+                  const styleDir = join(projectRoot!, 'books', bookId, 'humanize', 'style-books')
+                  mkdirSync(styleDir, { recursive: true })
+                  const destName = novel.localPath.split(/[\\/]/).pop() || `${novel.title}.txt`
+                  copyFileSync(novel.localPath, join(styleDir, destName))
+                  sampledCount++
+                } else if (novel.url) {
+                  // 英文在线小说：通过 scraper 下载
+                  scraperAdapter.setProgressCallback((p) => {
+                    mainWindow.webContents.send('pipeline-progress', {
+                      stage: 'auto-style',
+                      detail: p.phase === 'chapters' ? `📥 获取目录: 《${novel.title}》` : `📥 下载 ${p.current}/${p.total}: ${p.chapterTitle ?? ''} ${Math.round((p.current / p.total) * 100)}%`,
+                      timestamp: Date.now(),
+                    })
                   })
-                })
-                await scraperAdapter.scrapeForStyleAnalysis(bookId, novel.url, novel.title, 10)
-                sampledCount++
+                  await scraperAdapter.scrapeForStyleAnalysis(bookId, novel.url, novel.title, 10)
+                  sampledCount++
+                }
               } catch {
                 // 采样某本失败不阻塞整个流程
                 emitStyle(`⚠️ 采样《${novel.title}》失败，跳过`)
@@ -859,6 +888,96 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     return result
   })
 
+  // ===== 中文小说 TXT 导入 =====
+
+  ipcMain.handle('import-zh-novels', async () => {
+    const dialogResult = await dialog.showOpenDialog(mainWindow, {
+      title: '选择中文小说 TXT 文件',
+      filters: [{ name: '文本文件', extensions: ['txt'] }],
+      properties: ['openFile', 'multiSelections']
+    })
+    if (dialogResult.canceled || dialogResult.filePaths.length === 0) return []
+
+    // 复制到 radar/zh-imports/ 目录
+    const root = stateAdapter.getProjectRoot()
+    if (!root) throw new Error('请先打开项目')
+    const importDir = join(root, 'radar', 'zh-imports')
+    mkdirSync(importDir, { recursive: true })
+
+    const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+    const imported: Array<{ fileName: string; title: string; charCount: number; localPath: string }> = []
+    for (const fp of dialogResult.filePaths) {
+      const { statSync: fstat } = await import('fs')
+      const srcStat = fstat(fp)
+      if (srcStat.size > MAX_FILE_SIZE) {
+        mainWindow.webContents.send('pipeline-progress', { stage: 'import-warn', detail: `⚠️ 跳过「${fp.split(/[\\/]/).pop()}」: 文件超过 50MB`, timestamp: Date.now() })
+        continue
+      }
+      const fileName = fp.split(/[\\/]/).pop() || 'unknown.txt'
+      const title = fileName.replace(/\.txt$/i, '')
+      const dest = join(importDir, fileName)
+      if (!existsSync(dest)) copyFileSync(fp, dest)
+      // 检测编码：UTF-8 BOM 或内容中无乱码特征
+      const raw = readFileSync(dest)
+      let content: string
+      if (raw[0] === 0xEF && raw[1] === 0xBB && raw[2] === 0xBF) {
+        content = raw.toString('utf-8') // UTF-8 BOM
+      } else {
+        content = raw.toString('utf-8')
+        // 检测常见 GBK 乱码特征（连续的 U+FFFD 替换字符）
+        const replacementCount = (content.match(/\uFFFD/g) || []).length
+        if (replacementCount > content.length * 0.01 && content.length > 100) {
+          mainWindow.webContents.send('pipeline-progress', { stage: 'import-warn', detail: `⚠️「${fileName}」可能不是 UTF-8 编码，请转换为 UTF-8 后重试`, timestamp: Date.now() })
+          continue
+        }
+      }
+      imported.push({ fileName, title, charCount: content.length, localPath: dest })
+    }
+    return imported
+  })
+
+  ipcMain.handle('analyze-zh-novels', async (_e, localPaths: string[]) => {
+    currentOperation = '中文小说AI选题分析'
+    mainWindow.webContents.send('pipeline-progress', { stage: '🤖 AI 正在分析中文参考小说...', detail: `基于 ${localPaths.length} 本小说`, timestamp: Date.now() })
+
+    const client = llmAdapter.getClient()
+    const config = llmAdapter.getConfig()
+    if (!client || !config) throw new Error('请先在设置中配置 LLM')
+
+    // 提取每本小说的摘要（首2000 + 中2000 + 尾2000字），用流式避免大文件 OOM
+    const sampleLen = 2000
+    const summaries: string[] = []
+    for (const lp of localPaths) {
+      if (!existsSync(lp)) continue
+      const { statSync: fstat } = await import('fs')
+      const fileSize = fstat(lp).size
+      if (fileSize > 50 * 1024 * 1024) continue // 跳过超大文件
+      const content = readFileSync(lp, 'utf-8')
+      const title = lp.split(/[\\/]/).pop()?.replace(/\.txt$/i, '') || '未知'
+      const len = content.length
+      const wordLabel = len >= 10000 ? `${Math.round(len / 10000)}万字` : `${Math.round(len / 1000)}千字`
+      let sample = `## 《${title}》（${wordLabel}）\n`
+      sample += `【开头】\n${content.substring(0, sampleLen)}\n`
+      if (len > sampleLen * 3) {
+        sample += `【中间】\n${content.substring(Math.floor(len / 2) - sampleLen / 2, Math.floor(len / 2) + sampleLen / 2)}\n`
+      }
+      sample += `【结尾】\n${content.substring(Math.max(0, len - sampleLen))}\n`
+      summaries.push(sample)
+    }
+
+    const novelsSummary = summaries.join('\n---\n')
+
+    // 调用 trendingAdapter 的中文分析
+    const { chatCompletion } = await import('@actalk/hintos-core')
+    trendingAdapter.setLLMChat(async (messages) => {
+      const res = await chatCompletion(client, config.model, messages as never, { maxTokens: 8192, temperature: 0.7 })
+      return res.content
+    })
+    const result = await trendingAdapter.analyzeZhNovelSamples(novelsSummary)
+    mainWindow.webContents.send('pipeline-progress', { stage: '✅ 中文选题分析完成', detail: '', timestamp: Date.now() })
+    return result
+  })
+
   // ===== 创意库 =====
 
   // 自动迁移：从旧 inkos-studio 目录迁移 idea-vault 和 app-settings
@@ -881,7 +1000,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     }
   }
 
-  ipcMain.handle('vault-save', async (_e, entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }) => {
+  ipcMain.handle('vault-save', async (_e, entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string; localPath?: string }> }) => {
     if (!existsSync(vaultDir)) mkdirSync(vaultDir, { recursive: true })
     const id = Date.now().toString()
     const record = { id, createdAt: new Date().toISOString(), novelCount: entry.novelCount, analysis: entry.analysis, language: entry.language ?? 'en', novels: entry.novels ?? [] }
@@ -922,23 +1041,24 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle('vault-all-novels', async (_e, lang?: 'en' | 'zh') => {
     if (!existsSync(vaultDir)) return []
-    const novels: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> = []
+    const novels: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string; localPath?: string }> = []
     for (const f of readdirSync(vaultDir).filter(x => x.endsWith('.json'))) {
       try {
         const data = JSON.parse(readFileSync(join(vaultDir, f), 'utf-8'))
         if (lang && (data.language ?? 'en') !== lang) continue
         if (Array.isArray(data.novels)) {
           for (const n of data.novels) {
-            if (n.title && n.url) novels.push(n)
+            if (n.title && (n.url || n.localPath)) novels.push(n)
           }
         }
       } catch { /* skip corrupt */ }
     }
-    // 按 url 去重
+    // 按 url 或 localPath 去重
     const seen = new Set<string>()
     return novels.filter(n => {
-      if (seen.has(n.url)) return false
-      seen.add(n.url)
+      const key = n.url || n.localPath || n.title
+      if (seen.has(key)) return false
+      seen.add(key)
       return true
     })
   })

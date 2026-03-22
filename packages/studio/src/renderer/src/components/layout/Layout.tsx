@@ -10,7 +10,6 @@ import { useCyberFeedStore } from '../../stores/cyber-feed-store'
 export default function Layout(): JSX.Element {
   const theme = useAppStore((s) => s.theme)
   const addProgressEvent = useAppStore((s) => s.addProgressEvent)
-  const logTokenUsage = useAppStore((s) => s.logTokenUsage)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -25,14 +24,8 @@ export default function Layout(): JSX.Element {
         addProgressEvent({ stage: event.stage, detail: event.detail ?? '', timestamp: event.timestamp ?? Date.now() })
         pushFeed({ source: 'pipeline', level: 'info', message: event.stage, detail: event.detail })
       }
-      // Token 消耗事件
+      // Token 事件仅推送 CyberFeed（不再存入 Zustand store）
       if (event.tokenUsage) {
-        logTokenUsage({
-          operation: event.tokenUsage.operation,
-          inputTokens: event.tokenUsage.input,
-          outputTokens: event.tokenUsage.output,
-          model: event.tokenUsage.model
-        })
         pushFeed({
           source: 'llm',
           level: 'debug',
@@ -42,7 +35,7 @@ export default function Layout(): JSX.Element {
       }
     })
     return unsub
-  }, [addProgressEvent, logTokenUsage])
+  }, [addProgressEvent])
 
   return (
     <div className="flex w-full h-full bg-zinc-950">

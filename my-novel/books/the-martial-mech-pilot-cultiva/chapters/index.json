@@ -1,1 +1,45 @@
-[]
+[
+  {
+    "number": 1,
+    "title": "钢铁脉搏",
+    "status": "approved",
+    "wordCount": 2219,
+    "createdAt": "2026-03-20T18:01:32.224Z",
+    "updatedAt": "2026-03-20T19:05:08.745Z",
+    "auditIssues": [
+      "[warning] High density of AI-tell words: 'seemed' (0), 'couldn't help but' (0), 'as if' (1), 'suddenly' (0), 'involuntarily' (0) - total 1 in ~3000 words is acceptable, but monitor for future chapters",
+      "[info] Strong setup of multiple hooks: Lysandra as potential mentor, mech piloting challenge, Scrapyard arena, and cultivation-technology integration question",
+      "[info] Good pacing progression from survival desperation to opportunity discovery, with appropriate time spent on world-building and character establishment",
+      "[info] Detected 4 consecutive sentences with the same opening pattern, suggesting list-style AI generation"
+    ]
+  },
+  {
+    "number": 2,
+    "title": "The Neural Maze",
+    "status": "approved",
+    "wordCount": 2332,
+    "createdAt": "2026-03-21T04:35:52.257Z",
+    "updatedAt": "2026-03-21T05:14:29.029Z",
+    "auditIssues": [
+      "[warning] Qin Feng repairs the fusion core with 'minimal energy' despite being at 'critically low' Qi reserves. The text states he's 'running on spiritual fumes' but then performs precise energy work that requires 'surgeon's touch' precision.",
+      "[warning] Qin Feng demonstrates sophisticated understanding of mech systems (recognizing fusion core as 'heart', hydraulics as 'muscles') very quickly for someone with 'zero knowledge of galactic society' and 'no experience with mech piloting'.",
+      "[info] AI-tell word 'seemed' appears once in ~2800 words, which is acceptable density.",
+      "[info] The chapter builds toward the midnight fight but doesn't deliver the combat payoff, ending on anticipation. This creates tension but may frustrate readers expecting resolution.",
+      "[info] Detected 3 consecutive sentences with the same opening pattern, suggesting list-style AI generation"
+    ]
+  },
+  {
+    "number": 3,
+    "title": "Blood and Steel",
+    "status": "approved",
+    "wordCount": 2913,
+    "createdAt": "2026-03-21T04:56:24.087Z",
+    "updatedAt": "2026-03-21T05:16:26.160Z",
+    "auditIssues": [
+      "[warning] High density of AI-tell words: 'seemed' (1), 'couldn't' (4), 'as if' (1), 'suddenly' (1) - approximately 7 instances in ~3000 words, exceeding the 1 per 3000 word threshold",
+      "[info] Chapter maintains excellent pacing throughout the battle sequence with good tension escalation and resolution",
+      "[info] Successfully advances H006 (arena battle) to completion and plants new hooks with the mysterious VIP observer and Lysandra's scanner readings",
+      "[info] Detected 3 consecutive sentences with the same opening pattern, suggesting list-style AI generation"
+    ]
+  }
+]

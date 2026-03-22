@@ -906,6 +906,32 @@ export class PipelineRunner {
       await this.savePlanIndex(bookId, { plans: writtenPlans });
     }
 
+    // 7.7 Accumulate audit lessons for Writer self-improvement
+    try {
+      const actionable = auditResult.issues.filter(
+        (i) => i.severity === "critical" || i.severity === "warning",
+      );
+      if (actionable.length > 0) {
+        const lessonsPath = join(bookDir, "story", "writing_lessons.md");
+        const header = gp.language === "en"
+          ? `### Chapter ${chapterNumber} audit lessons`
+          : `### 第${chapterNumber}章审计教训`;
+        const bullet = actionable
+          .map((i) => `- [${i.severity}] ${i.description}`)
+          .join("\n");
+        const entry = `${header}\n${bullet}\n\n`;
+
+        let existing = "";
+        try { existing = await readFile(lessonsPath, "utf-8"); } catch { /* first time */ }
+
+        // Keep only the most recent 5 chapters' lessons to avoid prompt bloat
+        const sections = existing.split(/(?=^### )/m).filter(Boolean);
+        sections.push(entry);
+        const trimmed = sections.slice(-5).join("");
+        await writeFile(lessonsPath, trimmed, "utf-8");
+      }
+    } catch { /* non-critical */ }
+
     // 8. Send notification
     if (this.config.notifyChannels && this.config.notifyChannels.length > 0) {
       const statusEmoji = auditResult.passed ? "✅" : "⚠️";

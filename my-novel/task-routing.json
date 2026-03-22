@@ -1,18 +1,80 @@
 {
   "default": {
     "provider": "openai",
-    "baseUrl": "https://api.deepseek.com/v1",
-    "apiKey": "sk-8d8bdcd1dcf5486691713f7c520ad795",
-    "model": "deepseek-chat",
-    "temperature": 0.7,
-    "maxTokens": 8192
+    "baseUrl": "https://yinli.one/v1",
+    "apiKey": "sk-B4SQ6rHsE013dam1VjAVF2fkfNZZErPinQ1YFopUMZLKSHLM",
+    "model": "claude-sonnet-4-20250514",
+    "temperature": 0.8,
+    "maxTokens": 16384
   },
   "agents": {
-    "reviser": {
-      "model": "claude-sonnet-4-20250514",
-      "apiKey": "sk-B4SQ6rHsE013dam1VjAVF2fkfNZZErPinQ1YFopUMZLKSHLM",
-      "baseUrl": "https://yinli.one/v1",
+    "writer": {
+      "model": "deepseek-chat",
+      "apiKey": "sk-d49ecc4719ea49aba55c235522377c09",
+      "baseUrl": "https://api.deepseek.com/v1",
       "provider": "openai"
+    }
+  },
+  "pools": {
+    "zh": [
+      {
+        "id": "deepseek-v3",
+        "label": "DeepSeek V3",
+        "provider": "openai",
+        "baseUrl": "https://api.deepseek.com/v1",
+        "apiKey": "sk-8d8bdcd1dcf5486691713f7c520ad795",
+        "model": "deepseek-chat"
+      },
+      {
+        "id": "mimo-v2-pro",
+        "label": "MiMo V2 Pro",
+        "provider": "openai",
+        "baseUrl": "https://api.xiaomimimo.com/v1",
+        "apiKey": "sk-c34wrzl3bqsmuy9oktd4rvobu3fqk5zc9z2wsloap52uoyhk",
+        "model": "mimo-v2-pro"
+      }
+    ],
+    "en": [
+      {
+        "id": "claude-sonnet-4",
+        "label": "Claude Sonnet 4",
+        "provider": "openai",
+        "baseUrl": "https://yinli.one/v1",
+        "apiKey": "sk-B4SQ6rHsE013dam1VjAVF2fkfNZZErPinQ1YFopUMZLKSHLM",
+        "model": "claude-sonnet-4-20250514"
+      },
+      {
+        "id": "deepseek-v3-mmztxv72",
+        "label": "DeepSeek V3",
+        "provider": "openai",
+        "baseUrl": "https://api.deepseek.com/v1",
+        "apiKey": "sk-d49ecc4719ea49aba55c235522377c09",
+        "model": "deepseek-chat"
+      }
+    ]
+  },
+  "presets": {
+    "zh": {
+      "defaultLLM": "deepseek-v3",
+      "agentMap": {
+        "architect": "mimo-v2-pro",
+        "writer": "deepseek-v3",
+        "auditor": "mimo-v2-pro",
+        "reviser": "deepseek-v3",
+        "continuity-plus": "mimo-v2-pro",
+        "polisher": "deepseek-v3"
+      }
+    },
+    "en": {
+      "defaultLLM": "claude-sonnet-4",
+      "agentMap": {
+        "architect": "claude-sonnet-4",
+        "writer": "deepseek-v3-mmztxv72",
+        "auditor": "claude-sonnet-4",
+        "reviser": "claude-sonnet-4",
+        "continuity-plus": "claude-sonnet-4",
+        "polisher": "claude-sonnet-4"
+      }
     }
   }
 }

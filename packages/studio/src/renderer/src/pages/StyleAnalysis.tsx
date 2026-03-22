@@ -96,7 +96,7 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleBatchScrape = async (): Promise<void> => {
     if (!bookId || selectedNovels.size === 0) return
-    const actId = startActivity(en ? 'Batch import from trending' : '从热榜批量导入')
+    const actId = startActivity('从热榜批量导入')
     setBatchScraping(true)
     setError(null)
     const targets = vaultNovels.filter(n => selectedNovels.has(n.url))
@@ -109,17 +109,17 @@ export default function StyleAnalysis(): JSX.Element {
     try {
       for (const novel of targets) {
         done++
-        setBatchProgress(en ? `Scraping ${done}/${targets.length}: ${novel.title}` : `采样 ${done}/${targets.length}: 《${novel.title}》`)
+        setBatchProgress(`采样 ${done}/${targets.length}: 《${novel.title}》`)
         await window.hintos.scraperScrapeForAnalysis(bookId, novel.url, novel.title, 10)
       }
       const updated = await window.hintos.listStyleBooks(bookId)
       setStyleBooks(updated)
       setSelectedNovels(new Set())
-      addToast('success', en ? `✓ Imported ${targets.length} novels` : `✓ 已导入 ${targets.length} 本小说`)
+      addToast('success', `✓ 已导入 ${targets.length} 本小说`)
       finishActivity(actId)
     } catch (e) {
       setError((e as Error).message)
-      addToast('error', en ? `Batch import failed: ${(e as Error).message}` : `批量导入失败: ${(e as Error).message}`)
+      addToast('error', `批量导入失败: ${(e as Error).message}`)
       finishActivity(actId, (e as Error).message)
     } finally {
       unsub()
@@ -154,17 +154,17 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleAnalyze = async (): Promise<void> => {
     if (!bookId) return
-    const actId = startActivity(en ? 'Text Statistics' : '文本统计分析')
+    const actId = startActivity('文本统计分析')
     setAnalyzing(true)
     setError(null)
     try {
       const result = await window.hintos.analyzeStyleBooks(bookId)
       setProfile(result)
-      addToast('success', en ? '✓ Analysis complete' : '✓ 统计分析完成')
+      addToast('success', '✓ 统计分析完成')
       finishActivity(actId)
     } catch (e) {
       setError((e as Error).message)
-      addToast('error', en ? `Analysis failed: ${(e as Error).message}` : `分析失败: ${(e as Error).message}`)
+      addToast('error', `分析失败: ${(e as Error).message}`)
       finishActivity(actId, (e as Error).message)
     } finally {
       setAnalyzing(false)
@@ -173,17 +173,17 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleDeepFingerprint = async (): Promise<void> => {
     if (!bookId) return
-    const actId = startActivity(en ? 'AI Deep Fingerprint' : 'AI深度指纹分析')
+    const actId = startActivity('AI深度指纹分析')
     setAnalyzingFp(true)
     setError(null)
     try {
       const result = await window.hintos.analyzeDeepFingerprint(bookId)
       setFingerprint(result)
-      addToast('success', en ? '✓ Fingerprint generated' : '✓ AI指纹分析完成')
+      addToast('success', '✓ AI指纹分析完成')
       finishActivity(actId)
     } catch (e) {
       setError((e as Error).message)
-      addToast('error', en ? `Fingerprint failed: ${(e as Error).message}` : `指纹分析失败: ${(e as Error).message}`)
+      addToast('error', `指纹分析失败: ${(e as Error).message}`)
       finishActivity(actId, (e as Error).message)
     } finally {
       setAnalyzingFp(false)
@@ -196,7 +196,7 @@ export default function StyleAnalysis(): JSX.Element {
     setFingerprint(updated)
     try {
       await window.hintos.saveFingerprint(bookId, updated)
-      addToast('info', en ? 'Strength updated' : '指纹强度已更新')
+      addToast('info', '指纹强度已更新')
     } catch (e) {
       addToast('error', `保存失败: ${(e as Error).message}`)
     }
@@ -204,10 +204,10 @@ export default function StyleAnalysis(): JSX.Element {
 
   const handleOnlineScrape = async (): Promise<void> => {
     if (!bookId || !scrapeUrl.trim()) return
-    const actId = startActivity(en ? 'Online Scrape' : '在线采样')
+    const actId = startActivity('在线采样')
     setScraping(true)
     setError(null)
-    setScrapeStatus(en ? 'Connecting...' : '连接中...')
+    setScrapeStatus('连接中...')
 
     // Listen for progress events
     const unsub = window.hintos.onProgress((evt: { stage: string }) => {
@@ -223,16 +223,14 @@ export default function StyleAnalysis(): JSX.Element {
       // Refresh style books list
       const books = await window.hintos.listStyleBooks(bookId)
       setStyleBooks(books)
-      const msg = en
-        ? `Done! Sampled ${result.chaptersSampled}/${result.chaptersTotal} chapters from ${result.platform}`
-        : `完成！从 ${result.platform} 采样了 ${result.chaptersSampled}/${result.chaptersTotal} 章节`
+      const msg = `完成！从 ${result.platform} 采样了 ${result.chaptersSampled}/${result.chaptersTotal} 章节`
       setScrapeStatus(msg)
       addToast('success', `✓ ${msg}`)
       finishActivity(actId)
       setTimeout(() => setScrapeStatus(''), 3000)
     } catch (e) {
       setError((e as Error).message)
-      addToast('error', en ? `Scrape failed: ${(e as Error).message}` : `采样失败: ${(e as Error).message}`)
+      addToast('error', `采样失败: ${(e as Error).message}`)
       finishActivity(actId, (e as Error).message)
       setScrapeStatus('')
     } finally {
@@ -247,7 +245,7 @@ export default function StyleAnalysis(): JSX.Element {
     setFingerprint(updated)
     try {
       await window.hintos.saveFingerprint(bookId, updated)
-      addToast('info', updated.enabled ? (en ? 'Fingerprint enabled' : '指纹已启用') : (en ? 'Fingerprint disabled' : '指纹已禁用'))
+      addToast('info', updated.enabled ? '指纹已启用' : '指纹已禁用')
     } catch (e) {
       addToast('error', `保存失败: ${(e as Error).message}`)
     }
@@ -256,7 +254,7 @@ export default function StyleAnalysis(): JSX.Element {
   if (!bookId) {
     return (
       <div className="flex-1 flex items-center justify-center text-zinc-500">
-        <p>{en ? 'Select a book from the Dashboard first' : '请先在仪表盘选择一本书'}</p>
+        <p>请先在仪表盘选择一本书</p>
       </div>
     )
   }
@@ -268,10 +266,10 @@ export default function StyleAnalysis(): JSX.Element {
         <div>
           <h1 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-violet-400" />
-            {en ? 'Style Analysis' : '风格分析'}
+            风格分析
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
-            {en ? 'Import references → Text statistics → AI fingerprint' : '导入参考书 → 文本统计分析 → AI指纹提取'}
+            导入参考书 → 文本统计分析 → AI指纹提取
             {currentBook && <span className="text-violet-400 ml-2">· {currentBook.title}</span>}
           </p>
         </div>
@@ -285,15 +283,15 @@ export default function StyleAnalysis(): JSX.Element {
       <section className="bg-zinc-900 rounded-xl border border-zinc-800 p-5 space-y-5">
         <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
           <Download className="w-4 h-4 text-emerald-400" />
-          {en ? 'Data Sources' : '数据来源'}
+          数据来源
         </h2>
 
         {/* 从热榜导入 */}
         {vaultNovels.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-xs font-medium text-amber-400">{en ? 'Import from Trending' : '从热榜导入'}</h3>
+            <h3 className="text-xs font-medium text-amber-400">从热榜导入</h3>
             <p className="text-xs text-zinc-500">
-              {en ? 'Select novels from your Idea Vault trending data to batch-scrape as style references' : '从创意库热榜数据中选择小说，批量采样为风格参考书'}
+              从创意库热榜数据中选择小说，批量采样为风格参考书
             </p>
             <div className="max-h-40 overflow-y-auto space-y-1">
               {vaultNovels.map((n) => (
@@ -310,7 +308,7 @@ export default function StyleAnalysis(): JSX.Element {
               <button onClick={handleBatchScrape} disabled={batchScraping}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 rounded-lg text-xs text-white transition-colors disabled:opacity-50">
                 {batchScraping ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-                {batchScraping ? batchProgress : (en ? `Import ${selectedNovels.size} selected` : `导入 ${selectedNovels.size} 本已选`)}
+                {batchScraping ? batchProgress : `导入 ${selectedNovels.size} 本已选`}
               </button>
             )}
           </div>
@@ -318,11 +316,9 @@ export default function StyleAnalysis(): JSX.Element {
 
         {/* 在线采样 */}
         <div className="space-y-2">
-          <h3 className="text-xs font-medium text-emerald-400">{en ? 'Online Sampling' : '在线采样'}</h3>
+          <h3 className="text-xs font-medium text-emerald-400">在线采样</h3>
           <p className="text-xs text-zinc-500">
-            {en
-              ? 'Paste a Royal Road or ScribbleHub fiction URL to auto-sample chapters'
-              : '粘贴小说链接，自动采样章节'}
+            粘贴小说链接，自动采样章节
           </p>
           <div className="flex items-center gap-2">
             <div className="flex-1 relative">
@@ -331,7 +327,7 @@ export default function StyleAnalysis(): JSX.Element {
                 type="url"
                 value={scrapeUrl}
                 onChange={(e) => setScrapeUrl(e.target.value)}
-                placeholder={en ? 'https://www.royalroad.com/fiction/...' : 'https://www.royalroad.com/fiction/...'}
+                placeholder="https://www.royalroad.com/fiction/..."
                 className="w-full pl-9 pr-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-zinc-200 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none"
                 disabled={scraping}
               />
@@ -339,7 +335,7 @@ export default function StyleAnalysis(): JSX.Element {
             <button onClick={handleOnlineScrape} disabled={scraping || !scrapeUrl.trim()}
               className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm text-white transition-colors disabled:opacity-50 shrink-0">
               {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-              {scraping ? (en ? 'Scraping...' : '采样中...') : (en ? 'Scrape & Import' : '采样导入')}
+              {scraping ? '采样中...' : '采样导入'}
             </button>
           </div>
           {scrapeStatus && (
@@ -352,10 +348,10 @@ export default function StyleAnalysis(): JSX.Element {
 
         {/* 本地导入 */}
         <div className="flex items-center justify-between">
-          <h3 className="text-xs font-medium text-violet-400">{en ? 'Local Import' : '本地导入'}</h3>
+          <h3 className="text-xs font-medium text-violet-400">本地导入</h3>
           <button onClick={handleImport}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded-lg text-xs text-zinc-200 transition-colors">
-            <Upload className="w-3.5 h-3.5" />{en ? 'Import .txt files' : '导入 .txt 文件'}
+            <Upload className="w-3.5 h-3.5" />导入 .txt 文件
           </button>
         </div>
       </section>
@@ -364,11 +360,11 @@ export default function StyleAnalysis(): JSX.Element {
       <section className="bg-zinc-900 rounded-xl border border-zinc-800 p-5">
         <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2 mb-3">
           <BookOpen className="w-4 h-4 text-violet-400" />
-          {en ? `Style Reference Books (${styleBooks.length})` : `风格参考书 (${styleBooks.length})`}
+          {`风格参考书 (${styleBooks.length})`}
         </h2>
         {styleBooks.length === 0 ? (
           <p className="text-sm text-zinc-500 text-center py-4">
-            {en ? 'No reference books yet — use the data sources above to add some' : '暂无参考书 — 使用上方数据来源添加'}
+            暂无参考书 — 使用上方数据来源添加
           </p>
         ) : (
           <div className="space-y-2">
@@ -390,24 +386,24 @@ export default function StyleAnalysis(): JSX.Element {
         <button onClick={handleAnalyze} disabled={analyzing}
           className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-amber-600 hover:bg-amber-500 rounded-xl text-base font-bold text-white transition-colors disabled:opacity-50 shadow-lg shadow-amber-600/20">
           {analyzing ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
-          {analyzing ? (en ? 'Analyzing...' : '分析中...') : (en ? '▸ Run Text Statistics' : '▸ 运行文本统计')}
+          {analyzing ? '分析中...' : '▸ 运行文本统计'}
         </button>
       )}
 
       {/* Style Profile */}
       {profile && (
         <section className="bg-zinc-900 rounded-xl border border-zinc-800 p-5">
-          <h2 className="text-sm font-semibold text-zinc-200 mb-4">{en ? 'Statistical Profile' : '统计画像'}</h2>
+          <h2 className="text-sm font-semibold text-zinc-200 mb-4">统计画像</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard label={en ? 'Avg Sentence Len' : '平均句长'} value={`${profile.avgSentenceLength.toFixed(1)} ${en ? 'words' : '字'}`} />
-            <StatCard label={en ? 'Std Dev' : '句长标准差'} value={`${profile.sentenceLengthStdDev.toFixed(1)}`} />
-            <StatCard label={en ? 'Avg Para Len' : '平均段长'} value={`${profile.avgParagraphLength.toFixed(1)} ${en ? 'sent' : '句'}`} />
-            <StatCard label={en ? 'Para Range' : '段长范围'} value={`${profile.paragraphLengthRange.min}–${profile.paragraphLengthRange.max}`} />
-            <StatCard label={en ? 'Vocab Diversity(TTR)' : '词汇多样性(TTR)'} value={`${(profile.vocabularyDiversity * 100).toFixed(1)}%`} />
+            <StatCard label="平均句长" value={`${profile.avgSentenceLength.toFixed(1)} 字`} />
+            <StatCard label="句长标准差" value={`${profile.sentenceLengthStdDev.toFixed(1)}`} />
+            <StatCard label="平均段长" value={`${profile.avgParagraphLength.toFixed(1)} 句`} />
+            <StatCard label="段长范围" value={`${profile.paragraphLengthRange.min}–${profile.paragraphLengthRange.max}`} />
+            <StatCard label="词汇多样性(TTR)" value={`${(profile.vocabularyDiversity * 100).toFixed(1)}%`} />
           </div>
           {profile.topPatterns.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-xs text-zinc-500 mb-2">{en ? 'Frequent Patterns' : '高频句式模式'}</h3>
+              <h3 className="text-xs text-zinc-500 mb-2">高频句式模式</h3>
               <div className="flex flex-wrap gap-2">
                 {profile.topPatterns.slice(0, 15).map((p, i) => (
                   <span key={i}
@@ -420,7 +416,7 @@ export default function StyleAnalysis(): JSX.Element {
           )}
           {profile.rhetoricalFeatures.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-xs text-zinc-500 mb-2">{en ? 'Rhetorical Features' : '修辞手法'}</h3>
+              <h3 className="text-xs text-zinc-500 mb-2">修辞手法</h3>
               <div className="flex flex-wrap gap-2">
                 {profile.rhetoricalFeatures.map((f, i) => (
                   <span key={i}
@@ -432,7 +428,7 @@ export default function StyleAnalysis(): JSX.Element {
             </div>
           )}
           <p className="text-[10px] text-zinc-600 mt-3">
-            {en ? 'Source' : '来源'}: {profile.sourceName ?? (en ? 'Reference books' : '参考书')}{profile.analyzedAt ? ` · ${en ? 'Analyzed' : '分析于'} ${new Date(profile.analyzedAt).toLocaleString()}` : ''}
+            来源: {profile.sourceName ?? '参考书'}{profile.analyzedAt ? ` · 分析于 ${new Date(profile.analyzedAt).toLocaleString()}` : ''}
           </p>
         </section>
       )}
@@ -442,12 +438,12 @@ export default function StyleAnalysis(): JSX.Element {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
             <Fingerprint className="w-4 h-4 text-amber-400" />
-            {en ? 'AI Style Fingerprint' : 'AI 风格指纹'}
+            AI 风格指纹
           </h2>
           <button onClick={handleDeepFingerprint} disabled={analyzingFp || styleBooks.length === 0}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 rounded-lg text-xs text-white transition-colors disabled:opacity-50">
             {analyzingFp ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Fingerprint className="w-3.5 h-3.5" />}
-            {analyzingFp ? (en ? 'Analyzing...' : '分析中...') : (en ? 'Deep Fingerprint' : '深度指纹提取')}
+            {analyzingFp ? '分析中...' : '深度指纹提取'}
           </button>
         </div>
 
@@ -457,10 +453,10 @@ export default function StyleAnalysis(): JSX.Element {
               <label className="flex items-center gap-2 text-sm text-zinc-300">
                 <input type="checkbox" checked={fingerprint.enabled} onChange={handleToggleFp}
                   className="rounded border-zinc-600 bg-zinc-800 text-violet-500 focus:ring-violet-500" />
-                {en ? 'Enable Fingerprint Injection' : '启用指纹注入'}
+                启用指纹注入
               </label>
               <div className="flex items-center gap-2 text-sm text-zinc-400">
-                <span>{en ? 'Strength' : '强度'}</span>
+                <span>强度</span>
                 <input type="range" min="1" max="10" value={fingerprint.strength}
                   onChange={(e) => handleStrengthChange(Number(e.target.value))}
                   className="w-24 accent-violet-500" />
@@ -471,14 +467,14 @@ export default function StyleAnalysis(): JSX.Element {
               <pre className="text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">{fingerprint.fingerprint}</pre>
             </div>
             <p className="text-[10px] text-zinc-600">
-              {en ? 'Source' : '来源'}: {fingerprint.analyzedBooks.join(', ')} · {new Date(fingerprint.analyzedAt).toLocaleString()}
+              来源: {fingerprint.analyzedBooks.join(', ')} · {new Date(fingerprint.analyzedAt).toLocaleString()}
             </p>
           </div>
         ) : (
           <p className="text-sm text-zinc-500 text-center py-4">
             {styleBooks.length === 0
-              ? (en ? 'Import style reference books first' : '请先导入风格参考书')
-              : (en ? 'Click "Deep Fingerprint" to let AI analyze unique writing style' : '点击“深度指纹提取”让 AI 分析作者独特文风')
+              ? '请先导入风格参考书'
+              : '点击「深度指纹提取」让 AI 分析作者独特文风'
             }
           </p>
         )}

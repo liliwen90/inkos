@@ -45,7 +45,7 @@ export class WriterAgent extends BaseAgent {
     const [
       storyBible, volumeOutline, styleGuide, currentState, ledger, hooks,
       chapterSummaries, subplotBoard, emotionalArcs, characterMatrix, styleProfileRaw,
-      entityRegistry,
+      entityRegistry, writingLessons,
     ] = await Promise.all([
         this.readFileOrDefault(join(bookDir, "story/story_bible.md")),
         this.readFileOrDefault(join(bookDir, "story/volume_outline.md")),
@@ -59,6 +59,7 @@ export class WriterAgent extends BaseAgent {
         this.readFileOrDefault(join(bookDir, "story/character_matrix.md")),
         this.readFileOrDefault(join(bookDir, "story/style_profile.json")),
         this.readFileOrDefault(join(bookDir, "story/entity_registry.md")),
+        this.readFileOrDefault(join(bookDir, "story/writing_lessons.md")),
       ]);
 
     const recentChapters = await this.loadRecentChapters(bookDir, chapterNumber);
@@ -98,6 +99,7 @@ export class WriterAgent extends BaseAgent {
       relevantSummaries,
       chapterPlan: input.chapterPlan,
       en: genreProfile.language === "en",
+      writingLessons,
     });
 
     const temperature = input.temperatureOverride ?? 0.7;
@@ -176,6 +178,7 @@ export class WriterAgent extends BaseAgent {
     readonly relevantSummaries?: string;
     readonly chapterPlan?: string;
     readonly en?: boolean;
+    readonly writingLessons?: string;
   }): string {
     const en = params.en ?? false;
     const notCreated = "(文件尚未创建)";
@@ -190,6 +193,12 @@ export class WriterAgent extends BaseAgent {
       ? en
         ? `\n## External Directives\nIncorporate the following directives into this chapter:\n\n${params.externalContext}\n`
         : `\n## 外部指令\n以下是来自外部系统的创作指令，请在本章中融入：\n\n${params.externalContext}\n`
+      : "";
+
+    const lessonsBlock = params.writingLessons && params.writingLessons !== "(文件尚未创建)"
+      ? en
+        ? `\n## Writing Lessons (from prior chapter audits — APPLY these fixes)\n${params.writingLessons}\n`
+        : `\n## 写作教训（来自此前章节审计 — 请在本章避免同样问题）\n${params.writingLessons}\n`
       : "";
 
     const ledgerBlock = params.ledger
@@ -231,7 +240,7 @@ export class WriterAgent extends BaseAgent {
     if (en) {
       const noRecent = params.recentChapters || "(This is Chapter 1, no prior content)";
       return `Please continue writing Chapter ${params.chapterNumber}.
-${planBlock}${contextBlock}
+${planBlock}${contextBlock}${lessonsBlock}
 ## Current State Card
 ${params.currentState}
 ${ledgerBlock}
@@ -255,7 +264,7 @@ Requirements:
     }
 
     return `请续写第${params.chapterNumber}章。
-${planBlock}${contextBlock}
+${planBlock}${contextBlock}${lessonsBlock}
 ## 当前状态卡
 ${params.currentState}
 ${ledgerBlock}

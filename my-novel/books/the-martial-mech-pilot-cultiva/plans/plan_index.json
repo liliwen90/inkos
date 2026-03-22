@@ -1,3 +1,28 @@
 {
-  "plans": []
+  "plans": [
+    {
+      "chapter": 1,
+      "status": "written",
+      "version": 2,
+      "createdAt": "2026-03-20T17:35:19.026Z",
+      "approvedAt": "2026-03-20T17:40:29.313Z",
+      "writtenAt": "2026-03-20T18:01:32.233Z"
+    },
+    {
+      "chapter": 2,
+      "status": "written",
+      "version": 1,
+      "createdAt": "2026-03-21T04:21:41.993Z",
+      "approvedAt": "2026-03-21T04:26:35.979Z",
+      "writtenAt": "2026-03-21T04:35:52.264Z"
+    },
+    {
+      "chapter": 3,
+      "status": "written",
+      "version": 1,
+      "createdAt": "2026-03-21T04:47:11.029Z",
+      "approvedAt": "2026-03-21T04:48:08.784Z",
+      "writtenAt": "2026-03-21T04:56:24.102Z"
+    }
+  ]
 }

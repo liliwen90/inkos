@@ -17,6 +17,22 @@ export interface AgentLLMSlot {
   provider: 'openai' | 'anthropic' | 'custom'
 }
 
+/** 语言池中的一个 LLM 提供商条目 */
+export interface LLMPoolEntry {
+  id: string
+  label: string
+  provider: 'openai' | 'anthropic' | 'custom'
+  baseUrl: string
+  apiKey: string
+  model: string
+}
+
+/** 每种语言的 Agent 路由预设 */
+export interface LanguagePreset {
+  defaultLLM: string
+  agentMap: Record<string, string>
+}
+
 /** 完整的多模型路由配置 */
 export interface TaskRoutingConfig {
   /** 默认配置（用于未指定的 Agent） */
@@ -30,6 +46,16 @@ export interface TaskRoutingConfig {
     'continuity-plus'?: AgentLLMSlot | null
     polisher?: AgentLLMSlot | null
     radar?: AgentLLMSlot | null
+  }
+  /** 按语言分组的 LLM 提供商池 */
+  pools?: {
+    zh?: LLMPoolEntry[]
+    en?: LLMPoolEntry[]
+  }
+  /** 按语言分组的 Agent 路由预设 */
+  presets?: {
+    zh?: LanguagePreset
+    en?: LanguagePreset
   }
 }
 

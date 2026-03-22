@@ -3,6 +3,7 @@ import { PenTool, Play, Loader2, CheckCircle2, XCircle, AlertTriangle, FileCheck
 import { useNavigate } from 'react-router-dom'
 import { useAppStore, type ProgressEvent, type BookSummary } from '../stores/app-store'
 import StepGate from '../components/StepGate'
+import InfoTooltip from '../components/InfoTooltip'
 
 const STAGES = [
   { key: 'pipeline', label: '管线' },
@@ -18,11 +19,18 @@ type StageStatus = 'idle' | 'running' | 'done' | 'error'
 
 function getStageStatuses(events: ProgressEvent[]): Record<string, StageStatus> {
   const statuses: Record<string, StageStatus> = {}
+  const order: string[] = []
   for (const e of events) {
     const base = e.stage.replace(/-done$/, '').replace(/-error$/, '')
+    if (!order.includes(base)) order.push(base)
     if (e.stage.endsWith('-done')) statuses[base] = 'done'
     else if (e.stage.endsWith('-error')) statuses[base] = 'error'
     else statuses[base] = 'running'
+  }
+  // Core 可能不发射 -done 事件（如 reviser 修订后重审通过），
+  // 如果某阶段还是 running 但后面已有新阶段启动，则推导为 done
+  for (let i = 0; i < order.length - 1; i++) {
+    if (statuses[order[i]] === 'running') statuses[order[i]] = 'done'
   }
   return statuses
 }
@@ -34,7 +42,6 @@ export default function WritingConsole(): JSX.Element {
   const setCurrentBookId = useAppStore((s) => s.setCurrentBookId)
   const pipelineReady = useAppStore((s) => s.pipelineReady)
   const progressEvents = useAppStore((s) => s.progressEvents)
-  const addProgressEvent = useAppStore((s) => s.addProgressEvent)
   const clearProgress = useAppStore((s) => s.clearProgress)
   const isWriting = useAppStore((s) => s.isWriting)
   const setIsWriting = useAppStore((s) => s.setIsWriting)
@@ -51,13 +58,7 @@ export default function WritingConsole(): JSX.Element {
   const [nextChapterPlanStatus, setNextChapterPlanStatus] = useState<string | null>(null)
   const navigate = useNavigate()
 
-  // 监听进度事件
-  useEffect(() => {
-    const unsub = window.hintos.onProgress((evt: unknown) => {
-      addProgressEvent(evt as ProgressEvent)
-    })
-    return unsub
-  }, [addProgressEvent])
+  // 进度事件由 Layout.tsx 全局监听 → addProgressEvent（含 stage 过滤 + token 分流）
 
   // 加载书籍列表
   useEffect(() => {
@@ -147,6 +148,7 @@ export default function WritingConsole(): JSX.Element {
         <div className="flex-1">
           <label className="block text-sm text-zinc-400 mb-1">当前书籍</label>
           <select value={currentBookId ?? ''} onChange={(e) => setCurrentBookId(e.target.value || null)}
+            title="选择要继续写作的书籍。下拉列表显示当前项目下所有书籍及进度（已写章数/总字数）。"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500">
             <option value="">— 请选择书籍 —</option>
             {books.map(b => (
@@ -157,13 +159,19 @@ export default function WritingConsole(): JSX.Element {
           </select>
         </div>
         <div>
-          <label className="block text-sm text-zinc-400 mb-1">每章字数</label>
+          <div className="flex items-center gap-1.5 mb-1">
+            <label className="block text-sm text-zinc-400">每章字数</label>
+            <InfoTooltip text={"每章的目标字数。AI 写手会尽量贴近这个目标，但不会强制精确。\n\n建议范围：\n• 中文小说: 2000-4000 字/章（推荐 3000）\n• 英文小说: 1500-3000 words/chapter（推荐 2500）\n\n字数太少→内容单薄、节奏太快\n字数太多→可能注水、质量下降"} />
+          </div>
           <input type="number" value={wordCount} onChange={(e) => setWordCount(+e.target.value)}
             min={1000} step={500}
             className="w-28 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500" />
         </div>
         <div>
-          <label className="block text-sm text-zinc-400 mb-1">连续写</label>
+          <div className="flex items-center gap-1.5 mb-1">
+            <label className="block text-sm text-zinc-400">连续写</label>
+            <InfoTooltip text={"一次性连续写多少章。范围 1-50。\n\n• 1 = 写完一章停下，适合逐章审阅\n• 3-5 = 小批量，既高效又可控（推荐）\n• 10-50 = 大批量，适合已确认质量稳定后批量产出\n\n每章都会走完整管线：写→审→查→改→润。\n连续写越多，花费越大，中途无法暂停。"} />
+          </div>
           <input type="number" value={batchCount} onChange={(e) => setBatchCount(Math.max(1, +e.target.value))}
             min={1} max={50}
             className="w-20 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500" />

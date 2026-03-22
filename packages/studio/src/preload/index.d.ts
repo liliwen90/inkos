@@ -284,13 +284,17 @@ interface HintOSAPI {
     url: string
   }[], language?: 'en' | 'zh'): Promise<string>
 
+  // 中文小说导入
+  importZhNovels(): Promise<Array<{ fileName: string; title: string; charCount: number; localPath: string }>>
+  analyzeZhNovels(localPaths: string[]): Promise<string>
+
   // 创意库
-  vaultSave(entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }): Promise<{ id: string; createdAt: string }>
+  vaultSave(entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string; localPath?: string }> }): Promise<{ id: string; createdAt: string }>
   vaultList(): Promise<{ id: string; createdAt: string; novelCount: number; language: 'en' | 'zh'; preview: string }[]>
   vaultGet(id: string): Promise<{ id: string; createdAt: string; novelCount: number; language: 'en' | 'zh'; analysis: string }>
   vaultDelete(id: string): Promise<void>
   vaultUpdate(id: string, analysis: string): Promise<{ id: string; createdAt: string; novelCount: number; analysis: string }>
-  vaultAllNovels(lang?: 'en' | 'zh'): Promise<Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }>>
+  vaultAllNovels(lang?: 'en' | 'zh'): Promise<Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string; localPath?: string }>>
   importStyleBook(bookId: string): Promise<string[] | null>
   removeStyleBook(bookId: string, fileName: string): Promise<boolean>
   analyzeStyleBooks(bookId: string): Promise<StyleProfile | null>

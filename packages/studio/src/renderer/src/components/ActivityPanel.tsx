@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Activity, Minimize2, Maximize2, X, Loader2, CheckCircle2, XCircle, Trash2, ChevronDown, ChevronRight, Coins, AlertTriangle } from 'lucide-react'
+import { Activity, Minimize2, Maximize2, X, Loader2, CheckCircle2, XCircle, Trash2, ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react'
 import { useAppStore, type ActivityEntry } from '../stores/app-store'
 
 function formatDuration(ms: number): string {
@@ -44,7 +44,6 @@ function ActivityItem({ act, now }: { act: ActivityEntry; now: number }): JSX.El
 
 export default function ActivityPanel(): JSX.Element {
   const activities = useAppStore((s) => s.activities)
-  const tokenLog = useAppStore((s) => s.tokenLog)
   const errorLog = useAppStore((s) => s.errorLog)
   const panelOpen = useAppStore((s) => s.panelOpen)
   const panelMinimized = useAppStore((s) => s.panelMinimized)
@@ -54,13 +53,11 @@ export default function ActivityPanel(): JSX.Element {
   const clearActivities = useAppStore((s) => s.clearActivities)
 
   const [now, setNow] = useState(Date.now())
-  const [tab, setTab] = useState<'activities' | 'tokens' | 'errors'>('activities')
+  const [tab, setTab] = useState<'activities' | 'errors'>('activities')
   const [errorsOpen, setErrorsOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const runningCount = activities.filter((a) => a.status === 'running').length
-  const totalInputTokens = tokenLog.reduce((s, t) => s + t.inputTokens, 0)
-  const totalOutputTokens = tokenLog.reduce((s, t) => s + t.outputTokens, 0)
 
   // 实时更新时间（运行中时每秒刷新）
   useEffect(() => {
@@ -121,9 +118,6 @@ export default function ActivityPanel(): JSX.Element {
         <button onClick={() => setTab('activities')} className={`flex-1 py-1.5 text-center transition-colors ${tab === 'activities' ? 'text-violet-400 border-b border-violet-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
           活动 {activities.length > 0 && <span className="ml-1 text-zinc-600">({activities.length})</span>}
         </button>
-        <button onClick={() => setTab('tokens')} className={`flex-1 py-1.5 text-center transition-colors ${tab === 'tokens' ? 'text-amber-400 border-b border-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
-          <span className="inline-flex items-center gap-1"><Coins className="w-3 h-3" />Token</span>
-        </button>
         <button onClick={() => setTab('errors')} className={`flex-1 py-1.5 text-center transition-colors ${tab === 'errors' ? 'text-red-400 border-b border-red-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
           错误 {errorLog.length > 0 && <span className="text-red-500">({errorLog.length})</span>}
         </button>
@@ -138,42 +132,6 @@ export default function ActivityPanel(): JSX.Element {
               <div className="py-8 text-center text-xs text-zinc-600">暂无活动</div>
             ) : (
               activities.map((act) => <ActivityItem key={act.id} act={act} now={now} />)
-            )}
-          </div>
-        )}
-
-        {/* === Token 统计 === */}
-        {tab === 'tokens' && (
-          <div className="p-3 space-y-3">
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="bg-zinc-800/60 rounded-lg p-2">
-                <div className="text-lg font-bold text-amber-400">{tokenLog.length}</div>
-                <div className="text-xs text-zinc-500">调用次数</div>
-              </div>
-              <div className="bg-zinc-800/60 rounded-lg p-2">
-                <div className="text-lg font-bold text-blue-400">{totalInputTokens.toLocaleString()}</div>
-                <div className="text-xs text-zinc-500">输入 Token</div>
-              </div>
-              <div className="bg-zinc-800/60 rounded-lg p-2">
-                <div className="text-lg font-bold text-emerald-400">{totalOutputTokens.toLocaleString()}</div>
-                <div className="text-xs text-zinc-500">输出 Token</div>
-              </div>
-            </div>
-            {tokenLog.length === 0 ? (
-              <p className="text-xs text-zinc-600 text-center py-4">本次会话暂无 Token 消耗记录</p>
-            ) : (
-              <div className="space-y-1 max-h-[260px] overflow-y-auto">
-                {[...tokenLog].reverse().slice(0, 30).map((t, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs px-2 py-1 bg-zinc-800/40 rounded">
-                    <span className="text-zinc-600">{formatTime(t.timestamp)}</span>
-                    <span className="text-zinc-300 truncate flex-1">{t.operation}</span>
-                    <span className="text-zinc-500 shrink-0">{t.model}</span>
-                    <span className="text-blue-400 shrink-0">{t.inputTokens}</span>
-                    <span className="text-zinc-600">/</span>
-                    <span className="text-emerald-400 shrink-0">{t.outputTokens}</span>
-                  </div>
-                ))}
-              </div>
             )}
           </div>
         )}
@@ -203,7 +161,6 @@ export default function ActivityPanel(): JSX.Element {
 
       {/* 底部状态栏 */}
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-zinc-800 text-[10px] text-zinc-600">
-        <span>Token: {(totalInputTokens + totalOutputTokens).toLocaleString()}</span>
         <span>{activities.filter((a) => a.status === 'done').length} 已完成 · {errorLog.length} 错误</span>
       </div>
     </div>

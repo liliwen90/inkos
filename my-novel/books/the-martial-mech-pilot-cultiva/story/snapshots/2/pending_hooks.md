@@ -1,0 +1,8 @@
+| hook_id | Origin Chapter | Type | Status | Last Advanced | Expected Payoff | Notes |
+|---------|----------------|------|--------|---------------|-----------------|-------|
+| H001 | 0 (Prologue/Backstory) | Mystery / Vengeance | Dormant | N/A | Ch. 50-100 | The identity and motive of the force that destroyed the Kunlun Sanctuary. Clue: "Project Tectonic" (Kepler Syndicate). |
+| H002 | 0 (Prologue/Backstory) | World-Building / Lore | Dormant | N/A | Ch. 150+ | Are there other cultivation survivors or remnants in the galaxy? The jade pendant may be a key. |
+| H003 | 1 | Character / Mentor | Active | Ch. 2 | Ch. 3-5 | Lysandra's motivations and background remain unclear. She's invested in Qin Feng's success but her true agenda is hidden. |
+| H004 | 1 | Power System / Integration | Advanced | Ch. 2 | Ch. 3, then ongoing | Major advancement: Qin Feng successfully integrates cultivation principles with mech piloting, repairs fusion core with Qi, and develops fluid movement techniques. The cultivation-mech synthesis is now established. |
+| H005 | 1 | Faction / Conflict | Foreshadowed | N/A | Ch. 10-15 | The inherent conflict between cultivation philosophy and galactic society's reliance on external technology. |
+| H006 | 1 | Survival / Arena | Advanced | Ch. 2 | Ch. 3 | Immediate payoff: Qin Feng has completed training and faces the three-way mech battle at midnight against Kozlov and Reaper. Stakes are life-or-death. |
