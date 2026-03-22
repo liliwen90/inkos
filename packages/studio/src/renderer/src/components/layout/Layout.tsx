@@ -3,9 +3,11 @@ import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import CyberFeed from './CyberFeed'
 import ActivityPanel from '../ActivityPanel'
+import AgentChatPanel from '../AgentChatPanel'
 import ToastContainer from '../ToastContainer'
 import { useAppStore } from '../../stores/app-store'
 import { useCyberFeedStore } from '../../stores/cyber-feed-store'
+import { useAgentChatStore } from '../../stores/agent-chat-store'
 
 export default function Layout(): JSX.Element {
   const theme = useAppStore((s) => s.theme)
@@ -37,6 +39,33 @@ export default function Layout(): JSX.Element {
     return unsub
   }, [addProgressEvent])
 
+  // 订阅 Agent Chat 流式事件 + 消息事件
+  useEffect(() => {
+    const store = useAgentChatStore.getState
+    const unsubStream = window.hintos.onAgentChatStream((event) => {
+      if (event.isComplete) {
+        store().completeStreamingMessage(event.messageId)
+      } else {
+        store().updateStreamingMessage(event.messageId, event.chunkText, event.agentName)
+      }
+    })
+    const unsubMsg = window.hintos.onAgentChatMessage((event: unknown) => {
+      const msg = event as { type: string; agentName?: string; content?: string; actions?: unknown[]; richData?: unknown; landmark?: unknown }
+      const def = msg.agentName ? useAgentChatStore.getState().pipelineStages.find(s => s.agent === msg.agentName) : null
+      store().addMessage({
+        type: msg.type as 'agent-text',
+        agentName: msg.agentName,
+        agentIcon: def?.icon,
+        agentColor: def?.color,
+        content: msg.content ?? '',
+        actions: msg.actions as never,
+        richData: msg.richData as never,
+        landmark: msg.landmark as never,
+      })
+    })
+    return () => { unsubStream(); unsubMsg() }
+  }, [])
+
   return (
     <div className="flex w-full h-full bg-zinc-950">
       <Sidebar />
@@ -47,6 +76,7 @@ export default function Layout(): JSX.Element {
         <CyberFeed />
       </div>
       <ActivityPanel />
+      <AgentChatPanel />
       <ToastContainer />
     </div>
   )
