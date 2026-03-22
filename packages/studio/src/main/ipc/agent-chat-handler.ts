@@ -31,6 +31,8 @@ function routeMessage(text: string, currentAgent: string | null): string {
   if (lower.includes('@修订') || lower.includes('@reviser')) return 'reviser'
   if (lower.includes('@润色') || lower.includes('@polisher')) return 'polisher'
   if (lower.includes('@雷达') || lower.includes('@radar')) return 'radar'
+  if (lower.includes('@深度') || lower.includes('@continuity-plus')) return 'continuity-plus'
+  if (lower.includes('@实体') || lower.includes('@entity')) return 'entity-extractor'
 
   // Context-based routing
   if (/题材|类型|世界观|设定|大纲|genre|world.*build|outline|foundation/i.test(text)) return 'architect'
@@ -96,6 +98,20 @@ const AGENT_SYSTEM_PROMPTS: Record<string, string> = {
 保持对话简洁，每次回复不超过300字。`,
 
   radar: `你是HintOS的「雷达」Agent。你负责市场趋势分析和热榜监测。
+保持对话简洁，每次回复不超过300字。`,
+
+  'continuity-plus': `你是HintOS的「深度检查员」Agent。你负责七维度深度连续性审查（时间线、空间、性格、伏笔、功法、阵营、核心逻辑）。
+与用户对话时：
+- 解释深度审查发现的问题
+- 讨论修改优先级
+- 提供具体修复建议
+保持对话简洁，每次回复不超过300字。`,
+
+  'entity-extractor': `你是HintOS的「实体提取师」Agent。你负责从章节中提取人物、地点、道具、势力等实体并维护实体库。
+与用户对话时：
+- 解释实体提取结果
+- 讨论实体关系
+- 回答关于实体库的问题
 保持对话简洁，每次回复不超过300字。`,
 }
 

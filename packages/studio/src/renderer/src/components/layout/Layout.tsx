@@ -65,7 +65,10 @@ export default function Layout(): JSX.Element {
         store().setPendingGate({ stage: msg.stage, agentName: msg.agentName, messageId: msgId })
       }
     })
-    return () => { unsubStream(); unsubMsg() }
+    const unsubGate = window.hintos.onGateAutoResolved(() => {
+      store().resolveGate()
+    })
+    return () => { unsubStream(); unsubMsg(); unsubGate() }
   }, [])
 
   return (

@@ -104,11 +104,6 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     mainWindow.webContents.send('cyber-feed', { source, level, message, detail })
   }
 
-  // Agent Chat 流式广播
-  function emitAgentChatStream(agentName: string, chunkText: string, messageId: string, isComplete: boolean): void {
-    mainWindow.webContents.send('agent-chat-stream', { agentName, chunkText, messageId, isComplete })
-  }
-
   // Agent Chat 消息广播
   function emitAgentChatMessage(message: unknown): void {
     mainWindow.webContents.send('agent-chat-message', message)
@@ -917,6 +912,13 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       stage: payload.stage,
     })
     appendLog('ACTIVITY', `Agent gate fired: ${payload.stage} — ${payload.summary}`)
+  })
+
+  pipelineAdapter.on('gate-auto-resolved', (stage: string) => {
+    emitAgentChatMessage({ type: 'system-info', content: `⏩ Gate「${stage}」已自动通过` })
+    // Tell frontend to clear pending gate state
+    mainWindow.webContents.send('gate-auto-resolved', stage)
+    appendLog('ACTIVITY', `Gate auto-resolved: ${stage}`)
   })
 
   pipelineAdapter.on('agent-report', (report: { agentName: string; content: string; richData?: Record<string, unknown> }) => {

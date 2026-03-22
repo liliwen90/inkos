@@ -232,6 +232,13 @@ const hintosAPI = {
   // 交互模式同步
   setInteractionMode: (mode: string): Promise<boolean> =>
     ipcRenderer.invoke('set-interaction-mode', mode),
+
+  // Gate 自动解决通知
+  onGateAutoResolved: (callback: (stage: string) => void): (() => void) => {
+    const handler = (_e: unknown, stage: string): void => { callback(stage) }
+    ipcRenderer.on('gate-auto-resolved', handler)
+    return () => ipcRenderer.removeListener('gate-auto-resolved', handler)
+  },
 }
 
 if (process.contextIsolated) {

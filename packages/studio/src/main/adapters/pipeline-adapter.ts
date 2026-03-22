@@ -39,6 +39,10 @@ export class PipelineAdapter extends EventEmitter {
   }
 
   async initialize(client: LLMClient, model: string, projectRoot: string, modelOverrides?: Record<string, string>): Promise<void> {
+    // Clean up any pending gates from a previous runner
+    for (const [, resolver] of this.pendingGateResolvers) resolver({ action: 'approve' })
+    this.pendingGateResolvers.clear()
+
     const { PipelineRunner } = await import('@actalk/hintos-core')
     this.runner = new PipelineRunner({
       client, model, projectRoot, modelOverrides,
@@ -80,6 +84,7 @@ export class PipelineAdapter extends EventEmitter {
         setTimeout(() => {
           if (this.pendingGateResolvers.has(payload.stage)) {
             this.pendingGateResolvers.delete(payload.stage)
+            this.emit('gate-auto-resolved', payload.stage)
             resolve({ action: 'approve' })
           }
         }, 3000)
@@ -94,6 +99,7 @@ export class PipelineAdapter extends EventEmitter {
       setTimeout(() => {
         if (this.pendingGateResolvers.has(payload.stage)) {
           this.pendingGateResolvers.delete(payload.stage)
+          this.emit('gate-auto-resolved', payload.stage)
           resolve({ action: 'approve' })
         }
       }, 10 * 60 * 1000)
