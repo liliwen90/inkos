@@ -201,7 +201,25 @@ const hintosAPI = {
     const listener = (_: unknown, event: { source: string; level: string; message: string; detail?: string }): void => { callback(event) }
     ipcRenderer.on('cyber-feed', listener as never)
     return () => { ipcRenderer.removeListener('cyber-feed', listener as never) }
-  }
+  },
+
+  // Agent Chat 流式事件
+  onAgentChatStream: (callback: (event: { agentName: string; chunkText: string; messageId: string; isComplete: boolean }) => void): (() => void) => {
+    const listener = (_: unknown, event: { agentName: string; chunkText: string; messageId: string; isComplete: boolean }): void => { callback(event) }
+    ipcRenderer.on('agent-chat-stream', listener as never)
+    return () => { ipcRenderer.removeListener('agent-chat-stream', listener as never) }
+  },
+
+  // Agent Chat 消息事件（完整消息/汇报/gate等）
+  onAgentChatMessage: (callback: (event: unknown) => void): (() => void) => {
+    const listener = (_: unknown, event: unknown): void => { callback(event) }
+    ipcRenderer.on('agent-chat-message', listener as never)
+    return () => { ipcRenderer.removeListener('agent-chat-message', listener as never) }
+  },
+
+  // Agent Chat 用户响应 Gate
+  respondToGate: (stage: string, action: string, feedback?: string): Promise<boolean> =>
+    ipcRenderer.invoke('agent-chat-respond', stage, action, feedback)
 }
 
 if (process.contextIsolated) {

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import { Settings, Check, X, Loader2, Zap, Plus, Pencil, Trash2, ChevronDown, ChevronRight, Info } from 'lucide-react'
+import { Settings, Check, X, Loader2, Zap, Plus, Pencil, Trash2, ChevronDown, ChevronRight, Info, Search, ArrowUp, ArrowDown } from 'lucide-react'
 import { useAppStore, type LLMConfig } from '../stores/app-store'
 
 // ── 类型 ──
@@ -17,6 +17,30 @@ interface PoolEntry {
 interface LangPreset {
   defaultLLM: string
   agentMap: Record<string, string>
+}
+
+interface SearchProviderUI {
+  id: string
+  label: string
+  type: 'tavily' | 'deepseek-search' | 'web-agent'
+  apiKey: string
+  apiUrl: string
+  username: string
+  password: string
+  enabled: boolean
+  supportedLanguages: ('zh' | 'en')[]
+}
+
+const SEARCH_TYPE_LABELS: Record<string, string> = {
+  'tavily': 'Tavily API',
+  'deepseek-search': 'DeepSeek Search',
+  'web-agent': 'Web Agent',
+}
+
+const SEARCH_TYPE_DEFAULTS: Record<string, string> = {
+  'tavily': 'https://api.tavily.com',
+  'deepseek-search': 'https://api.deepseek.com/v1',
+  'web-agent': '',
 }
 
 // ── 常量 ──
@@ -201,6 +225,16 @@ export default function LLMSettings(): JSX.Element {
   const [maxTokens, setMaxTokens] = useState(8192)
   const [showAdvanced, setShowAdvanced] = useState(false)
 
+  // 搜索提供商
+  const [searchProviders, setSearchProviders] = useState<SearchProviderUI[]>([])
+  const [searchRouting, setSearchRouting] = useState<{ zh: string[]; en: string[] }>({ zh: [], en: [] })
+  const [showSearchProviders, setShowSearchProviders] = useState(false)
+  const [editingSearchKey, setEditingSearchKey] = useState<string | null>(null)
+  const [searchForm, setSearchForm] = useState<SearchProviderUI>({
+    id: '', label: '', type: 'tavily', apiKey: '', apiUrl: 'https://api.tavily.com',
+    username: '', password: '', enabled: true, supportedLanguages: ['zh', 'en']
+  })
+
   // UI 状态
   const [testResults, setTestResults] = useState<{ label: string; ok: boolean; error?: string; latencyMs?: number }[]>([])
   const [testing, setTesting] = useState(false)
@@ -224,6 +258,12 @@ export default function LLMSettings(): JSX.Element {
         const def = r.default as Record<string, unknown> | undefined
         if (def?.temperature) setTemperature(Number(def.temperature) || 0.7)
         if (def?.maxTokens) setMaxTokens(Number(def.maxTokens) || 8192)
+        // 搜索提供商
+        if (r.searchProviders) {
+          const sp = r.searchProviders as { providers?: SearchProviderUI[]; routing?: { zh?: string[]; en?: string[] } }
+          if (sp.providers) setSearchProviders(sp.providers)
+          if (sp.routing) setSearchRouting({ zh: sp.routing.zh || [], en: sp.routing.en || [] })
+        }
       } else if (r.default) {
         // 旧格式：迁移到语言池
         migrateOldRouting(r)
@@ -370,10 +410,10 @@ export default function LLMSettings(): JSX.Element {
         const resolved = resolveForLanguage(pools, presets, effectiveLang, temperature, maxTokens)
         await window.hintos.saveLLMConfig(resolved.default)
         setLLMConfig(resolved.default)
-        await window.hintos.saveTaskRouting({ default: resolved.default, agents: resolved.agents, pools, presets })
+        await window.hintos.saveTaskRouting({ default: resolved.default, agents: resolved.agents, pools, presets, searchProviders: { providers: searchProviders, routing: searchRouting } })
       } else {
         // 两个池都为空，只保存空池配置
-        await window.hintos.saveTaskRouting({ pools, presets })
+        await window.hintos.saveTaskRouting({ pools, presets, searchProviders: { providers: searchProviders, routing: searchRouting } })
       }
       setSaved(true)
       addToast('success', '✓ LLM 配置已保存')
@@ -432,7 +472,7 @@ export default function LLMSettings(): JSX.Element {
       // 保存 + 初始化
       await window.hintos.saveLLMConfig(resolved.default)
       setLLMConfig(resolved.default)
-      await window.hintos.saveTaskRouting({ ...routing, pools, presets })
+      await window.hintos.saveTaskRouting({ ...routing, pools, presets, searchProviders: { providers: searchProviders, routing: searchRouting } })
 
       if (Object.keys(resolved.agents).length > 0) {
         await window.hintos.initPipelineRouting(routing)
@@ -718,6 +758,167 @@ export default function LLMSettings(): JSX.Element {
                   className="w-full bg-zinc-800 border border-zinc-700 rounded px-2.5 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-violet-500" />
               </div>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* ══ 搜索提供商 ══ */}
+      <div className="border border-zinc-800 rounded-lg overflow-hidden">
+        <button onClick={() => setShowSearchProviders(!showSearchProviders)}
+          className="w-full flex items-center gap-2 px-4 py-2.5 text-left hover:bg-zinc-800/30 transition-colors">
+          {showSearchProviders ? <ChevronDown className="w-4 h-4 text-zinc-500" /> : <ChevronRight className="w-4 h-4 text-zinc-500" />}
+          <Search className="w-4 h-4 text-zinc-500" />
+          <span className="text-sm text-zinc-400">搜索提供商</span>
+          <InfoTooltip text={"配置 Agent Chat 对话中使用的在线搜索提供商。\n建筑师在创作对话中可以主动搜索市场数据、竞品和趋势。\n\n• Tavily: 通用搜索 API，1000 次/月免费\n• DeepSeek Search: 中文搜索最佳，随 API 计费\n• Web Agent: 未来支持浏览器自动化登录搜索"} />
+          {searchProviders.length > 0 && (
+            <span className="ml-auto text-xs text-zinc-600">{searchProviders.filter(p => p.enabled).length} 个启用</span>
+          )}
+        </button>
+        {showSearchProviders && (
+          <div className="border-t border-zinc-800 px-4 py-3 space-y-3">
+            {/* 提供商列表 */}
+            {searchProviders.map(sp => (
+              <div key={sp.id} className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${sp.enabled ? 'border-zinc-700 bg-zinc-800/40' : 'border-zinc-800 bg-zinc-900/40 opacity-60'}`}>
+                <span className="text-xs font-medium text-zinc-300 min-w-0 truncate flex-1">{sp.label}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-400 shrink-0">{SEARCH_TYPE_LABELS[sp.type] || sp.type}</span>
+                {sp.supportedLanguages.includes('zh') && <span className="text-[10px] text-sky-400">中</span>}
+                {sp.supportedLanguages.includes('en') && <span className="text-[10px] text-emerald-400">EN</span>}
+                <button onClick={() => { setEditingSearchKey(sp.id); setSearchForm({ ...sp }) }}
+                  className="p-1 text-zinc-500 hover:text-zinc-300"><Pencil className="w-3 h-3" /></button>
+                <button onClick={() => {
+                  setSearchProviders(prev => prev.filter(p => p.id !== sp.id))
+                  setSearchRouting(prev => ({ zh: prev.zh.filter(id => id !== sp.id), en: prev.en.filter(id => id !== sp.id) }))
+                }}
+                  className="p-1 text-zinc-500 hover:text-red-400"><Trash2 className="w-3 h-3" /></button>
+              </div>
+            ))}
+
+            {/* 添加 / 编辑表单 */}
+            {editingSearchKey !== null ? (
+              <div className="border border-violet-800/40 rounded-lg p-3 space-y-2 bg-zinc-900/60">
+                <div className="grid grid-cols-2 gap-2">
+                  <input placeholder="名称" value={searchForm.label} onChange={e => setSearchForm(f => ({ ...f, label: e.target.value }))}
+                    className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-violet-500" />
+                  <select value={searchForm.type} onChange={e => {
+                    const t = e.target.value as SearchProviderUI['type']
+                    setSearchForm(f => ({ ...f, type: t, apiUrl: SEARCH_TYPE_DEFAULTS[t] || f.apiUrl }))
+                  }} className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200">
+                    <option value="tavily">Tavily API</option>
+                    <option value="deepseek-search">DeepSeek Search</option>
+                    <option value="web-agent">Web Agent</option>
+                  </select>
+                </div>
+                <input placeholder="API Key" value={searchForm.apiKey} onChange={e => setSearchForm(f => ({ ...f, apiKey: e.target.value }))}
+                  type="password" className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-violet-500" />
+                <input placeholder="API URL" value={searchForm.apiUrl} onChange={e => setSearchForm(f => ({ ...f, apiUrl: e.target.value }))}
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-violet-500" />
+                {searchForm.type === 'web-agent' && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <input placeholder="用户名" value={searchForm.username} onChange={e => setSearchForm(f => ({ ...f, username: e.target.value }))}
+                      className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-violet-500" />
+                    <input placeholder="密码" type="password" value={searchForm.password} onChange={e => setSearchForm(f => ({ ...f, password: e.target.value }))}
+                      className="bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200 focus:outline-none focus:border-violet-500" />
+                  </div>
+                )}
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-1.5 text-xs text-zinc-400">
+                    <input type="checkbox" checked={searchForm.supportedLanguages.includes('zh')}
+                      onChange={e => setSearchForm(f => ({ ...f, supportedLanguages: e.target.checked ? [...f.supportedLanguages.filter(l => l !== 'zh'), 'zh'] : f.supportedLanguages.filter(l => l !== 'zh') }))} />
+                    中文
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-zinc-400">
+                    <input type="checkbox" checked={searchForm.supportedLanguages.includes('en')}
+                      onChange={e => setSearchForm(f => ({ ...f, supportedLanguages: e.target.checked ? [...f.supportedLanguages.filter(l => l !== 'en'), 'en'] : f.supportedLanguages.filter(l => l !== 'en') }))} />
+                    English
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-zinc-400 ml-auto">
+                    <input type="checkbox" checked={searchForm.enabled}
+                      onChange={e => setSearchForm(f => ({ ...f, enabled: e.target.checked }))} />
+                    启用
+                  </label>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button onClick={() => setEditingSearchKey(null)}
+                    className="px-3 py-1 text-xs text-zinc-400 hover:text-zinc-200">取消</button>
+                  <button onClick={() => {
+                    if (!searchForm.label.trim()) return
+                    const isNew = editingSearchKey === '__new__'
+                    const entry = { ...searchForm, id: isNew ? generateId(searchForm.label) : searchForm.id }
+                    setSearchProviders(prev => {
+                      if (isNew) return [...prev, entry]
+                      return prev.map(p => p.id === entry.id ? entry : p)
+                    })
+                    // 自动加入路由
+                    if (isNew && entry.enabled) {
+                      setSearchRouting(prev => ({
+                        zh: entry.supportedLanguages.includes('zh') ? [...prev.zh, entry.id] : prev.zh,
+                        en: entry.supportedLanguages.includes('en') ? [...prev.en, entry.id] : prev.en,
+                      }))
+                    }
+                    setEditingSearchKey(null)
+                  }} className="px-3 py-1 text-xs bg-violet-600 hover:bg-violet-500 text-white rounded">
+                    {editingSearchKey === '__new__' ? '添加' : '保存'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => {
+                setEditingSearchKey('__new__')
+                setSearchForm({ id: '', label: '', type: 'tavily', apiKey: '', apiUrl: 'https://api.tavily.com', username: '', password: '', enabled: true, supportedLanguages: ['zh', 'en'] })
+              }}
+                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-dashed border-zinc-700 rounded-lg text-xs text-zinc-500 hover:text-zinc-300 hover:border-zinc-500 transition-colors">
+                <Plus className="w-3 h-3" /> 添加搜索提供商
+              </button>
+            )}
+
+            {/* 搜索路由 */}
+            {searchProviders.length > 0 && (
+              <div className="border-t border-zinc-800 pt-3 space-y-2">
+                <p className="text-xs text-zinc-500 font-medium">搜索 Fallback 链（按优先级从高到低排列）</p>
+                {(['zh', 'en'] as const).map(lang => {
+                  const chain = searchRouting[lang]
+                  const available = searchProviders.filter(p => p.enabled && p.supportedLanguages.includes(lang))
+                  if (available.length === 0) return null
+                  return (
+                    <div key={lang} className="space-y-1">
+                      <p className="text-[10px] text-zinc-500">{lang === 'zh' ? '🇨🇳 中文搜索' : '🇬🇧 英文搜索'}</p>
+                      {chain.map((pid, idx) => {
+                        const sp = searchProviders.find(p => p.id === pid)
+                        if (!sp) return null
+                        return (
+                          <div key={pid} className="flex items-center gap-1.5 pl-2">
+                            <span className="text-[10px] text-zinc-600 w-4">{idx + 1}.</span>
+                            <span className="text-xs text-zinc-300 flex-1">{sp.label}</span>
+                            <button disabled={idx === 0} onClick={() => setSearchRouting(prev => {
+                              const arr = [...prev[lang]]; [arr[idx - 1], arr[idx]] = [arr[idx], arr[idx - 1]]
+                              return { ...prev, [lang]: arr }
+                            })} className="p-0.5 text-zinc-600 hover:text-zinc-300 disabled:opacity-30"><ArrowUp className="w-3 h-3" /></button>
+                            <button disabled={idx === chain.length - 1} onClick={() => setSearchRouting(prev => {
+                              const arr = [...prev[lang]]; [arr[idx], arr[idx + 1]] = [arr[idx + 1], arr[idx]]
+                              return { ...prev, [lang]: arr }
+                            })} className="p-0.5 text-zinc-600 hover:text-zinc-300 disabled:opacity-30"><ArrowDown className="w-3 h-3" /></button>
+                            <button onClick={() => setSearchRouting(prev => ({ ...prev, [lang]: prev[lang].filter(id => id !== pid) }))}
+                              className="p-0.5 text-zinc-600 hover:text-red-400"><X className="w-3 h-3" /></button>
+                          </div>
+                        )
+                      })}
+                      {available.filter(p => !chain.includes(p.id)).length > 0 && (
+                        <select value="" onChange={e => {
+                          if (!e.target.value) return
+                          setSearchRouting(prev => ({ ...prev, [lang]: [...prev[lang], e.target.value] }))
+                          e.target.value = ''
+                        }} className="ml-6 bg-zinc-800 border border-zinc-700 rounded px-2 py-0.5 text-[10px] text-zinc-400">
+                          <option value="">+ 添加到链...</option>
+                          {available.filter(p => !chain.includes(p.id)).map(p => (
+                            <option key={p.id} value={p.id}>{p.label}</option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

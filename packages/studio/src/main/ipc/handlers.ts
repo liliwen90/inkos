@@ -103,6 +103,16 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     mainWindow.webContents.send('cyber-feed', { source, level, message, detail })
   }
 
+  // Agent Chat 流式广播
+  function emitAgentChatStream(agentName: string, chunkText: string, messageId: string, isComplete: boolean): void {
+    mainWindow.webContents.send('agent-chat-stream', { agentName, chunkText, messageId, isComplete })
+  }
+
+  // Agent Chat 消息广播
+  function emitAgentChatMessage(message: unknown): void {
+    mainWindow.webContents.send('agent-chat-message', message)
+  }
+
   // === 日志系统 ===
   const logDir = join(app.getPath('userData'), 'activity-logs')
   if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true })
@@ -137,6 +147,13 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     if (typeof url === 'string' && url.startsWith('https://')) {
       return shell.openExternal(url)
     }
+  })
+
+  // ===== Agent Chat Gate 响应 =====
+  // 占位 — Phase 3 实现 Gate 机制时会在这里分发用户决策
+  ipcMain.handle('agent-chat-respond', (_e, stage: string, action: string, _feedback?: string) => {
+    appendLog('ACTIVITY', `Agent Chat gate respond: stage=${stage} action=${action}`)
+    return true
   })
 
   // ===== 项目管理 =====

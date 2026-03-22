@@ -27,6 +27,21 @@ export interface LLMPoolEntry {
   model: string
 }
 
+/** 搜索提供商条目 */
+export interface SearchProviderEntry {
+  id: string
+  label: string
+  type: 'tavily' | 'deepseek-search' | 'web-agent'
+  apiKey?: string
+  apiUrl?: string
+  /** web-agent 登录用户名（未来浏览器自动化搜索代理） */
+  username?: string
+  /** web-agent 登录密码 */
+  password?: string
+  enabled: boolean
+  supportedLanguages: ('zh' | 'en')[]
+}
+
 /** 每种语言的 Agent 路由预设 */
 export interface LanguagePreset {
   defaultLLM: string
@@ -56,6 +71,14 @@ export interface TaskRoutingConfig {
   presets?: {
     zh?: LanguagePreset
     en?: LanguagePreset
+  }
+  /** 搜索提供商配置（Agent Chat 在线搜索用） */
+  searchProviders?: {
+    providers: SearchProviderEntry[]
+    routing: {
+      zh: string[]
+      en: string[]
+    }
   }
 }
 

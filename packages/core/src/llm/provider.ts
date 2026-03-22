@@ -139,6 +139,35 @@ export async function chatCompletion(
   }
 }
 
+// === Streaming Chat (real-time onChunk callback for UI) ===
+
+export async function chatCompletionStreaming(
+  client: LLMClient,
+  model: string,
+  messages: ReadonlyArray<LLMMessage>,
+  onChunk: (text: string) => void,
+  options?: {
+    readonly temperature?: number;
+    readonly maxTokens?: number;
+  },
+): Promise<LLMResponse> {
+  try {
+    const resolved = {
+      temperature: options?.temperature ?? client.defaults.temperature,
+      maxTokens: options?.maxTokens ?? client.defaults.maxTokens,
+    };
+    if (client.provider === "anthropic") {
+      return await chatCompletionAnthropic(client._anthropic!, model, messages, resolved, client.defaults.thinkingBudget, onChunk);
+    }
+    if (client.apiFormat === "responses") {
+      return await chatCompletionOpenAIResponses(client._openai!, model, messages, resolved, onChunk);
+    }
+    return await chatCompletionOpenAIChat(client._openai!, model, messages, resolved, onChunk);
+  } catch (error) {
+    throw wrapLLMError(error);
+  }
+}
+
 // === Tool-calling Chat (used by agent loop) ===
 
 export async function chatWithTools(
@@ -175,6 +204,7 @@ async function chatCompletionOpenAIChat(
   model: string,
   messages: ReadonlyArray<LLMMessage>,
   options: { readonly temperature: number; readonly maxTokens: number },
+  onChunk?: (text: string) => void,
 ): Promise<LLMResponse> {
   const stream = await client.chat.completions.create({
     model,
@@ -193,7 +223,7 @@ async function chatCompletionOpenAIChat(
 
   for await (const chunk of stream) {
     const delta = chunk.choices[0]?.delta?.content;
-    if (delta) chunks.push(delta);
+    if (delta) { chunks.push(delta); onChunk?.(delta); }
     if (chunk.usage) {
       inputTokens = chunk.usage.prompt_tokens ?? 0;
       outputTokens = chunk.usage.completion_tokens ?? 0;
@@ -313,6 +343,7 @@ async function chatCompletionOpenAIResponses(
   model: string,
   messages: ReadonlyArray<LLMMessage>,
   options: { readonly temperature: number; readonly maxTokens: number },
+  onChunk?: (text: string) => void,
 ): Promise<LLMResponse> {
   const input: OpenAI.Responses.ResponseInputItem[] = messages.map((m) => ({
     role: m.role as "system" | "user" | "assistant",
@@ -334,6 +365,7 @@ async function chatCompletionOpenAIResponses(
   for await (const event of stream) {
     if (event.type === "response.output_text.delta") {
       chunks.push(event.delta);
+      onChunk?.(event.delta);
     }
     if (event.type === "response.completed") {
       inputTokens = event.response.usage?.input_tokens ?? 0;
@@ -448,6 +480,7 @@ async function chatCompletionAnthropic(
   messages: ReadonlyArray<LLMMessage>,
   options: { readonly temperature: number; readonly maxTokens: number },
   thinkingBudget: number = 0,
+  onChunk?: (text: string) => void,
 ): Promise<LLMResponse> {
   const systemText = messages
     .filter((m) => m.role === "system")
@@ -476,6 +509,7 @@ async function chatCompletionAnthropic(
   for await (const event of stream) {
     if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
       chunks.push(event.delta.text);
+      onChunk?.(event.delta.text);
     }
     if (event.type === "message_start") {
       inputTokens = event.message.usage?.input_tokens ?? 0;
