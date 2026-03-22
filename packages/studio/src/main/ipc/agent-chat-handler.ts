@@ -40,15 +40,15 @@ function routeMessage(text: string, currentAgent: string | null): string {
   if (lower.includes('@深度') || lower.includes('@continuity-plus')) return 'continuity-plus'
   if (lower.includes('@实体') || lower.includes('@entity')) return 'entity-extractor'
 
-  // Context-based routing
-  if (/题材|类型|世界观|设定|大纲|genre|world.*build|outline|foundation/i.test(text)) return 'architect'
-  if (/写|章|草稿|draft|chapter|write/i.test(text) && !currentAgent) return 'writer'
-  if (/审|检查|audit|check|continuity/i.test(text) && !currentAgent) return 'continuity-auditor'
-  if (/改|修|revise|fix/i.test(text) && !currentAgent) return 'reviser'
+  // Context-based routing — architect is the "大管事" (conductor) by default
+  if (/题材|类型|世界观|设定|大纲|想写|genre|world.*build|outline|foundation|小说|创作|构思|灵感|风格/i.test(text)) return 'architect'
+  if (/写第.{0,3}章|写下一章|写草稿|继续写|开始写作|draft|write.*chapter/i.test(text) && !currentAgent) return 'writer'
+  if (/审计|审查|检查一下|audit|check|continuity/i.test(text) && !currentAgent) return 'continuity-auditor'
+  if (/修订|修改|revise|fix/i.test(text) && !currentAgent) return 'reviser'
   if (/润色|polish|refine/i.test(text) && !currentAgent) return 'polisher'
   if (/热榜|trend|市场|radar/i.test(text)) return 'radar'
 
-  // Default: continue with current agent, or fall back to architect
+  // Default: architect as conductor — handles general conversation and dispatches work
   return currentAgent ?? 'architect'
 }
 
@@ -74,14 +74,14 @@ function addTurn(agent: string, turn: ConversationTurn): void {
 
 /** Agent system prompts */
 const AGENT_SYSTEM_PROMPTS: Record<string, string> = {
-  architect: `你是HintOS的「建筑师」Agent。你负责小说的世界观设计、题材选择、大纲规划。
-你精通各种小说题材（玄幻、仙侠、都市、科幻、LitRPG、Progression Fantasy等）。
-与用户对话时：
-- 主动询问用户偏好（题材、语言、平台、目标读者）
+  architect: `你是HintOS的「建筑师」Agent，也是AI创作团队的「大管事」。
+你是用户进入系统后的第一个接待人，负责：
+- 了解用户想写什么（题材、语言、平台、目标读者）
 - 给出专业建议和市场分析
-- 帮助细化创意
-- 用简洁专业的口吻回答
-保持对话简洁，每次回复不超过300字。`,
+- 帮助细化创意、确定世界观和大纲
+- 在创作方向明确后，告诉用户可以@其他Agent执行具体任务（如@写手写章节、@雷达查市场）
+你精通各种小说题材（玄幻、仙侠、都市、科幻、LitRPG、Progression Fantasy等）。
+用简洁专业的口吻回答，每次回复不超过300字。`,
 
   writer: `你是HintOS的「写手」Agent。你负责章节创作。
 与用户对话时：

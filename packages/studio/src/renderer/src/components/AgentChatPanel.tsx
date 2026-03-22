@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { MessageSquare, Minimize2, Maximize2, X, Send, Settings, Search, Paperclip, BarChart3 } from 'lucide-react'
+import { MessageSquare, Minimize2, Maximize2, X, Send, Settings, Search, Paperclip, BarChart3, Trash2 } from 'lucide-react'
 import { useAgentChatStore, AGENT_DEFS, type InteractionMode } from '../stores/agent-chat-store'
 import AgentMessage from './AgentMessage'
 import PipelineMiniMap from './PipelineMiniMap'
@@ -397,6 +397,18 @@ export default function AgentChatPanel(): JSX.Element {
         <button onClick={handleSearch} className="p-1 text-zinc-600 hover:text-zinc-300" title="搜索">
           <Search className="w-3.5 h-3.5" />
         </button>
+        {messages.length > 0 && (
+          <button
+            onClick={() => {
+              if (confirm('确定清空所有聊天记录吗？')) {
+                useAgentChatStore.getState().clearMessages()
+                window.hintos.clearAgentChat()
+              }
+            }}
+            className="p-1 text-zinc-600 hover:text-red-400" title="清空聊天记录">
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        )}
         <div className="ml-auto">
           <ModeSelector />
         </div>
