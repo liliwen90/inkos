@@ -11,7 +11,7 @@ export { type PlanStatus, type PlanEntry, type PlanIndex, type PlanStats, type P
 
 // LLM
 export { createLLMClient, chatCompletion, chatCompletionStreaming, chatWithTools, type LLMClient, type LLMResponse, type LLMMessage, type ToolDefinition, type ToolCall, type AgentMessage, type ChatWithToolsResult } from "./llm/provider.js";
-export { SearchRouter, TavilySearchProvider, DeepSeekSearchProvider, type SearchResult, type SearchProviderConfig, type SearchRouting, type SearchProvider } from "./llm/search-provider.js";
+export { SearchRouter, TavilySearchProvider, BraveSearchProvider, DeepSeekSearchProvider, type SearchResult, type SearchProviderConfig, type SearchRouting, type SearchProvider } from "./llm/search-provider.js";
 
 // Agents
 export { BaseAgent, type AgentContext } from "./agents/base.js";
