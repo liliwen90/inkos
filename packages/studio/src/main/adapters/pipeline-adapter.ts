@@ -31,6 +31,12 @@ export class PipelineAdapter extends EventEmitter {
   private runner: PipelineRunnerType | null = null
   // Gate promise management: when a gate fires, we store the resolver here
   private pendingGateResolvers = new Map<string, (decision: GateDecision) => void>()
+  // Interaction mode (synced from frontend)
+  private interactionMode: 'interactive' | 'auto-report' | 'silent' = 'auto-report'
+
+  setInteractionMode(mode: 'interactive' | 'auto-report' | 'silent'): void {
+    this.interactionMode = mode
+  }
 
   async initialize(client: LLMClient, model: string, projectRoot: string, modelOverrides?: Record<string, string>): Promise<void> {
     const { PipelineRunner } = await import('@actalk/hintos-core')
@@ -59,16 +65,38 @@ export class PipelineAdapter extends EventEmitter {
 
   /** Handle a gate request from the runner — creates a pending promise and emits the gate payload */
   private handleGate(payload: GatePayload): Promise<GateDecision> {
+    // Silent mode: auto-approve everything
+    if (this.interactionMode === 'silent') {
+      this.emit('agent-report', { agentName: payload.agentName, content: payload.summary, richData: payload.data })
+      return Promise.resolve({ action: 'approve' })
+    }
+
+    // Auto-report mode: emit report but auto-approve (no blocking)
+    if (this.interactionMode === 'auto-report') {
+      this.emit('gate', payload) // Still show in UI, but...
+      // Auto-resolve after 3 seconds (just enough for user to see)
+      return new Promise<GateDecision>((resolve) => {
+        this.pendingGateResolvers.set(payload.stage, resolve)
+        setTimeout(() => {
+          if (this.pendingGateResolvers.has(payload.stage)) {
+            this.pendingGateResolvers.delete(payload.stage)
+            resolve({ action: 'approve' })
+          }
+        }, 3000)
+      })
+    }
+
+    // Interactive mode: block until user responds
     return new Promise<GateDecision>((resolve) => {
       this.pendingGateResolvers.set(payload.stage, resolve)
       this.emit('gate', payload)
-      // Auto-resolve after 5 minutes to prevent deadlock
+      // Safety timeout: 10 minutes for interactive mode
       setTimeout(() => {
         if (this.pendingGateResolvers.has(payload.stage)) {
           this.pendingGateResolvers.delete(payload.stage)
           resolve({ action: 'approve' })
         }
-      }, 5 * 60 * 1000)
+      }, 10 * 60 * 1000)
     })
   }
 

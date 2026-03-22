@@ -185,6 +185,16 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     return true
   })
 
+  // Sync interaction mode from frontend to pipeline adapter
+  ipcMain.handle('set-interaction-mode', (_e, mode: string) => {
+    if (['interactive', 'auto-report', 'silent'].includes(mode)) {
+      pipelineAdapter.setInteractionMode(mode as 'interactive' | 'auto-report' | 'silent')
+      appendLog('ACTIVITY', `Interaction mode set to: ${mode}`)
+      return true
+    }
+    return false
+  })
+
   // ===== 项目管理 =====
 
   ipcMain.handle('select-project-dir', async () => {

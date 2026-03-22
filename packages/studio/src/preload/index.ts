@@ -228,6 +228,10 @@ const hintosAPI = {
   // Agent Chat 清空历史
   clearAgentChat: (agentName?: string): Promise<boolean> =>
     ipcRenderer.invoke('agent-chat-clear', agentName),
+
+  // 交互模式同步
+  setInteractionMode: (mode: string): Promise<boolean> =>
+    ipcRenderer.invoke('set-interaction-mode', mode),
 }
 
 if (process.contextIsolated) {

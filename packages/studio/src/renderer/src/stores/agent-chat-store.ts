@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 
 // === Types ===
 
@@ -109,7 +110,9 @@ const DEFAULT_POSITION = { x: -1, y: -1, w: 420, h: 520 }
 
 let _msgSeq = 0
 
-export const useAgentChatStore = create<AgentChatState>((set, get) => ({
+export const useAgentChatStore = create<AgentChatState>()(
+  persist(
+    (set, get) => ({
   messages: [],
   interactionMode: 'auto-report',
   currentAgent: null,
@@ -202,4 +205,15 @@ export const useAgentChatStore = create<AgentChatState>((set, get) => ({
   },
 
   setCurrentBookId: (id) => set({ currentBookId: id }),
-}))
+}),
+    {
+      name: 'hintos-agent-chat',
+      partialize: (state) => ({
+        messages: state.messages.slice(-100), // Only persist last 100 messages
+        interactionMode: state.interactionMode,
+        panelPosition: state.panelPosition,
+        currentBookId: state.currentBookId,
+      }),
+    },
+  ),
+)

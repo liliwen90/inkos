@@ -138,7 +138,7 @@ function ModeSelector(): JSX.Element {
       {open && (
         <div className="absolute bottom-full left-0 mb-1 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl py-1 z-50 min-w-[140px]">
           {(Object.keys(MODE_LABELS) as InteractionMode[]).map((m) => (
-            <button key={m} onClick={() => { setMode(m); setOpen(false) }}
+            <button key={m} onClick={() => { setMode(m); window.hintos.setInteractionMode(m); setOpen(false) }}
               className={`w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-700/50 ${m === mode ? 'text-violet-400' : 'text-zinc-300'}`}>
               {MODE_LABELS[m]}
               {m === 'interactive' && <span className="text-zinc-600 ml-1">每步确认</span>}
