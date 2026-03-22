@@ -74,6 +74,10 @@ function useDraggable(
   setPosition: (pos: Partial<{ x: number; y: number; w: number; h: number }>) => void,
   panelState: string,
 ): void {
+  // Use refs so event handlers always read fresh position without re-binding
+  const posRef = useRef(position)
+  posRef.current = position
+
   useEffect(() => {
     const handle = handleRef.current
     if (!handle || panelState !== 'normal') return
@@ -88,8 +92,8 @@ function useDraggable(
       dragging = true
       startX = e.clientX
       startY = e.clientY
-      startPosX = position.x
-      startPosY = position.y
+      startPosX = posRef.current.x
+      startPosY = posRef.current.y
       e.preventDefault()
     }
 
@@ -112,7 +116,7 @@ function useDraggable(
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUp)
     }
-  }, [handleRef, position.x, position.y, setPosition, panelState])
+  }, [handleRef, setPosition, panelState])
 }
 
 // === Mode selector ===
