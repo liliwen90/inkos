@@ -13,6 +13,9 @@ import type {
   ContinuityPlusResult,
   PolishResult,
   PlanEntry,
+  GatePayload,
+  GateDecision,
+  ChapterLandmarkPayload,
 } from '@actalk/hintos-core'
 
 export interface ProgressEvent {
@@ -22,16 +25,21 @@ export interface ProgressEvent {
 }
 
 /**
- * 管线适配器 — 包装 PipelineRunner，添加进度拦截和错误规范化
+ * 管线适配器 — 包装 PipelineRunner，添加进度拦截、Gate、Agent Report 和 Chapter Landmark
  */
 export class PipelineAdapter extends EventEmitter {
   private runner: PipelineRunnerType | null = null
+  // Gate promise management: when a gate fires, we store the resolver here
+  private pendingGateResolvers = new Map<string, (decision: GateDecision) => void>()
 
   async initialize(client: LLMClient, model: string, projectRoot: string, modelOverrides?: Record<string, string>): Promise<void> {
     const { PipelineRunner } = await import('@actalk/hintos-core')
     this.runner = new PipelineRunner({
       client, model, projectRoot, modelOverrides,
       onProgress: (stage, detail) => this.emitProgress(stage, detail),
+      onGate: (payload) => this.handleGate(payload),
+      onAgentReport: (report) => this.emit('agent-report', report),
+      onChapterLandmark: (landmark) => this.emit('chapter-landmark', landmark),
     })
     this.interceptMethods()
   }
@@ -47,6 +55,30 @@ export class PipelineAdapter extends EventEmitter {
 
   private emitProgress(stage: string, detail: string): void {
     this.emit('progress', { stage, detail, timestamp: Date.now() } satisfies ProgressEvent)
+  }
+
+  /** Handle a gate request from the runner — creates a pending promise and emits the gate payload */
+  private handleGate(payload: GatePayload): Promise<GateDecision> {
+    return new Promise<GateDecision>((resolve) => {
+      this.pendingGateResolvers.set(payload.stage, resolve)
+      this.emit('gate', payload)
+      // Auto-resolve after 5 minutes to prevent deadlock
+      setTimeout(() => {
+        if (this.pendingGateResolvers.has(payload.stage)) {
+          this.pendingGateResolvers.delete(payload.stage)
+          resolve({ action: 'approve' })
+        }
+      }, 5 * 60 * 1000)
+    })
+  }
+
+  /** Called when user responds to a gate via IPC */
+  resolveGate(stage: string, action: string, feedback?: string): boolean {
+    const resolver = this.pendingGateResolvers.get(stage)
+    if (!resolver) return false
+    this.pendingGateResolvers.delete(stage)
+    resolver({ action, feedback })
+    return true
   }
 
   private interceptMethods(): void {
@@ -193,6 +225,11 @@ export class PipelineAdapter extends EventEmitter {
   }
 
   destroy(): void {
+    // Resolve any pending gates before destroying
+    for (const [, resolver] of this.pendingGateResolvers) {
+      resolver({ action: 'approve' })
+    }
+    this.pendingGateResolvers.clear()
     this.removeAllListeners()
     this.runner = null
   }

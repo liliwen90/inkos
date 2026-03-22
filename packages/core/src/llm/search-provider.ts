@@ -105,6 +105,8 @@ export class DeepSeekSearchProvider implements SearchProvider {
       model: "deepseek-chat",
       temperature: 0.1,
       maxTokens: 4096,
+      thinkingBudget: 0,
+      apiFormat: "chat" as const,
     });
 
     const maxResults = options?.maxResults ?? 5;

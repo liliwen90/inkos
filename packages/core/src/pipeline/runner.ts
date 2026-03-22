@@ -25,6 +25,38 @@ import type { RadarResult } from "../agents/radar.js";
 import { readFile, readdir, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 
+// Gate system — allows UI to pause pipeline and collect user decision
+export interface GateAction {
+  readonly id: string;
+  readonly label: string;
+  readonly variant: "primary" | "secondary" | "danger";
+}
+
+export interface GatePayload {
+  readonly stage: string;
+  readonly agentName: string;
+  readonly summary: string;
+  readonly data?: Record<string, unknown>;
+  readonly actions: ReadonlyArray<GateAction>;
+}
+
+export interface GateDecision {
+  readonly action: string;   // matches GateAction.id
+  readonly feedback?: string;
+}
+
+// Chapter Landmark — emitted after each chapter completes the full pipeline
+export interface ChapterLandmarkPayload {
+  readonly chapterNum: number;
+  readonly title: string;
+  readonly wordCount: number;
+  readonly characters: string[];
+  readonly hooksAdded: ReadonlyArray<{ id: string; brief: string }>;
+  readonly hooksResolved: ReadonlyArray<{ id: string; brief: string }>;
+  readonly auditCritical: number;
+  readonly chapterSummary: string;
+}
+
 export interface PipelineConfig {
   readonly client: LLMClient;
   readonly model: string;
@@ -35,6 +67,12 @@ export interface PipelineConfig {
   readonly modelOverrides?: Record<string, string>;
   /** Optional progress callback — called at each pipeline sub-stage */
   readonly onProgress?: (stage: string, detail: string) => void;
+  /** Gate callback — when provided, pipeline can pause at key decision points */
+  readonly onGate?: (payload: GatePayload) => Promise<GateDecision>;
+  /** Agent report callback — agents emit structured reports for the chat panel */
+  readonly onAgentReport?: (report: { agentName: string; content: string; richData?: Record<string, unknown> }) => void;
+  /** Chapter landmark callback — emitted on pipeline completion */
+  readonly onChapterLandmark?: (landmark: ChapterLandmarkPayload) => void;
 }
 
 export interface ChapterPipelineResult {
@@ -114,6 +152,23 @@ export class PipelineRunner {
 
   private progress(stage: string, detail: string): void {
     this.config.onProgress?.(stage, detail);
+  }
+
+  /** Pause the pipeline at a gate point and wait for user decision.
+   *  Returns 'approve' action if no gate callback is registered (auto-continue). */
+  private async gate(payload: GatePayload): Promise<GateDecision> {
+    if (!this.config.onGate) return { action: "approve" };
+    return this.config.onGate(payload);
+  }
+
+  /** Emit an agent report to the chat panel. */
+  private report(agentName: string, content: string, richData?: Record<string, unknown>): void {
+    this.config.onAgentReport?.({ agentName, content, richData });
+  }
+
+  /** Emit a chapter landmark after pipeline completion. */
+  private emitLandmark(landmark: ChapterLandmarkPayload): void {
+    this.config.onChapterLandmark?.(landmark);
   }
 
   private async loadGenreProfile(genre: string): Promise<{ profile: GenreProfile }> {
@@ -740,47 +795,77 @@ export class PipelineRunner {
 
     this.progress("writer-done", `草稿完成: ${output.title} ${output.wordCount}字`);
 
-    // 2. Audit chapter
-    this.progress("auditor", "连续性审计中...");
-    const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
-    const llmAudit = await auditor.auditChapter(
-      bookDir,
-      output.content,
-      chapterNumber,
-      book.genre,
-    );
-    const aiTellsResult = analyzeAITells(output.content, gp.language);
-    const sensitiveWriteResult = analyzeSensitiveWords(output.content);
-    const hasBlockedWriteWords = sensitiveWriteResult.found.some((f) => f.severity === "block");
-    let auditResult: AuditResult = {
-      passed: hasBlockedWriteWords ? false : llmAudit.passed,
-      issues: [...llmAudit.issues, ...aiTellsResult.issues, ...sensitiveWriteResult.issues],
-      summary: llmAudit.summary,
-    };
+    // Gate 1: Post-draft — let user review before audit
+    this.report("writer", `第${chapterNumber}章「${output.title}」草稿完成，${output.wordCount}字`, {
+      chapterNumber, title: output.title, wordCount: output.wordCount,
+    });
+    const draftGate = await this.gate({
+      stage: "post-draft", agentName: "writer",
+      summary: `草稿完成: 第${chapterNumber}章「${output.title}」${output.wordCount}字`,
+      data: { chapterNumber, title: output.title, wordCount: output.wordCount },
+      actions: [
+        { id: "approve", label: "继续审计", variant: "primary" },
+        { id: "skip-audit", label: "跳过审计直接保存", variant: "secondary" },
+      ],
+    });
 
+    // 2. Audit chapter (skipped if user chose skip-audit at gate 1)
+    let auditResult: AuditResult = { passed: true, issues: [], summary: "" };
     let finalContent = output.content;
     let finalWordCount = output.wordCount;
     let revised = false;
+    let hasCritical = false;
+    let auditGate: GateDecision = { action: "approve" };
 
-    this.progress("auditor-done", `审计完成，${auditResult.issues.length}个问题`);
+    if (draftGate.action !== "skip-audit") {
+      this.progress("auditor", "连续性审计中...");
+      const auditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
+      const llmAudit = await auditor.auditChapter(bookDir, output.content, chapterNumber, book.genre);
+      const aiTellsResult = analyzeAITells(output.content, gp.language);
+      const sensitiveWriteResult = analyzeSensitiveWords(output.content);
+      const hasBlockedWriteWords = sensitiveWriteResult.found.some((f) => f.severity === "block");
+      auditResult = {
+        passed: hasBlockedWriteWords ? false : llmAudit.passed,
+        issues: [...llmAudit.issues, ...aiTellsResult.issues, ...sensitiveWriteResult.issues],
+        summary: llmAudit.summary,
+      };
+      this.progress("auditor-done", `审计完成，${auditResult.issues.length}个问题`);
 
-    // 3. Deep continuity check (ContinuityPlus — 7 narrative dimensions)
-    this.progress("continuity-plus", "深度连续性审查中(7维度)...");
-    const cpAgent = new ContinuityPlusAgent(this.agentCtxFor("continuity-plus", bookId));
-    const cpResult = await cpAgent.check(bookDir, finalContent, chapterNumber, book.genre);
-    // Merge ContinuityPlus issues into audit result for Reviser
-    const allIssues: AuditIssue[] = [...auditResult.issues, ...cpResult.issues];
-    const hasCritical = allIssues.some((i) => i.severity === "critical");
-    auditResult = {
-      passed: auditResult.passed && cpResult.issues.length === 0,
-      issues: allIssues,
-      summary: auditResult.summary + (cpResult.summary ? `\n[ContinuityPlus] ${cpResult.summary}` : ""),
-    };
+      // 3. Deep continuity check (ContinuityPlus — 7 narrative dimensions)
+      this.progress("continuity-plus", "深度连续性审查中(7维度)...");
+      const cpAgent = new ContinuityPlusAgent(this.agentCtxFor("continuity-plus", bookId));
+      const cpResult = await cpAgent.check(bookDir, finalContent, chapterNumber, book.genre);
+      const allIssues: AuditIssue[] = [...auditResult.issues, ...cpResult.issues];
+      hasCritical = allIssues.some((i) => i.severity === "critical");
+      auditResult = {
+        passed: auditResult.passed && cpResult.issues.length === 0,
+        issues: allIssues,
+        summary: auditResult.summary + (cpResult.summary ? `\n[ContinuityPlus] ${cpResult.summary}` : ""),
+      };
+      this.progress("continuity-plus-done", `深度审查完成，${cpResult.issues.length}个问题`);
 
-    this.progress("continuity-plus-done", `深度审查完成，${cpResult.issues.length}个问题`);
+      // Gate 2: Post-audit — let user review issues before revise
+      this.report("continuity-auditor", `审计完成: ${allIssues.length}个问题, ${allIssues.filter(i => i.severity === "critical").length}个严重`, {
+        issueCount: allIssues.length,
+        criticalCount: allIssues.filter(i => i.severity === "critical").length,
+        passed: auditResult.passed,
+        summary: auditResult.summary,
+      });
+      if (hasCritical) {
+        auditGate = await this.gate({
+          stage: "post-audit", agentName: "continuity-auditor",
+          summary: `发现${allIssues.length}个问题（${allIssues.filter(i => i.severity === "critical").length}个严重）`,
+          data: { issueCount: allIssues.length, passed: auditResult.passed },
+          actions: [
+            { id: "approve", label: "自动修订", variant: "primary" },
+            { id: "skip-revise", label: "跳过修订", variant: "secondary" },
+          ],
+        });
+      }
+    } // end skip-audit check
 
     // 4. If audit fails, try auto-revise once (with merged issues)
-    if (!auditResult.passed && hasCritical) {
+    if (!auditResult.passed && hasCritical && auditGate.action !== "skip-revise" && draftGate.action !== "skip-audit") {
       this.progress("reviser", "修订Agent修改中...");
       const reviser = new ReviserAgent(this.agentCtxFor("reviser", bookId));
       const reviseOutput = await reviser.reviseChapter(
@@ -798,7 +883,8 @@ export class PipelineRunner {
         revised = true;
 
         // Re-audit the revised content
-        const reAudit = await auditor.auditChapter(
+        const reAuditor = new ContinuityAuditor(this.agentCtxFor("auditor", bookId));
+        const reAudit = await reAuditor.auditChapter(
           bookDir,
           finalContent,
           chapterNumber,
@@ -841,6 +927,10 @@ export class PipelineRunner {
     }
 
     this.progress("polisher-done", `润色完成，${polishResult.changes.length}处修改`);
+    this.report("polisher", `润色完成: ${polishResult.changes.length}处修改`, {
+      changesCount: polishResult.changes.length,
+      changes: polishResult.changes.slice(0, 5),
+    });
 
     // 6. Save chapter (original / revised / polished)
     const chaptersDir = join(bookDir, "chapters");
@@ -955,6 +1045,21 @@ export class PipelineRunner {
       wordCount: finalWordCount,
       passed: auditResult.passed,
       revised,
+    });
+
+    // 9. Emit Chapter Landmark for Agent Chat
+    // Parse hooks from updatedHooks text (best-effort extraction)
+    const hooksText = output.updatedHooks ?? "";
+    const hookLines = hooksText.split("\n").filter(l => l.trim().startsWith("-") || l.trim().startsWith("*"));
+    this.emitLandmark({
+      chapterNum: chapterNumber,
+      title: output.title,
+      wordCount: finalWordCount,
+      characters: [],   // will be populated by entity extractor in future
+      hooksAdded: hookLines.slice(0, 5).map((l, i) => ({ id: `h-${chapterNumber}-${i}`, brief: l.replace(/^[-*]\s*/, "").trim().slice(0, 80) })),
+      hooksResolved: [],
+      auditCritical: auditResult.issues.filter(i => i.severity === "critical").length,
+      chapterSummary: output.chapterSummary || `第${chapterNumber}章完成，${finalWordCount}字`,
     });
 
     return {

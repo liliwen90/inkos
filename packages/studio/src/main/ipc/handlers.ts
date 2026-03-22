@@ -150,10 +150,13 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   })
 
   // ===== Agent Chat Gate 响应 =====
-  // 占位 — Phase 3 实现 Gate 机制时会在这里分发用户决策
-  ipcMain.handle('agent-chat-respond', (_e, stage: string, action: string, _feedback?: string) => {
+  ipcMain.handle('agent-chat-respond', (_e, stage: string, action: string, feedback?: string) => {
     appendLog('ACTIVITY', `Agent Chat gate respond: stage=${stage} action=${action}`)
-    return true
+    const resolved = pipelineAdapter.resolveGate(stage, action, feedback)
+    if (!resolved) {
+      appendLog('ACTIVITY', `Gate ${stage} not found (already resolved or expired)`)
+    }
+    return resolved
   })
 
   // ===== 项目管理 =====
@@ -864,6 +867,37 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   // ===== 进度事件转发 =====
   pipelineAdapter.on('progress', (event) => {
     mainWindow.webContents.send('pipeline-progress', event)
+  })
+
+  // ===== Agent Chat 事件转发 =====
+  pipelineAdapter.on('gate', (payload) => {
+    // Send gate as an agent-chat-message of type 'agent-gate'
+    emitAgentChatMessage({
+      type: 'agent-gate',
+      agentName: payload.agentName,
+      content: payload.summary,
+      actions: payload.actions,
+      richData: payload.data,
+    })
+    appendLog('ACTIVITY', `Agent gate fired: ${payload.stage} — ${payload.summary}`)
+  })
+
+  pipelineAdapter.on('agent-report', (report: { agentName: string; content: string; richData?: Record<string, unknown> }) => {
+    emitAgentChatMessage({
+      type: 'agent-report',
+      agentName: report.agentName,
+      content: report.content,
+      richData: report.richData,
+    })
+  })
+
+  pipelineAdapter.on('chapter-landmark', (landmark: { chapterNum: number; title: string; wordCount: number; characters: string[]; hooksAdded: Array<{ id: string; brief: string }>; hooksResolved: Array<{ id: string; brief: string }>; auditCritical: number; chapterSummary: string }) => {
+    emitAgentChatMessage({
+      type: 'chapter-landmark',
+      agentName: 'writer',
+      content: `📍 第${landmark.chapterNum}章「${landmark.title}」${landmark.wordCount}字`,
+      landmark,
+    })
   })
 
   // ===== 热榜雷达 =====
