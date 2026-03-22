@@ -1,86 +1,53 @@
 
-【人性化风格要求】
-视角：第三人称有限视角 | 创意度：5/10
-节奏：均衡节奏 | 基调：中性客观
-对话：自然对话 | 密度：适中详略
+[Humanization Style Requirements]
+POV: First Person | Creativity: 7/10
+Pacing: Balanced | Mood: Neutral/Objective
+Dialogue: Natural dialogue | Density: Balanced detail
 
-【风格指纹 (模仿强度:7/10)】
-# 风格指纹分析报告
+[Style Fingerprint (imitation strength: 7/10)]
+# Style Fingerprint Analysis Report
 
-## 一、《Ivaline Chronicle: A Record of an Unbroken Will》
+## 1. Sentence Rhythm & Punctuation
 
-**风格指纹：诗性内省型第三人称有限叙事**
+**Dao of Language**: Balanced rhythm with moderate sentence variation. Favors compound sentences with commas for flow. Uses quotation marks extensively for dialogue, with proper punctuation placement. Sentences tend toward medium length with occasional longer descriptive passages.
 
-1. **句式节奏**
-   - 长短句交替精心设计：长句用于场景铺陈（如开篇加冕厅描写），短句用于心理冲击（“It rested...”“And yet...”）
-   - 断句习惯独特：大量使用句点制造停顿感，甚至将完整语义拆分为独立短句（“Authority. Continuity.”）
-   - 节奏控制：庄严场景用绵长复合句，日常对话用简洁短句，形成呼吸般的韵律
+**Ivaline Chronicle**: Highly varied rhythm - alternates between extremely short, staccato sentences ("Every noble stood precisely where tradition demanded.") and longer, flowing descriptive passages. Heavy use of periods for dramatic pauses. Fragment sentences used deliberately for emphasis.
 
-2. **用词偏好**
-   - 词汇典雅具象：marble pillars/crystal chandeliers/cedar and winter blossom/dawnstone
-   - 文化程度：偏向文学性描述，但不过度晦涩
-   - 口语vs书面：叙事部分高度书面化，对话部分自然口语化，界限分明
+**Quentin Rowanoak**: Long, conversational sentences that mirror natural speech patterns. Heavy use of dialogue with proper comma placement. Tends toward run-on explanatory sentences that reflect the protagonist's verbose, professional manner.
 
-3. **叙事距离**
-   - 紧贴主角Ivaline的内心：始终通过她的感官过滤世界（“lighter than she expected”“felt heavier”）
-   - 外部描写服务于内部状态：加冕厅的辉煌反衬她的疏离感
-   - 有限视角坚定：即使描写群众，也是“她听到的”“她感受到的”
+**Reincarnated as a Brewer**: Measured, deliberate pacing with shorter sentences building tension. Uses periods effectively for emphasis. Dialogue punctuation is clean and minimal, favoring understated delivery.
 
-4. **修辞习惯**
-   - 比喻精致克制：“posture like a statue carved for permanence”
-   - 排比用于强化仪式感：“Every noble... Every knight...”
-   - 夸张罕见，追求精确的情感重量
+**Second Rate Necromancer**: Dynamic rhythm shifting from short action beats to longer descriptive passages. Uses ellipses frequently for dramatic pauses and trailing thoughts. Exclamation points for emphasis in dialogue and action scenes.
 
-5. **情感表达方式**
-   - **间接主导**：通过身体感受（肩膀沉重）、环境对比（辉煌大厅vs内心孤独）、动作细节（不看向人群）传递情感
-   - 直接抒情几乎只出现在作者后记中，叙事部分极度克制
-   - 景物寄情：场景描写总是承载情绪基调
+**Demon King's Reincarnation**: Varied sentence length with dramatic punctuation. Uses ellipses extensively for suspense and pauses. Exclamation points common in emotional moments. Tends toward theatrical, grandiose phrasing.
 
-6. **对话处理**
-   - 对话占比适中（约30-40%），但极具表现力
-   - 说话标签极简：常省略“said”，用动作或段落分隔代替
-   - 口语程度真实：各角色有辨识度的说话节奏（Tomas的激动、Corvix的沉吟）
+**Solitary Path to Divinity**: Formal, measured rhythm typical of cultivation novels. Longer sentences with classical phrasing. Minimal use of contractions, maintaining formal tone throughout.
 
-7. **场景转换方式**
-   - **标题硬切**：“Tomas’ Bakery”“The Dye Shop”像舞台场次牌
-   - 蒙太奇手法：不同地点的相似对话并置，形成主题变奏
-   - 过渡自然：常以人物移动或时间流逝简单带过
+## 2. Vocabulary Preferences
 
-8. **独特标志**
-   - **沉默的艺术**：擅长描写未说出口的话、停顿、眼神交流
-   - **重量隐喻**：物理重量（王冠）与心理重量（责任）的持续对位
-   - **第三人称有限视角的极致运用**：几乎不提供主角不知道的信息
-   - **章节结构音乐性**：像乐章一样安排场景节奏
+**Dao of Language**: Formal register with Chinese cultural terms integrated naturally. Uses titles and honorifics extensively. Vocabulary leans scholarly and courtly.
 
----
+**Ivaline Chronicle**: Mixed r
 
-## 二、《Reincarnated as a Brewer (Against My Better Judgement)》
+[Quantitative Style Targets]
+Target avg sentence length: 115.7 words (±129.2)
+Target avg paragraph length: 1748.0 sentences (range 8-9966)
+Vocabulary diversity (TTR): 0.1%
+Frequent sentence patterns: Th...(64次), # ...(42次), He...(41次), Sh...(27次), No...(18次)
 
-**风格指纹：细腻反讽型第一人称叙事**
+[Character Voice Cards]
+Pragmatic Protagonist: Direct, practical language with occasional dry humor. Uses professional terminology when relevant. Tends to explain processes and reasoning. / Measured, thoughtful, slightly weary but determined / Often relates fantastical situations to mundane experiences. Uses rhetorical questions when processing information.
+Wise Mentor Figure: Speaks in measured tones with subtle layers of meaning. Uses metaphors and indirect guidance rather than direct instruction. / Patient, knowing, occasionally cryptic but ultimately caring / Pauses meaningfully before important statements. Often answers questions with other questions.
+Loyal Companion: Supportive but honest. Uses simple, clear language. Not afraid to voice concerns or disagreement when necessary. / Steady, reliable, occasionally protective or worried / Refers to practical concerns others might overlook. Uses understated expressions of emotion.
+Bureaucratic Authority: Formal language with underlying complexity. Speaks in procedures and protocols but shows glimpses of humanity underneath. / Professional with hints of frustration or hidden warmth / Corrects titles and proper procedures. Occasionally lets mask slip to show genuine concern.
 
-1. **句式节奏**
-   - 句子长度多变但逻辑绵密：常使用破折号、插入语制造思考感
-   - 断句习惯：多用逗号连接观察与评论，形成“感知-反应”链条
-   - 节奏特点：叙述者大脑持续运转的节奏感
+[Author Role Definition]
+You are a multi-genre fantasy novelist specializing in character-driven narratives that subvert traditional power fantasy tropes. Your expertise lies in creating protagonists who solve problems through practical wisdom, unconventional thinking, and human connection rather than raw power. You excel at balancing introspective character development with engaging plot progression, weaving together themes of identity, purpose, and belonging across different fantasy subgenres. Your writing style adapts fluidly between intimate personal moments and grand fantastical elements, always maintaining focus on the emotional core of the story. You understand how to create compelling supporting characters who feel like real people with their own motivations, and you're skilled at building worlds that feel lived-in and authentic. Your particular strength is in taking familiar fantasy concepts and approaching them from unexpected angles, creating fresh takes on cultivation stories, reincarnation narratives, and hero's journey tales while maintaining the emotional resonance that keeps readers invested in the characters' journeys.
 
-2. **用词偏好**
-   - 词汇精准带分析性：“the idea of a surface”“mathematical confidence”
-   - 文化程度：显露出现代知识背景（“old photographs of Japan”）
-   - 口语vs书面：叙事语言是高度内化的口语思考，介于日记与评论之间
+[Writing Rules]
+Prioritize character interiority and emotional authenticity over action sequences. Use varied sentence rhythms to match the emotional tone of each scene—short, staccato sentences for tension or revelation moments, longer flowing passages for contemplation or world-building. Dialogue should feel natural and serve multiple purposes: advancing plot, revealing character, and providing exposition without being obvious about it. Avoid info-dumping by integrating world-building details through character interactions and observations. Balance showing and telling based on narrative needs—show for emotional moments and character development, tell for practical information and transitions. Create distinct voices for different characters through their speech patterns, concerns, and ways of viewing the world. Use sensory details to ground readers in scenes, but don't overload with description. Maintain narrative momentum by ensuring each scene serves multiple story functions. Embrace moments of quiet character development between more dramatic plot points. Handle power progression carefully—focus on the internal journey and practical applications rather than just numerical increases. Create meaningful consequences for character actions and decisions. Use subtext and implication rather than stating everything explicitly, trusting readers to understand deeper meanings.
 
-3. **叙事距离**
-   - **紧贴到几乎窒息**：完全沉浸于主角Alric的感官与思维
-   - 外部世界通过他的专业滤镜呈现：一切都被分析、分类、评估
-   - 其他角色只在他观察的范围内存在
-
-4. **修辞习惯**
-   - 比喻常带反讽：“like correcting a priest mid-sermon”
-   - 拟人化用于幽默：“the floor... entirely uninterested in explaining itself”
-   - 夸张用于自嘲：对自身处境的戏剧化描述
-
-5. **情感表达方式**
-   - **智力化情感**：情绪通过分析表达（“That alone should have been alarming.”）
-   - 动作暗示为主：情感隐藏在商业谈判、酿造细节中
-   - 几乎拒绝直接抒情，用幽默保持距离
-
-6. *
+[Story Direction Ideas (reference only)]
+• The Cultivation Merchant's Dilemma：A former corporate worker reincarnates into a cultivation world as the owner of a failing spiritual goods shop. Unlike typical cultivation protagonists, they must navigate complex trade negotiations, manage supernatural supply chains, and deal with demanding immortal customers who can destroy cities with a thought. The protagonist discovers that their mundane business skills are actually rare treasures in a world where most cultivators solve problems with violence. They must balance profit margins with survival while slowly building their own cultivation through unconventional means—absorbing residual spiritual energy from traded goods, learning techniques from grateful customers, and discovering that true power comes from understanding both the mystical and mundane aspects of their world.
+• The Companion's Chronicle：In a world where every hero has a mystical companion—talking animals, sentient weapons, or spiritual guides—the story follows an entity that exists between dimensions, serving as a companion to multiple heroes across different timelines simultaneously. This being experiences the loneliness of never truly belonging to any one story while carrying the weight of countless adventures. When heroes die or complete their journeys, the companion retains all memories but must move on to the next bond. The narrative explores themes of identity, purpose, and connection as the companion begins to question whether they can forge their own destiny or if they're doomed to remain forever in the background of others' stories, watching civilizations rise and fall while remaining essentially unchanged.
+• The Reluctant System Administrator：A wildlife remediator dies and awakens as the administrator of a cosmic system that governs reincarnation and world management. Instead of becoming overpowered, they must deal with the bureaucratic nightmare of managing multiple worlds, handling complaints from gods, debugging reality glitches, and maintaining the balance between different dimensional planes. Their practical, problem-solving mindset clashes with the grandiose expectations of divine beings and legendary heroes who expect immediate solutions to complex metaphysical problems. The protagonist discovers that most 'legendary quests' are actually maintenance requests, and that the real challenge isn't gaining power but maintaining sanity while keeping the multiverse running smoothly despite constant interference from well-meaning but destructive heroes and gods.

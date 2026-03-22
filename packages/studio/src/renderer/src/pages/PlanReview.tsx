@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { FileCheck, Loader2, Check, X, Edit3, Play, RefreshCw, ChevronRight } from 'lucide-react'
-import { useAppStore, type BookSummary, type ProgressEvent } from '../stores/app-store'
+import { useAppStore, type BookSummary } from '../stores/app-store'
 import StepGate from '../components/StepGate'
 
 type PlanStatus = 'unplanned' | 'pending' | 'approved' | 'rejected' | 'written'
@@ -43,7 +43,6 @@ export default function PlanReview(): JSX.Element {
   const setCurrentBookId = useAppStore((s) => s.setCurrentBookId)
   const pipelineReady = useAppStore((s) => s.pipelineReady)
   const setBooks = useAppStore((s) => s.setBooks)
-  const addProgressEvent = useAppStore((s) => s.addProgressEvent)
   const startActivity = useAppStore((s) => s.startActivity)
   const finishActivity = useAppStore((s) => s.finishActivity)
   const addToast = useAppStore((s) => s.addToast)
@@ -59,13 +58,7 @@ export default function PlanReview(): JSX.Element {
   const [loading, setLoading] = useState(false)
   const [loadingAction, setLoadingAction] = useState('')
 
-  // Listen to progress events
-  useEffect(() => {
-    const unsub = window.hintos.onProgress((evt: unknown) => {
-      addProgressEvent(evt as ProgressEvent)
-    })
-    return unsub
-  }, [addProgressEvent])
+  // 进度事件由 Layout.tsx 全局监听 → addProgressEvent（含 stage 过滤 + token 分流）
 
   // Load books
   useEffect(() => {

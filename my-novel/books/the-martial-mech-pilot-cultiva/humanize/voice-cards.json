@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Pragmatic Protagonist",
+    "speech": "Direct, practical language with occasional dry humor. Uses professional terminology when relevant. Tends to explain processes and reasoning.",
+    "tone": "Measured, thoughtful, slightly weary but determined",
+    "quirks": "Often relates fantastical situations to mundane experiences. Uses rhetorical questions when processing information."
+  },
+  {
+    "name": "Wise Mentor Figure",
+    "speech": "Speaks in measured tones with subtle layers of meaning. Uses metaphors and indirect guidance rather than direct instruction.",
+    "tone": "Patient, knowing, occasionally cryptic but ultimately caring",
+    "quirks": "Pauses meaningfully before important statements. Often answers questions with other questions."
+  },
+  {
+    "name": "Loyal Companion",
+    "speech": "Supportive but honest. Uses simple, clear language. Not afraid to voice concerns or disagreement when necessary.",
+    "tone": "Steady, reliable, occasionally protective or worried",
+    "quirks": "Refers to practical concerns others might overlook. Uses understated expressions of emotion."
+  },
+  {
+    "name": "Bureaucratic Authority",
+    "speech": "Formal language with underlying complexity. Speaks in procedures and protocols but shows glimpses of humanity underneath.",
+    "tone": "Professional with hints of frustration or hidden warmth",
+    "quirks": "Corrects titles and proper procedures. Occasionally lets mask slip to show genuine concern."
+  }
+]

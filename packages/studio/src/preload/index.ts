@@ -106,8 +106,14 @@ const hintosAPI = {
   analyzeTrending: (novels: unknown[], language?: 'en' | 'zh'): Promise<string> =>
     ipcRenderer.invoke('analyze-trending', novels, language),
 
+  // 中文小说导入
+  importZhNovels: (): Promise<Array<{ fileName: string; title: string; charCount: number; localPath: string }>> =>
+    ipcRenderer.invoke('import-zh-novels'),
+  analyzeZhNovels: (localPaths: string[]): Promise<string> =>
+    ipcRenderer.invoke('analyze-zh-novels', localPaths),
+
   // 创意库
-  vaultSave: (entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }> }): Promise<{ id: string; createdAt: string }> =>
+  vaultSave: (entry: { novelCount: number; analysis: string; language?: 'en' | 'zh'; novels?: Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string; localPath?: string }> }): Promise<{ id: string; createdAt: string }> =>
     ipcRenderer.invoke('vault-save', entry),
   vaultList: (): Promise<{ id: string; createdAt: string; novelCount: number; language: 'en' | 'zh'; preview: string }[]> =>
     ipcRenderer.invoke('vault-list'),
@@ -117,7 +123,7 @@ const hintosAPI = {
     ipcRenderer.invoke('vault-delete', id),
   vaultUpdate: (id: string, analysis: string): Promise<unknown> =>
     ipcRenderer.invoke('vault-update', id, analysis),
-  vaultAllNovels: (lang?: 'en' | 'zh'): Promise<Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string }>> =>
+  vaultAllNovels: (lang?: 'en' | 'zh'): Promise<Array<{ rank: number; title: string; titleZh: string; tags: string; stats: string; platform: string; url: string; localPath?: string }>> =>
     ipcRenderer.invoke('vault-all-novels', lang),
   importStyleBook: (bookId: string): Promise<string[] | null> =>
     ipcRenderer.invoke('import-style-book', bookId),

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, Check, X, Eye, Download, ChevronLeft, Loader2 } from 'lucide-react'
+import { BookOpen, Check, X, Eye, Download, ChevronLeft, Loader2, Copy, CheckCheck } from 'lucide-react'
 import { useAppStore, type BookSummary, type ChapterMeta } from '../stores/app-store'
 import { bookLang } from '../utils/lang'
 import StepGate from '../components/StepGate'
@@ -112,7 +112,7 @@ export default function ChapterManager(): JSX.Element {
 
   const handleReject = async (ch: ChapterMeta): Promise<void> => {
     if (!currentBookId) return
-    const note = prompt(lang === 'en' ? 'Rejection reason (optional):' : '驳回理由（可选）:')
+    const note = prompt('驳回理由（可选）:')
     const actId = startActivity(`驳回 第${ch.number}章`)
     try {
       await window.hintos.updateChapterStatus(currentBookId, ch.number, 'rejected', note ?? undefined)
@@ -143,18 +143,42 @@ export default function ChapterManager(): JSX.Element {
     return (
       <div className="flex flex-col items-center justify-center h-full text-zinc-500">
         <BookOpen className="w-8 h-8 mb-2" />
-        <p>{lang === 'en' ? 'Please open an HintOS project first' : '请先打开 HintOS 项目'}</p>
+        <p>请先打开 HintOS 项目</p>
       </div>
     )
   }
 
   const gateReqs = [
-    { met: !!currentBookId, label: lang === 'en' ? 'Select a book first' : '请先选择一本书', fixRoute: '/', fixLabel: lang === 'en' ? 'Dashboard' : '仪表盘' }
+    { met: !!currentBookId, label: '请先选择一本书', fixRoute: '/', fixLabel: '仪表盘' }
   ]
+
+  const [copied, setCopied] = useState(false)
+  const [copiedRR, setCopiedRR] = useState(false)
+  const handleCopyContent = (): void => {
+    if (!chapterContent) return
+    navigator.clipboard.writeText(chapterContent).then(() => {
+      setCopied(true)
+      addToast('success', '章节内容已复制到剪贴板')
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+  const handleCopyRR = (): void => {
+    if (!chapterContent) return
+    // RR 格式: 去掉 Markdown 标题行(# Chapter X: ...), 保留正文, 段落用双换行分隔
+    const lines = chapterContent.split('\n')
+    const body = lines.filter(l => !l.match(/^#{1,3}\s/)).join('\n').trim()
+    // 将连续空行规范化为双换行(RR段落分隔)
+    const rrContent = body.replace(/\n{3,}/g, '\n\n')
+    navigator.clipboard.writeText(rrContent).then(() => {
+      setCopiedRR(true)
+      addToast('success', 'RR 格式已复制 — 粘贴到 Royal Road 章节编辑器即可')
+      setTimeout(() => setCopiedRR(false), 2000)
+    })
+  }
 
   // 章节详情视图
   if (selectedChapter) {
-    const st = STATUS_LABELS[lang][selectedChapter.status] ?? { label: selectedChapter.status, color: 'bg-zinc-700 text-zinc-300' }
+    const st = STATUS_LABELS['zh'][selectedChapter.status] ?? { label: selectedChapter.status, color: 'bg-zinc-700 text-zinc-300' }
     return (
       <div className="space-y-4 h-full flex flex-col">
         <div className="flex items-center gap-3">
@@ -164,31 +188,41 @@ export default function ChapterManager(): JSX.Element {
           </button>
           <div className="flex-1">
             <h1 className="text-xl font-bold text-zinc-100">
-              {lang === 'en' ? `Chapter ${selectedChapter.number}: ${selectedChapter.title}` : `第${selectedChapter.number}章 ${selectedChapter.title}`}
+              第{selectedChapter.number}章 {selectedChapter.title}
             </h1>
             <div className="flex items-center gap-3 mt-1 text-xs text-zinc-500">
               <span className={`px-2 py-0.5 rounded ${st.color}`}>{st.label}</span>
-              <span>{selectedChapter.wordCount} {lang === 'en' ? 'words' : '字'}</span>
+              <span>{selectedChapter.wordCount}字</span>
               <span>{new Date(selectedChapter.updatedAt).toLocaleString()}</span>
             </div>
           </div>
-          {(selectedChapter.status === 'ready-for-review' || selectedChapter.status === 'drafted') && (
-            <div className="flex gap-2">
+          <div className="flex gap-2">
+            <button onClick={handleCopyContent} disabled={loading || !chapterContent}
+              className="inline-flex items-center gap-1 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 disabled:opacity-40 text-white rounded-lg text-xs transition-colors">
+              {copied ? <><CheckCheck className="w-3 h-3 text-emerald-400" /> 已复制</> : <><Copy className="w-3 h-3" /> 复制内容</>}
+            </button>
+            {selectedChapter.status === 'approved' && (
+              <button onClick={handleCopyRR} disabled={loading || !chapterContent}
+                className="inline-flex items-center gap-1 px-3 py-1.5 bg-sky-700 hover:bg-sky-600 disabled:opacity-40 text-white rounded-lg text-xs transition-colors">
+                {copiedRR ? <><CheckCheck className="w-3 h-3 text-emerald-400" /> 已复制</> : <><Copy className="w-3 h-3" /> 复制为 RR 格式</>}
+              </button>
+            )}
+            {(selectedChapter.status === 'ready-for-review' || selectedChapter.status === 'drafted') && (<>
               <button onClick={() => handleApprove(selectedChapter)}
                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs">
-                <Check className="w-3 h-3" /> {lang === 'en' ? 'Approve' : '通过'}
+                <Check className="w-3 h-3" /> 通过
               </button>
               <button onClick={() => handleReject(selectedChapter)}
                 className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-700 hover:bg-red-600 text-white rounded-lg text-xs">
-                <X className="w-3 h-3" /> {lang === 'en' ? 'Reject' : '驳回'}
+                <X className="w-3 h-3" /> 驳回
               </button>
-            </div>
-          )}
+            </>)}
+          </div>
         </div>
 
         {selectedChapter.auditIssues?.length > 0 && (
           <div className="border border-amber-800/40 bg-amber-950/20 rounded-lg p-3">
-            <p className="text-xs font-medium text-amber-400 mb-1">{lang === 'en' ? 'Audit Issues' : '审计问题'} ({selectedChapter.auditIssues.length})</p>
+            <p className="text-xs font-medium text-amber-400 mb-1">审计问题 ({selectedChapter.auditIssues.length})</p>
             <ul className="text-xs text-amber-300/70 space-y-0.5 list-disc list-inside">
               {selectedChapter.auditIssues.map((issue, i) => <li key={i}>{issue}</li>)}
             </ul>
@@ -197,7 +231,7 @@ export default function ChapterManager(): JSX.Element {
 
         <div className="flex-1 border border-zinc-800 rounded-lg p-5 overflow-y-auto">
           <div className="prose prose-invert prose-sm max-w-none whitespace-pre-wrap text-zinc-300 leading-relaxed">
-            {loading ? (lang === 'en' ? 'Loading...' : '加载中...') : chapterContent}
+            {loading ? '加载中...' : chapterContent}
           </div>
         </div>
       </div>
@@ -210,13 +244,13 @@ export default function ChapterManager(): JSX.Element {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-100">{lang === 'en' ? 'Chapter Manager' : '章节管理'}</h1>
-          <p className="text-zinc-500 text-sm mt-1">{lang === 'en' ? 'View, review and manage all chapters' : '查看、审阅和管理所有章节'}</p>
+          <h1 className="text-2xl font-bold text-zinc-100">章节管理</h1>
+          <p className="text-zinc-500 text-sm mt-1">查看、审阅和管理所有章节</p>
         </div>
         {currentBookId && chapters.length > 0 && (
           <button onClick={handleExport}
             className="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 rounded-lg text-sm transition-colors">
-            <Download className="w-4 h-4" /> {lang === 'en' ? 'Export' : '导出'}
+            <Download className="w-4 h-4" /> 导出
           </button>
         )}
       </div>
@@ -224,32 +258,32 @@ export default function ChapterManager(): JSX.Element {
       {/* 书籍选择 */}
       <select value={currentBookId ?? ''} onChange={(e) => setCurrentBookId(e.target.value || null)}
         className="w-full max-w-md bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 focus:outline-none focus:border-violet-500">
-        <option value="">{lang === 'en' ? '— Select a book —' : '— 请选择书籍 —'}</option>
+        <option value="">— 请选择书籍 —</option>
         {books.map(b => <option key={b.bookId} value={b.bookId}>{b.title}</option>)}
       </select>
 
       {!currentBookId ? (
         <div className="border border-zinc-800 rounded-lg p-8 text-center">
           <BookOpen className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-          <p className="text-zinc-500 text-sm">{lang === 'en' ? 'Select a book to view chapters' : '选择一本书查看章节列表'}</p>
+          <p className="text-zinc-500 text-sm">选择一本书查看章节列表</p>
         </div>
       ) : chapters.length === 0 ? (
         <div className="border border-zinc-800 rounded-lg p-8 text-center">
           <BookOpen className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-          <p className="text-zinc-500 text-sm">{lang === 'en' ? 'No chapters yet' : '这本书还没有章节'}</p>
-          <p className="text-zinc-600 text-xs mt-1">{lang === 'en' ? 'Go to Writing Console to start' : '前往「写作控制台」开始创作'}</p>
+          <p className="text-zinc-500 text-sm">这本书还没有章节</p>
+          <p className="text-zinc-600 text-xs mt-1">前往「写作控制台」开始创作</p>
         </div>
       ) : (
         <div className="border border-zinc-800 rounded-lg divide-y divide-zinc-800">
           {chapters.map((ch) => {
-            const st = STATUS_LABELS[lang][ch.status] ?? { label: ch.status, color: 'bg-zinc-700 text-zinc-300' }
+            const st = STATUS_LABELS['zh'][ch.status] ?? { label: ch.status, color: 'bg-zinc-700 text-zinc-300' }
             return (
               <div key={ch.number}
                 className="flex items-center gap-4 px-4 py-3 hover:bg-zinc-900/50 transition-colors">
                 <span className="text-zinc-600 text-sm w-8 text-right">{ch.number}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-zinc-200 truncate">{ch.title}</p>
-                  <p className="text-xs text-zinc-500 mt-0.5">{ch.wordCount}{lang === 'en' ? ' words' : '字'} · {new Date(ch.updatedAt).toLocaleDateString()}</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">{ch.wordCount}字 · {new Date(ch.updatedAt).toLocaleDateString()}</p>
                 </div>
                 <span className={`px-2 py-0.5 rounded text-[10px] ${st.color}`}>{st.label}</span>
                 <button onClick={() => handleViewChapter(ch)}

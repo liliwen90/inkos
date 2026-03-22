@@ -48,7 +48,7 @@ const STAGES: StageInfo[] = [
 
 const MODULES: FlowModule[] = [
   { id: 'trending',    stageIdx: 0, icon: <TrendingUp className="w-4 h-4" />,  name: '热榜雷达',   tagline: '抓取 RR / SH 热榜',        detail: '一键抓取海外热门小说排行榜，AI 自动分析读者偏好和题材趋势，生成差异化选题建议并保存到创意库。' },
-  { id: 'vault',       stageIdx: 0, icon: <Archive className="w-4 h-4" />,     name: '创意库',     tagline: '保存灵感·一键开书',         detail: '选中创意 →「发送到创建新书」自动预填书名/题材/平台/字数。也可「新建空白书籍」从零开始。' },
+  { id: 'vault',       stageIdx: 0, icon: <Archive className="w-4 h-4" />,     name: '创意库',     tagline: '保存灵感·一键开书',         detail: '选中创意 →「发送到创建新书」自动预填书名/题材/平台/字数。也可「创建新书」从零开始。' },
   { id: 'style',       stageIdx: 1, icon: <BarChart3 className="w-4 h-4" />,   name: '风格分析',   tagline: '三源导入·文风指纹',         detail: '热榜导入、在线 URL 采样、本地 .txt。运行文本统计 → AI 深度指纹 → 提取笔法基因注入写手 Agent。' },
   { id: 'suggestions', stageIdx: 1, icon: <Lightbulb className="w-4 h-4" />,   name: 'AI 建议',    tagline: '全套方案·一键应用',         detail: '生成 7 类建议：故事创意、创作规则、声音卡片、场景节拍、故事弧线、7 维风格设定（含 reason）。一键应用写入人性化引擎。' },
   { id: 'humanize',    stageIdx: 1, icon: <Sparkles className="w-4 h-4" />,    name: '人性化引擎', tagline: '7 维笔法·角色声音',         detail: '微调 POV/时态/节奏/基调/展示度/对话/描写密度。AI 建议预填值附理由。所有设定组装为 StyleGuidance prompt。' },

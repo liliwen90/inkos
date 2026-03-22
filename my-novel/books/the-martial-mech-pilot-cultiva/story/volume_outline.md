@@ -20,3 +20,22 @@
 *   Give Qin his first upgraded "steel shell."
 *   Create immediate external pressure (Syndicate interest, military recruitment).
 *   Provide a satisfying power progression (from starving refugee to Scrapyard champion).
+---
+
+# Story Arc
+
+## Disorientation (Ch. 1-3)
+Establish protagonist in unfamiliar situation, show initial coping mechanisms and growing awareness of new reality
+
+## Adaptation (Ch. 4-8)
+Character learns to navigate new world using existing skills, begins building relationships and understanding true challenges
+
+## Integration (Ch. 9-15)
+Protagonist finds their unique role, faces major obstacles that test both old and new abilities, deepens connections
+
+## Transformation (Ch. 16-22)
+Character faces crisis that requires synthesis of all growth, makes crucial decisions about identity and purpose
+
+## Resolution (Ch. 23-25)
+New equilibrium established, character has found their place while maintaining core identity, sets up future possibilities
+

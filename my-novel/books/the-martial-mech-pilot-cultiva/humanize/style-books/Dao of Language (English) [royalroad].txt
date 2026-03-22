@@ -1,0 +1,777 @@
+# Style Reference: Dao of Language (English)
+# Author: stormhand
+# Platform: Royal Road
+# Sampled: 10 of 51 chapters
+# Word Count: ~26,109
+# Scraped: 2026-03-20T16:24:13.691Z
+
+--- List of characters and ranks ---
+
+Warning: reading the list of characters is a semi-spoiler, as many do not appear in the first chapters. Read it before the chapters at your own risk.
+The list is updated through chapter 22.
+The characters' titles are real and were used at one time or another in the various Chinese dynasties. The only real invention is the Nei Wei, as female soldiers never existed in reality, but the title has been adapted with the most appropriate nomenclature, or so I believe at least.
+List of more or less important characters:
+Sun Wen – The protagonist, also called Zhāohuán Wen.
+Fei Xiang / Guifei Xiang – The protagonist's mother and the emperor's youngest consort. The rank of Fei refers to a normal consort and that of Guifei to a Chosen consort, who are only one rank below the Empress.
+Sun Hao – Emperor of the Tianjing Empire and father of the protagonist.
+Lianhua – First nanny (Runu) of the protagonist and then her Fei Yi. The title of Fei Yi would be something like a mixture of housekeeper, head maid, and administrator.
+Fei Yi Lingxi – The Fei Yi of the protagonist's mother.Enjoying this book? Seek out the original to ensure the author gets credit.
+Jiangjun Han Xin: Chief general of the empire's left army. He is the emperor's best friend, confidant, and drinking companion.
+Taijian Li Ming. – Chief eunuch of the empire and the emperor's right-hand man.
+Neingjun Liu Yan - General of all the female imperial guards and in charge of the internal guard of the imperial palace.
+Yushi Dafu Zhang Wei – Chief Director of the Yushitai.
+Xueshi / Jinshi Wenxue – Tutor to the imperial princess. He earns his second title in chapter 15.
+Jiaoliu Feng – Nei Wei army instructor who gives the protagonist physical therapy sessions and tutors her in martial arts classes.
+Taiyi Yulin – Court physician. He possesses Celestial Restoration Needles.
+Jiǎngshī Zhao Liang – Craftsman commissioned by the protagonist to make her chair.
+Nei Baihu Liang Xue – Commander of the 100 Nei Wei who escort the protagonist and her mother into exile.
+ 
+List of various titles:
+Fei Yi – Chief maid of the consort.
+Jiaoliu – Army instructor. Used for both men and women.
+Jin Wei – Male imperial guards.
+Nei Wei – Female imperial guards.
+Jin Shiwei and Nei Shiwei – Commander of 10 men.
+Jin Duwei and Nei Duwei – Commanders assigned as escorts to important figures with a variable number of men.
+Jin Baihu and Nei Baihu – Commander of 100 men.
+Neingjun – General of all female imperial guards.
+Jiangjun – General of all male imperial guards.
+Furen – Generally translated as “Lady,” this is a respectful and informal term used to address high-ranking women, including imperial consorts.
+Yushi – Imperial censors and bodyguards, responsible for investigating cases of corruption or events in the court, as well as protecting prominent members of the court. Its members are always secret. The institution that manages them is the Yushitai.
+Shangshu: Chamberlain. Responsible for the daily management of the court and the palace.
+
+--- Prologue ---
+
+In the heart of China's oldest province, among mountains that hold ancient secrets, there was an archaeologist specializing in ancient languages. Her passion had taken her all over the world, and she had dedicated her life to deciphering forgotten languages and uncovering secrets buried by time. But nothing compared to the discovery she had just made.
+Her latest expedition had taken her to a hidden cave, a place mentioned only in the oldest stories of the region. Inside was a majestic and enigmatic door of oriental appearance. The carved wood bore inscriptions in a language that seemed to have Chinese roots but defied any attempt at classification.
+The archaeologist had spent a week in front of that door, with her assistants regularly bringing her food and fuel for the small generator that kept the lights on. Despite all her efforts, she had reached a dead end, and all that remained was to take photographs of the door and the inscriptions to analyze them in her study and consult other specialists who might be able to offer her some help.
+As she approached her equipment, a slight tremor began to be felt under her feet. Without hesitation, she ran to her backpack to grab her laptop where she kept all her notes and discoveries about various languages.
+In her race against time, she realized that the tremor was not natural and it seemed as if the vibrations were coming from the door itself.
+With her computer in hand, she turned toward the exit, but that's when the ground beneath her gave way, throwing her into a hidden room beneath the cave just as the ceiling collapsed. Surrounded by dust and darkness, the archaeologist saw that she was now in an underground chamber, isolated from the outside world by the debris blocking the hole in the ceiling.
+However, one detail caught her attention. In the center of the chamber, illuminated by a mysterious light that allowed her to see in the darkness of the cave, was another door similar to the one she had found, but with inscriptions that seemed even older.
+With the mysterious light as her guide, the archaeologist searched unsuccessfully for another exit, but the only escape route she could see was the hole in the ceiling, now blocked by debris, and the enigmatic door.
+Aware that every moment was precious, she approached the new door to see if it could be opened. But as she approached, despite the desperate situation, her passion for knowledge and archaeology made her heart beat faster at what lay before her. She knew that, trapped in this place, she was standing before something that could completely change the history of China, and perhaps the entire world.
+As she examined the inscriptions and the door, a new tremor began to shake the cave, this time even more intense than the previous one, while the door began to glow brighter and brighter.
+And as she covered her eyes from the blinding light, the ceiling, already weakened by the previous tremor, collapsed completely, burying the mysteries of the cave along with the archaeologist under tons of rock, forever.
+ 
+
+ 
+I wake up in a room bathed in soft light, facing a woman of unparalleled oriental beauty, who sits watches me from an oriental-looking armchair with a mixture of serenity and sadness. Her clothing, although seemingly simple, is clearly worthy of a Chinese imperial palace.
+“Who are you? Where am I?” I ask, confused.
+“My name is He Xiangu”, she replies in a voice that calms my troubled heart. “And you are somewhere between life and death. I'm sorry to tell you that you are currently dead.”
+“Dead?” The word slips out. I know I should be more stunned, in deep shock, but for some reason, my mind feels clear and it seems as if nothing worries me.
+“I am deeply sorry, but yes”, she says, nodding at my words. “Your search led you to a place that should not exist. The door you found should not have been there, and your discovery triggered a series of signals that forced us to destroy it, and you were an incidental victim of those circumstances.”Unauthorized content usage: if you discover this narrative on Amazon, report the violation.
+“I can't believe it all ended like this”, I murmur with a calmness that is out of place in my circumstances.
+“Since you died because of us, there is compensation, something we have done before in similar circumstances”, He Xiangu tells me with a melancholy smile. "We offer you the opportunity to be reincarnated in the world to which that door was originally connected, with your memories intact. In addition, you will receive a body with the Blessing of the Heavens and a minor request.“
+”Could I choose that Blessing?“ I ask immediately, intrigued despite the situation and, I suppose, thanks to my calmness, which I can only describe as supernatural.
+”Of course, it's the least we can do”, she replies.
+”And how do we do that? What would that Blessing be?" I ask again.
+“In the world you are going to, people born with the Blessing of Heaven have stronger bodies and a better understanding of various things that I cannot reveal to you. There are other Blessings, but as a human being, you cannot have them”, she replied.
+“If you want to choose, you will have to indicate how you want to distribute the Blessing that has been granted to you”, He Xiangu told me with a smile. “What do you want, a strong body, better understanding, more luck, or a little bit of everything?”
+I look at He Xiangu indecisively and say “Isn't there a more graphic way to choose, something that tells me the magnitude of that Blessing so I can be more informed about what I choose?”
+He Xiangu looks at me for a moment and says “Knowing the world you come from, I think you'll find this way more user-friendly.”
+With a wave of her hand, a pillar rises from the ground with a scroll on top.
+“Go ahead, I think everything will become clearer to you”, she says with a smile.
+I approach the pillar and look at the scroll. I see that it only has four entries that say:
+Body 8, Understanding 8, Spirit 8, Luck 8
+“What does this mean?” I ask He Xiangu without looking at her as I concentrate on the scroll to try to decipher what it means.
+“Those are the Blessings you will be born with in the new world”, He Xiangu tells me. “In that world, a human, without being Blessed, would normally have between 4 and 6 in what is written on the scroll. According to your request, you can increase or decrease those numbers to choose how you want your Blessing to be distributed, but I warn you that I cannot tell you what is written on the scroll means or what it is for.”
+I stare at the parchment for a long time under He Xiangu's watchful gaze, and understanding what she has taken as an example from my world, I begin to doubt as my little min-maxer soul, which only emerges when I play video games from time to time, takes hold of me.
+After making a decision, I ask him, “If I put a 2 in one of the sections, would that be too bad?”
+She looks at me and asks in turn, “Are you thinking of putting a 2 in something?”
+“Yes, in ‘Body,’” I reply. “From what I can gather from those stats—if I can call them that—and from the type of door I found, I imagine the world I’m going to is somehow related to Chinese mythology.”
+I set the scroll aside to look at her intently and say, “And the fact that you happen to have the name of one of the Eight Immortals, I suppose, isn’t entirely a coincidence.”
+He Xiangu looks at me with her smile, neither confirming nor denying anything, but I can see a flash of recognition in her eyes.
+“In a world like that, I suppose having a strong body can be useful, but it will always be inferior to mastering magical techniques or having the heavens’ luck on your side if all the ancient stories are even somewhat true,” I tell her. “Take Sun Wukong, for example. Despite his powerful physique, when he rebelled against the heavens, he relied more on his magical techniques than on his strength.”
+“You’re right about that,” He Xiangu tells me. “All the examples you can find in what you know as Chinese mythology could be said to have a Body score below 4 in the visual representation I provided you.”
+“I can assure you that, whatever you put in Body, it won’t put you in a life-threatening situation, but you will encounter more difficulties than a normal person usually does,” He Xiangu finally tells me.
+“I might regret it later, but I choose to follow the path of Li Tieguai or Bodhidharma Damo from mythology,” I tell He Xiangu. “So I choose Body 2, Understanding 10, Spirit 10, Luck 10”
+“Are you sure?” she asks, her smile fading as a serious expression takes over her face.
+“Yes, for better or for worse,” I reply.
+With a wave of her hand, the pillar holding the scroll disappears.
+“And your minor request?” she asks next.
+“Considering how low my Body is, the difficulty I’ll likely face is that I’ll be born with a body that gets sick easily; I’ll be the typical girl who catches every cold and illness around her. I want to be born into a family that can take care of me and pay for the doctors who’ll have to visit and treat me frequently,” I tell her.
+He Xiangu nods, her face reflecting sincere approval as she says “It's fair. It will be granted."
+Then, with an elegant gesture, she conjures up a door similar to the one I found in the cave. “When you cross through, you will begin your new life. Remember your past experiences, they will serve you well.”
+I approach the door, filled with new determination. “Thank you, He Xiangu, for this second chance.”
+“May you find peace and purpose in your new life”, she says as I push the door open, ready to walk through it.
+“Too bad you won't remember any of this”, I suddenly hear her say just as the doors open, but before I can react to her words, a tunnel filled with stars beckons me.
+
+--- Chapter 1 ---
+
+I wake up with a start, confused, immersed in the darkness of an unknown place. My last memories are vague, fragmented, with the image of the door I had found in the cave and how it had begun to glow when that last tremor started to collapse the ceiling. A feeling of disorientation enveloped me, and I had no idea where I was or how I had gotten there. All I knew was that the place I found myself in was completely unfamiliar.
+I immediately realize that my vision is blurred, unable to focus on the contours and colors around me. All I can see are patches of light and shadow that blend together in a confusing visual whirlwind. The inability to see clearly makes me feel even more lost, as if I were trapped in a dream from which I cannot wake up.
+My body feels strange, as if it isn't responding to me. But I also realize that I am in some kind of bed, as through my blurred vision I see wooden planks around me, as if I were in a kind of box open at the top, and that beneath me there is some kind of mattress.
+Suddenly, a huge figure looms over me, and its size and presence overwhelm me. In a burst of fear, I let out a scream, an instinctive expression of terror in the face of the unknown, as the feeling of vulnerability intensifies, leaving me at the mercy of this imposing presence.
+I find myself being lifted up, held in the arms of someone whose voice sounds like a familiar yet foreign language. Their words, although reminiscent of Chinese, flow in a dialect I cannot understand, so confusion mixes with fear as I try to discern my situation.
+I try to say something, but only babbling comes out of my throat.
+I notice that the figure carrying me is walking in another direction, and I take the opportunity to look around, but I only see blurry shadows, mostly at the edges of my vision. I notice something strange in the way she carries me, but still confused by the strange situation I find myself in and afraid of what the giant might do to me, I can't quite figure out where I am. After a moment, the figure holding me stops and hands me over to another figure who seems to be lying down.
+Then, they bring me close to something warm and soft, and suddenly, primal instincts take control of my body. My hands, moving of their own accord, grab what I recognize as a nipple and I begin to suckle instinctively.
+At that moment, the revelation of the strangeness I felt before hits me with the force of lightning. In some incomprehensible way, I am a baby. This realization brings with it a wave of disbelief, and for a moment I stop suckling, but saying something to me in her strange language, the owner of the breast brings my face closer to it, and the instinct of my new body makes me start suckling again.
+As I feed, the figures around me, one of whom I imagine to be my mother, exchange words in that strange language. Although I don't understand what they are saying, the tone of their conversation has a hint of everydayness that calms me slightly, offering a glimpse of normality amid the chaos that is my mind at the moment.
+After feeding, I am handed back to the gigantic figure, who I now understand is only gigantic in relation to my tiny baby size. I guess she must be some kind of midwife who helped my mother give birth.
+The woman I assume to be the midwife brings me closer to a group of blurry silhouettes, among which one stands out and takes me in her arms. I hear her talking to the others, an interaction that, although incomprehensible to me, suggests some kind of ritual or introduction. After a while, I am returned to the midwife's arms.
+With me in her arms, she takes me to another place, and carefully, they lay me down there. I recognize it as the place where I woke up and now recognize as a kind of cradle. The soft contact with the bed offers me a little comfort, and soon after, sleep overtakes me, carrying me away from my unanswered questions.
+When I wake up, a damp feeling between my legs makes me aware of my new reality and that I have wet myself. The frustration and humiliation of this fact intertwine with the resignation of having to learn to control my body again, so I begin to consider how to get someone's attention, when a disturbing realization hits me as I realize that I have been moving my arms but have not yet moved my legs.If you discover this tale on Amazon, be aware that it has been stolen. Please report the violation.
+With a growing sense of panic, I concentrate on trying to command them to move, but there is no response. I can feel them, but no matter how hard I try, I am unable to move even a toe, let alone my legs. The reality that my new body is paraplegic from birth hits me with full force, and a scream of fear escapes my lips, a scream that carries with it the full weight of my despair and confusion.
+My screams break the silence, and soon I hear hurried footsteps approaching. As I try to process what it means to be unable to move my legs, I try to convince myself that it's only temporary, that it's something to do with the strange situation of being a baby, but deep down a little voice tells me no, that what it seems is what it is. And as I feel someone pick me up, the stress of my new situation and the possibility that I might be paraplegic or something similar hits me, causing me to faint.
+ 
+
+ 
+I wake up suddenly and notice that my body is on a hard surface that feels like wood. The sensation of the wood against my skin is disconcerting, but somehow it reminds me of my current situation and that I am in a strange place, surrounded by people I don't know and, for some strange reason, trapped in the body of a baby. Around me, blurry figures lean toward me, their outlines barely perceptible through the limited vision of a baby, a vision that turns the world I see into a place of shadows and undefined lights.
+These figures, whose details escape my vision, seem to be examining me as they discuss among themselves in their strange language that sounds like Chinese, but isn't. Thanks to my knowledge of Chinese, although I can't understand their words, I recognize in the tone of their conversation a mixture of professional curiosity and concern that conveys the seriousness of my situation.
+I notice figures approaching the sides of the surface where I am lying, and suddenly I feel hands gently holding my arms while firmly immobilizing them. Another figure approaches, holding something in their hand that I cannot identify due to my blurred vision.
+Suddenly, I feel a prick, quickly followed by another. Considering the language they speak and what little I can make out of their clothes, I jump to the conclusion that they must be practicing acupuncture, since in ancient China it was considered nothing short of a cure-all.
+For a moment, the logic of my past life reassures me. After all, acupuncture is known for its therapeutic benefits, but then, as I receive another prick, I realize my situation and, driven by an instinct for self-preservation, I start screaming and moving, trying to free myself from the needles stuck in me, since a baby who neither screams nor cries when pricked would be too strange, and who knows what they might do to me next in that case. They might even consider me possessed or a demon, with fatal consequences for me.
+On my fourth attempt to break free, the figure stabbing me with the needles stops abruptly, saying something in their language before quickly removing the needles. Hearing this, the others release my arms, freeing me. I continue to move, now adding convincing whimpering to my act, until, unexpectedly, I feel a new prick, this time on the sole of my foot. I let out an instinctive moan and try to move my legs, only to remember with a jolt of horror the revelation of my paralysis discovered before I passed out earlier.
+The figure continues to prick my legs several more times, at which point I can do nothing but whimper and scream to keep up the act as I struggle unsuccessfully to elicit some response from my limbs, but to no avail. This lack of connection with my own legs is disconcerting, and if it weren't for the fact that I had used them so naturally in my previous life, I might have doubted that they were something that could be moved.
+They stop pricking me with needles and I hear them say something in a very serious tone. Shortly after, I am lifted up in their arms and handed over to a figure that seems familiar to me. They walk away with me in their arms and hand me over to someone who is lying down. As I focus my attention, I recognize the person who fed me the day before. Next to them, the figure who had been administering the needles joins the conversation. The voice of the person I assume to be my mother becomes increasingly agitated, until she finally bursts into tears, pressing me against her chest with an embrace that borders on the line between comfort and pain. Despite my discomfort, I choose to remain silent, convinced that, at this moment, it is the most prudent decision.
+The situation takes a new turn when, after a while, another figure approaches, the same one who had lifted me up during the previous ritual. After a brief exchange with my mother, she pulls me even closer to her. My moans, soft at first, become more noticeable, urging her to loosen her grip. After a brief conversation in a serious tone, the man, who I imagine must be my father, or at least some figure of authority, considering how Chinese families and clans work, turns around and walks away out of my sight.
+My mother continues to hold me for a long time. Then, with a gesture that is now familiar to me, she brings me to her breast to feed me, and despite the embarrassment I feel at this act, the instincts of my new body betray me, and I soon find myself eating with a need born of that instinct.
+Once sated, I am placed back in the crib, the same place where I had awakened, and sleep quickly claims me, dragging me into a world of darkness and silence. In the moments before succumbing to sleep, the thought crosses my mind that being a baby, regardless of the unusual circumstances of my consciousness, involves a great deal of sleep.
+
+--- Chapter 23 ---
+
+I relax as I lie on a real bed, not one of those uncomfortable fake beds we have in the carriage. With all the luxury they've added to that carriage, they could have made a little more effort to make them comfortable. Or maybe, at a certain level, cultivators don't care so much about comfort, since my mother hasn't complained and just looks at me amused when I do.
+And I am grateful that when we arrived in this village, Nei Baihu ordered us to stop for a day of rest, since we still have half a month to go before we reach the city of Xi'an.
+This trip has only confirmed what I had already concluded from reading books, which is that this world is absurdly large and the distances are crazy. It will take us almost a month to reach our destination, and it is not even the city furthest from the imperial capital.
+And it's not that we're going particularly slowly. I never thought it possible that a human being could go at what I estimate to be about 10 km/h for hours on end over several days, because that's the speed at which the Nei Wei have been going all the way here, traveling ten hours every day with only one break every five hours to eat.
+That means we've traveled more than a thousand kilometers in these thirteen days, practically a quarter of the distance between the east and west coasts of the United States, walking and without stopping. It's clear that the improvements that cultivators have are totally absurd, since not even Captain America would be capable of doing that.
+And that's not to mention the horses and their ability to keep up, because when I asked her, he told me that they are something called spirit beasts, beasts that are capable of absorbing Qi, which gives them abilities that normal animals do not have. So, even animals can become cultivators.
+And not only animals, but even plants are also capable of doing so, since the absurdly strong wood from which the carriage we use is made is called ironwood, which is taken from trees that are capable, of course, of absorbing Qi to harden themselves.
+At this point, I wouldn't be surprised if someone told me that even the stones on the side of the road are capable of cultivation, but I've decided not to ask for the sake of my sanity.
+But soon my nocturnal ramblings are overcome by the comfort of the bed, and sleep claims me.
+When Lianhua wakes me up to tell me that I must get up and have breakfast, I dawdle and try to get her to let me sleep a little longer, but she ignores me and pulls me out of bed to help me get dressed and do my morning ablutions.
+When we are done, she takes me to the dining room, and when I take a closer look at my surroundings, since I was too tired to do so last night, I notice that the inn is quite large and luxurious, which surprises me since the town did not seem big enough for an establishment of this status.
+When we arrive at the dining room, they are already waiting for us, so Lianhua seats me next to my mother and then sits down on the other side next to Lingxi. As soon as we sit down, several waitresses begin to serve us breakfast, and we start to eat eagerly, as it is a pleasant change from the food the Nei Wei have been serving us along the way, which, although it was fine, was clearly army rations.
+I notice that as soon as we finish breakfast, one of the Nei Wei on duty in the dining room leaves, returning a moment later with Nei Baihu, who approaches our table.
+“Guifei Xiang”, she says to my mother as she bows. “I apologize for disturbing you so early, but this is the village at the entrance to the Fog Marsh, and I was instructed to tell you upon arrival that you have a letter to deliver to the Yao clan.”
+“That's right”, my mother replies, then turns to Lingxi. “Go to the carriage and bring the letter with the Sun family seal that is in my luggage. We'll wait for you at the door of the inn.”
+Lingxi stands up, bows to my mother, and leaves the dining room, after which my mother addresses Nei Baihu again. “If you came so early, it's because it's better to give it to them as soon as possible, isn't it?”
+“Yes, Guifei Xiang”, replies Nei Baihu. “The sooner we deliver it, the sooner they can organize the guides to take us through the swamp.”
+My mother stands up as she says “Then let's not waste any time.”
+Seeing my mother stand up, I hesitate for a moment but quickly decide to ask her “Mother, can I have Lianhua take me for a walk around the village? I've never seen anything other than the palace and the places we've passed by from the carriage.”
+“All right, Wen”, my mother replies with a smile, but then looks at the Nei Baihu. “I suppose it won't be a problem for some Nei Wei to escort you.”
+“No problem, Guifei Xiang”, replies the Nei Baihu. “That's what we're here for.”
+I can't help but smile broadly when I hear her permission, so after my mother and Nei Baihu leave, I turn to Lianhua and say “Come on, we have a world to explore.”
+Lianhua looks at me as she replies “Zhāohuán Wen, you know we can't leave the village, right?”
+“Those are minor details”, I say. “Come on, pick me up and let's get out of here before someone changes their mind and I have to stay locked up.”
+Lianhua lifts me out of the chair and we leave the inn, where I notice that half a dozen Nei Wei begin to follow us at a short distance, I suppose so as not to be too intrusive.
+As we enter the village, I notice that it doesn't seem too big, with all its buildings having a similar simple and functional architecture. The inn where we are staying is at one end of what appears to be the main street, so I tell Lianhua to head to the other end of the street, since in a town of this size, everything interesting is likely to be on this street.
+As we walk down the street, I notice that there are a disproportionate number of inns, so I ask “Lianhua, do you know why there are so many inns in a town as small as this?”
+“It's because the town is the entrance to this side of the Fog Swamp”, Lianhua replies, but she notices that this doesn't mean anything to me and continues with her explanation. “The Fog Swamp is a small forbidden area. The swamp is covered by a fog that disorients people and causes them to get lost unless they know the trick to crossing it.”
+I nod my head, encouraging Lianhua to continue with the explanation "And those who know the trick to crossing it are the Yao clan, who organize caravans to cross it and allow you to join them for a fee. But those caravans only leave when they consider there are enough people, so many have to wait several days for it, hence the large number of inns, many of which also belong to the Yao clan."
+Listening to Lianhua, I realize what a great business the Yao clan has. They charge to cross the swamp, but they only cross it when they want to, so they can force people to stay in the village for several days and spend money in the establishments that also belong to them. In my previous world, there were people who would kill just for the chance to have such a monopoly.
+As she explains, we continue walking down the street, discreetly followed by our bodyguards, and I see that many people have set up small stalls on the side of the street and are selling all kinds of things. I imagine that many of those waiting to cross the swamp are merchants and are trying to offset their expenses by making some sales.
+I tell Lianhua to take me to the stalls, and I spend part of the morning browsing and seeing what normal products are like in this world, since an imperial palace is not the best place to find everyday items due to the large crowds.
+And so I entertain myself all morning listening to people's inconsequential conversations and haggling while I look at stalls full of kitchen utensils, various types of clothing, toys, drinks, and even one that has several types of musical instruments.
+But nothing catches my attention until I come to a stall that, rather than being specialized, is more of a bazaar-style stall, full of all kinds of things. I tell Lianhua to come closer to the stall, where there are already several people, and I start browsing.
+Among the multitude of things at the stall, what interests me most are several books in a corner, clearly placed where they are least in the way and which the stall owner has little hope of selling.Unauthorized tale usage: if you spot this story on Amazon, report the violation.
+But for some strange reason, my gaze always wanders to an area where there are a few pieces of jewelry to look at a ring on display. The ring is made up of two bands, one black and the other white, intertwined and adorned around the edges with five gems in red, green, blue, yellow, and clear, but without looking more closely, I wouldn't know what kind they are.
+And if there's one thing my years of experience in the field have taught me, it's that when something catches my attention so intensely, I'm about to discover something interesting. With a decisive movement, I reach out and take the ring just before someone else can grab it. When I look up, my eyes meet those of a young man who had reached out in vain.
+“Girl”, his voice is icy, laden with excessive arrogance. “If you know what's good for you, give me that ring.”
+I look at the young man and estimate him to be in his twenties, although with the whole cultivation thing, I always wonder if I'm right. He wears clothes that clearly reveal his high-status family background, yet they are adorned with so many jewels and ornaments that they seem to show off his wealth rather than his good taste.
+“Are you referring to us?” Lianhua replies as she turns to look at him, her tone deliberately carefree, which for some reason makes me nervous.
+“Who else?” the young man spits out as he looks at us with hostility. “Tell that annoying brat, who I'm sure you're carrying in your arms because she's so useless she can't even walk yet, to hand over that ring before I lose what little patience I have left.”
+My gaze shifts between Lianhua and the young man during the conversation, and I see a flash of anger in her eyes that she can barely contain. I see her make a discreet gesture with her free hand to the Nei Wei who are standing a little further away.
+“Xiaojie Wen”, Lianhua asks me in a voice full of a softness I've never heard from her before, which makes me begin to worry about her intentions. “Do you really want to keep this ring?”
+Her tone, using an honorific she has never used with me before, surprises me. Not fully understanding her intentions, but trusting her, I nod and respond firmly. “Yes, I find it very interesting and would like to keep it.”
+Lianhua nods slightly, then turns her gaze to the young master, her expression now icy “You have heard Xiaojie Wen. If you'll excuse us, we are busy.”
+The young man's face is tinged with fury, his features twisted with indignation. He reaches for the hilt of his sword, a gesture that is mimicked by his two henchmen, who step forward with mocking smiles.
+One of them, a burly man with a scar across his cheek, laughs contemptuously “Do you really think you can defy our young master? You clearly don't know who he is to dare to talk back to him like that. He is Yao Zhi, heir to the Yao clan, and in this city, his word is law!”
+The other henchman, thinner and with a sharp gaze, adds in a venomous tone “You'd better hand over the ring and kneel before we force you! And if you're convincing enough, we might even consider sparing your lives. Although, of course, we can't promise there won't be a small punishment.”
+“And you don't know who we are, and I'll only say this once”, Lianhua replies in a tone of voice so sharp it seems to cut through the air itself. “Get out of here and stop bothering us, or you may bite off more than you can chew.”
+The atmosphere becomes tense, and a snort from Lianhua as she turns away, ignoring the trio, seems to be the spark that ignites the violence. Without further warning, Yao Zhi draws his sword, and his henchmen follow suit, their faces contorted with rage. However, before they can even take a step, Lianhua jumps with me, bringing us closer to the Nei Wei and away from the imminent danger.
+And then the violence erupts.
+Chaos breaks out around us. The Nei Wei, who had remained silent until now, charge with lethal precision at Yao Zhi and his men, their spears dancing in the air. Despite the initial surprise, the trio manages to defend themselves for a brief moment, long enough for him to shout desperately “Guards, guards!”
+I nervously watch what is happening around us. However, the calmness with which Lianhua acts, in contrast to the tension I feel, momentarily reassures me. My eyes fix on her hand as she pulls a talisman from her clothing, similar to the one I wore during the assassination attempt that nearly ended my life. As the fight between the Nei Wei and Yao Zhi's group intensifies, Lianhua brings the talisman to her lips, and I see it begin to glow as she murmurs softly “Zhāohuán Wen is under attack in the central part of the main street.”
+The combat between the Nei Wei and Yao Zhi's group is a deadly dance. The guards, who I imagine are trained by Jiaoliu Feng, move as one body, and each of their attacks is aimed with ruthless accuracy.
+Despite the ferocity of the rioters, I see that the Nei Wei's superiority in both weapon handling and cultivation quickly becomes apparent. One of the guards disarms an attacker with a fluid movement while another grabs Yao Zhi and pins him to the ground with a relentless lock. The trio's screams are drowned out by the sound of blows and the crunch of breaking bones. It is a terrifying sight, a brutal display of the Nei Wei's power that leaves no doubt as to their prowess.
+As I watch the terrible scene, I hear voices and the sound of people approaching, so I look to see who it might be and see a group of guards coming down the street, clearly heading towards us. I also notice that the atmosphere in the street has changed dramatically and the merchants have closed their stalls to take refuge in nearby premises alongside passers-by, as if this were an everyday scene for them. However, the merchant from the stall we had visited is still here, hiding under a table and strangely calm.
+The guards arrive quickly, their unsheathed swords glinting in the sunlight. While one of them, who appears to be the leader, demands that we release his young master, they attack the Nei Wei, who quickly form a defensive formation around us with clockwork precision, while one of them continues to watch over Yao Zhi's group, who can barely move after the brutal confrontation earlier. The guards launch their attacks fiercely, but it's like hitting an iron wall due to the Nei Wei's superiority, and soon the sound of steel clashing and the cries of the combatants fill the air.
+It is obvious that the Nei Wei's training and cultivation place them on a level far above the guards, but despite this, my heart races as I see more guards appearing from the side streets. The tide of men grows, and although the Nei Wei fight with the ferocity of cornered tigresses, the numerical difference begins to tip the balance against them, and as I see some of them begin to suffer injuries, I begin to wonder how long they can hold out before being overwhelmed.
+Lianhua also seems to notice the change in the situation, and for the first time I see a shadow of concern cross her face, but before I can say anything to her, a battle cry echoes from the end of the street. I look toward the source of the cry and see a crowd of Nei Wei charging at the group of guards surrounding us, maintaining a lethal formation that contrasts with the lack of discipline the guards have shown so far.
+The guards who are still in the street turn toward them, surprise and panic taking hold of their faces as they see an army rushing toward them with more than clear intentions. A small part of my brain imagines Tom Cruise charging forward to the soundtrack of The Last Samurai, but the reality of the situation quickly snaps me out of my fantasies.
+What follows is a scene of pure brutality as the Nei Wei launch their attack with inhuman ferocity and demonstrate their superiority as they cut and pierce the guards with relentless precision. It's not the first time I've witnessed armed conflict due to some expeditions I've made to some of the less secure areas of my old world, but what is happening before my eyes surpasses anything I've ever seen before.
+In the blink of an eye, the battle turns into a massacre. The screams of the wounded men, the sound of steel cutting through flesh, and the sight of the blood-soaked ground make my stomach churn, but I force myself to keep watching because this whole situation is due to our actions.
+From the relative safety of the barrier our bodyguards have formed around us, I watch as the Nei Wei, with their calculated and precise movements, wipe out the guards, who, despite their numbers, are unable to contain the Nei Wei's unleashed fury. And it soon becomes clear that what at first seemed like an uncertain situation is now clearly an overwhelming victory on our side.
+I look at Lianhua, who is watching the carnage with a cold indifference that I had only seen on the night they tried to assassinate me, and I swallow hard before asking her in a low voice “Wouldn't it have been better to tell them who I was from the beginning? All this could have been avoided.”
+“I would have”, Lianhua replies in a calm but cold voice. “But then they decided to insult you, and no one insults Zhāohuán Wen and gets away with it.”
+Okay, it's now official that Lianhua is totally a Yandere and very scary. I almost feel sorry for anyone who wants to confront her, given that the nuclear option seems to be her first response to everything, but I'm even more amazed when Lianhua turns back to the stall we were looking at the beginning of all this and says to the merchant under the table as if nothing had happened “Finish serving us.”
+I see the merchant start to sweat and crawl out from under the table as the sound of combat begins to fade behind us.
+Lianhua looks at me and asks “Is there anything else you want from this stall besides the ring, Zhāohuán Wen?”
+I note with disbelief that although the merchant is nervous, he has clearly seen or experienced similar situations before, as he does not panic, and neither Lianhua nor the Nei Wei behind us forming a barrier seem particularly surprised by his behavior.
+I need a moment of calm to analyze everything that is happening, but in the meantime, when in Rome, do as the Romans do, so I point to the books and say to the merchant “With the ring, I would like to take all those books.”
+The merchant takes out the books with unusual speed and wraps them in a piece of cloth, tying them so they don't move. As he wraps the books, the sound of fighting behind us disappears, and I look over Lianhua's shoulder to see that the Nei Wei have finished subduing the guards. They are gathering almost all of them, unarmed, in the center of the street, but many are lying on the ground, and I cannot tell if they are only wounded or dead.
+“Here you are, Zūnjià”, I hear the merchant say, and I look back at him.
+Lianhua looks at the package and says to the merchant “We can't take it now, but someone will come for it and pay you for the books.”
+The merchant swallows and replies to Lianhua “As you wish, Zūnjià.”
+Lianhua steps away from the stall and we walk away, followed by the original Nei Wei with whom we began this excursion. I notice that the three men from earlier are being moved to the center of the street with the rest of the prisoners.
+For the first time, I look at the ring I'm clutching tightly in my hand, the ring that started this whole mess. It really doesn't seem valuable enough to almost start a war, but when I lift it up to get a better look, through the hole I see my mother approaching from the end of the street with the Nei Baihu, a seemingly middle-aged man dressed in luxurious clothes and escorted by both Nei Wei and guards. And when I see my mother's frown as she approaches, I get a chill.
+“Lianhua”, I say to my Yandere maid. “I think we're going to have more serious problems than just a simple battle.”
+
+--- Chapter 24 ---
+
+I stop looking through the ring to see more clearly as my mother approaches with a frown. At her side, the imposing figure of Nei Baihu advances with a firm and controlled posture as she gazes thoughtfully at the Nei Wei behind us. Walking alongside them is a middle-aged man dressed in luxurious clothes that sparkle in the daylight. It doesn't take much effort to deduce that he is someone important, and from my mother's words this morning, I imagine he is a high-ranking member of the Yao clan.
+“Sun Wen, what is going on here?” my mother asks me when they reach us. Her voice is clear, but her tone makes it obvious that she expects an immediate explanation.
+Before I can answer, the middle-aged man intervenes, his voice laden with indignation “I demand an explanation! The imperial army has been used to attack my clan's guards. I will file a formal complaint at the palace. My clan cannot be treated this way!”
+I see that while the man is expressing his complaints to my mother, the Nei Baihu, with her unchanging expression, ignores everyone and approaches the Nei Wei guarding the guards and the trio in the middle of the street. She examines the situation with her gaze and seems to begin asking the Nei Wei something.
+I ignore the Nei Baihu as I prepare to defend myself and begin my explanation “Mother, this is not my fault. I didn't start...”
+Suddenly, my explanation is interrupted by Lianhua “Allow me, Zhāohuán Wen.”
+Lianhua turns to my mother and begins to explain in a firm, clear voice what happened at the stall. She tells them how, when picking up a ring at a stall, a man named Yao Zhi, who was accompanied by a group of people, demanded that we hand it over to him. We politely refused, but without revealing our identity to avoid attracting attention. However, Yao Zhi's group began to insult us, demanding that we humiliate ourselves and accept the punishment they wanted to impose on us. Finally, when we refused their outrageous request, they drew their weapons with the intention of attacking us.
+As Lianhua recounts what happened, I notice how my mother's expression hardens and her eyes become increasingly cold. In contrast, the luxuriously dressed man next to her loses his expression of indignation and begins to sweat visibly as the story progresses, his nervousness growing as Lianhua's words recount the events.
+When Lianhua finishes, silence fills the place for a moment, and my mother slowly turns to the man, her gaze piercing him like a sharp spear.
+“Patriarch Yao”, my mother begins, her icy tone seeming to pierce the air. “I think it's an excellent idea to send a formal complaint to the palace. We could recount how the emperor's daughter was insulted, intimidated, and nearly killed by members of your clan.”
+The man, now drenched in sweat, opens his mouth to respond, but my mother seems unwilling to give him any respite as she continues speaking “Furthermore, although the palace has allowed your clan to administer this city, I do not believe that permission includes the power to intimidate travelers or merchants who use the imperial roads. Or am I mistaken?”
+The patriarch of the Yao clan seems to shrink under my mother's verbal attack and tries to excuse himself, but his words come out clumsy and full of fear “I-I don't think it's necessary to bother the court with something like this, and I'm sure we can come to an agreement. After all, it was just a misunderstanding.”
+The Nei Baihu then approaches, bowing her head slightly to my mother before speaking firmly “Guifei Xiang, the Nei Wei have confirmed Fei Yi Lianhua's account. My subordinates are ready to receive orders.”
+My mother remains silent for a moment as she seems to consider her options, and I see the patriarch of the Yao clan wipe the sweat from his forehead with a handkerchief he pulls from his sleeve before addressing my mother “If you'll excuse me, Guifei Xiang, I believe our clan can offer Zhāohuán Wen adequate compensation as an apology for what happened if you allow us to resolve this matter internally.”
+My mother looks at the man and asks “And what would that compensation be, Patriarch Yao?”
+“I couldn't help but notice Zhāohuán Wen's age and that she is just beginning her path in cultivation”, Patriarch Yao begins to explain nervously.
+“In our clan, we have a ritual that improves the body's resistance to toxins and poisons, as well as enhancing the gains from opening the gates of Air and Water while in Body Tempering or before starting it.”
+“We only perform this ritual with select members of our clan”, Patriarch Yao continues. “But we are willing to offer it as a sign of sincerity with our apology.”
+My mother seems surprised by his offer, which makes me think that it is not something normal, an assumption that is reinforced when my mother quickly accepts.
+“Patriarch Yao”, my mother says. “If your offer is sincere, we are more than willing to leave the punishment of the members of your clan who offended the emperor's daughter in your capable hands.”
+The patriarch of the Yao clan seems relieved by my mother's response and says to her “It will take us some time to get everything ready, but if you wait at the inn, we will let you know when we can begin.”
+“We will await your news”, replies my mother, who then turns to Nei Baihu. “Let the men of the Yao clan go.”
+“As you command, Guifei Xiang”, replies the Nei Baihu with a bow, then turns to the Nei Wei.
+“If you'll excuse me, Guifei Xiang, I have to put things in order and prepare everything for Zhāohuán Wen”, says the patriarch of the Yao clan to my mother.
+“We are releasing you so that you can fulfill your obligations”, my mother replies. “We will be waiting for your news at the inn.”
+The patriarch of the Yao clan bids farewell with a bow and quickly heads over to where the Nei Wei is releasing the guards.
+“Let's go back to the inn where we can talk more calmly about this whole mess”, my mother tells us.
+I stretch out my arms and say “Mother, pick me up.”
+My mother looks surprised, but she picks me up and, once I'm in her arms, asks “And why is that, Wen?”
+I look at Lianhua and reply “Lianhua has to go get my books and pay for them and the ring. It wouldn't be right if, after all this, we didn't pay what we owe, would it?”
+My mother stares at me, but I ignore her as I look at Lianhua, who bows and says “I'll go right now, Zhāohuán Wen.”
+Lianhua turns and walks away from us to carry out my orders, but I lose sight of her when my mother also turns around and we head to the inn, followed by a disproportionate number of Nei Wei.
+My mother doesn't say anything to me as we head to the inn, but when we arrive and are in the small courtyard we have rented, she sits me on her lap and tells the Nei Wei “Tell Fei Yi Lingxi, who is at the camp outside the city, that she can return to the inn. I don't think the Yao clan is foolish enough to do something irrational when it's clear that they are weaker than us.“
+One of the Nei Wei bows to leave the courtyard, and I ask my mother “Why is Lingxi at the Nei Wei camp?"
+“So that someone can warn the Palace in case the Yao clan does something irrational and is stronger than us”, my mother replies without wanting to add anything else, but I understand the dark meaning of her words.
+“But let's put those things aside and tell me, what is this about a ring causing all this mess?” my mother asks me next, changing the subject.
+I show her the ring I still have in my hand and reply “It's this ring, Mother.”
+My mother takes the ring and looks at it closely, frowning and asking me “Why did you take it? It's too big for you to wear right now.”
+“The ring caught my attention for some reason, but I can't explain the feeling I got when I saw it”, I tell my mother vaguely, as I have no way of telling her that it's because of my intuition from years of experience working with relics.
+I see my mother staring at the ring as if she is concentrating, but then she sighs and returns it to me, saying “I sense a spiritual treasure, but activating it is beyond what I am capable of with my level of cultivation, and unfortunately, no one on this expedition has gone beyond opening the gates.”
+“You'd better keep it”, my mother continues as I clench the ring in my hand. “If you ever reach a high enough level of cultivation, it may be useful to you.”Stolen story; please report.
+With the ring clenched in my hand, I decide to seize the moment and ask my mother “What are the gate openings, and what happens after you finish them?”
+My mother looks at me and ruffles my hair as I complain and replies “That's something we can discuss when you've finished with Body Tempering. In the meantime, it's best not to worry about it.”
+“It's not fair!” I complain to my mother. “I think you hide it just so you can tease us when we're kids.”
+“That's not why, Wen”, my mother replies. “I'm going to tell you a story about a cultivator that will help you understand why we don't tell you.”
+“A long time ago, there was a cultivator who had started on his path”, my mother begins. “Like you, he complained that his master was hiding things from him, so he decided to find the information on his own and sneaked into his master's library.”
+“In that library, he found the answers to his questions”, my mother continues. "But knowing everything he would have to go through on his path of cultivation, he became obsessed with the path and therefore spent countless resources, time, and money preparing and paving his future. But in his obsession with his future, he forgot something fundamental, which was to take advantage of his time to finish his current step. So, to his horror, one day he realized that he would not be able to move on to the next step with the life he had left."
+My mother finishes her story as she looks at me. “And so, the cultivator who could have reached the top was unable to move beyond his first step because he wasted more time thinking about his future than improving his present.”
+My mother looks at me as if waiting for me to say something, while I realize that this is the equivalent of the milkmaid's tale in this world, and although I know I'm not going to fall for that trick, it's impossible for me to convince anyone of that, since that tale seems to be firmly rooted in the culture of cultivation.
+With a sigh, I realize that in my current situation, there is only one thing I can do, so I say to my mother “I understand what you mean, Mother. I won't be like that cultivator.”
+My mother smiles at me and hugs me as she says “Remember that I only want the best for you, Wen, even if you don't understand the reasons why I do it.”
+Hearing this, I feel a pang of regret for not being able to give her what she clearly wants, which has been more evident during the trip than in court, but a lie of such magnitude would be very difficult for me to maintain.
+Fortunately, a knock at the door interrupts what is, for me, an uncomfortable mother-daughter moment, and my mother reluctantly breaks her embrace as she says “Come in.”
+The door opens and Lianhua enters with the package of books, saying “I've done everything you asked, Zhāohuán Wen. Here are your books.”
+I silently thank Lianhua for being my savior and ask my mother “Can I sort the books while we wait for news from the Yao clan?”
+“Of course, Wen”, my mother says, getting up to leave me in a chair near a table. Lianhua approaches with the package and opens it to place the books on it.
+Before I start looking at the books, I ask Lianhua “Do you think you can find a chain or something similar so I can hang the ring? It's too big for me to wear right now.”
+“I'll look for something, Zhāohuán Wen”, Lianhua tells me as she bends down, then turns around, and I am surprised to see her approaching my mother.
+I ignore them, as I doubt I will be able to hear what they are talking about, even though it will almost certainly be about me, and turn my attention to something more interesting, the books on the table.
+I start looking through the books and quickly realize why they were unsold in a corner. They are all old books and clearly not very valuable. I have even read a couple of them, as I received them as a birthday gift.
+It is clear that I have not found a stash of valuable old books with important information, but at least I will have something to entertain myself with for a few days as we continue our journey.
+I start reading a book that looks like a kind of hand-illustrated encyclopedia about plants to pass the time when, after a while, Lianhua arrives with a chain that looks like silver and helps me put the ring through it and hang it around my neck, after which I tell her that I don't need her at all for the moment and continue reading the book, despite the nonsense it says about plants.
+The afternoon passes quietly until one of the Nei Wei knocks on the courtyard door and, after entering, tells my mother that a messenger from the Yao clan has arrived saying that everything is ready. She also tells her that they have indicated that only I, my mother, and a maximum of two bodyguards can go.
+My mother thinks for a moment and tells the Nei Wei to tell the Nei Baihu to come with us and to choose someone else to accompany us.
+My mother comes over to where I am and I stretch out my arms for her to pick me up, after which she tells Lianhua and Lingxi, who has returned in the afternoon, to wait for us here.
+We leave the inn and my mother stops. The envoy from the Yao clan looks at us, hesitating to ask what we are waiting for, but he doesn't have to wait long because after a moment Nei Baihu arrives accompanied by another guard.
+Upon arrival, my mother instructs them to accompany us as bodyguards, to which Nei Baihu nods, and my mother tells the envoy from the Yao clan that he can now guide us.
+The journey is not long, as she guides us to the Yao clan mansion, where the envoy exchanges a few words with the guards, who I notice have some bruises, and we enter the mansion while they look at us with unfriendly faces.
+Upon entering, she leads us to a courtyard on the side of the mansion, where I see a huge tub in the center guarded by half a dozen guards. There is also an elderly woman who approaches us as we enter the courtyard.
+“So this is the little girl who has taught Zhi a lesson in humility”, she says as she approaches us.
+“Excuse me, what do you mean?” my mother asks, as confused as I am.
+“Nothing, although I'm almost tempted to thank you”, she replies. “I'm glad this happened to someone reasonable like you. I always told Feng that he spoiled his son too much, and I can imagine a thousand situations in which something worse than this outcome could have happened.”
+We are speechless for a moment at her frankness, but the old woman continues talking "But these are internal matters for our clan. We will honor our agreement with you, but the ritual is somewhat dangerous, and I want to explain what it involves. If, after understanding the risks, you still want to continue, we will begin.“
+”What you are about to undergo is a bath with various herbs that can only be found in the Foggy Swamp”, the old woman begins to explain. “For it to work, you have to get into the tub completely naked so that the liquid covers your entire body.”
+Well, that's not a problem. At eight years old, modesty isn't that important, but the old woman continues to explain “While you're in the bath, in addition to being completely submerged, you have to do two things. The first is to keep your eyes open at all times and swallow as much liquid as you can so that it affects your insides.“
+”And the second thing is the danger you have to face, since you have to stay underwater for half a period without coming up, and you also have to breathe in the liquid so that it affects your lungs”, the old woman tells me.
+That really scares me. How on earth am I going to breathe water and stay in the liquid for an hour?
+The old woman clearly notices the look of fear on my face and, I suppose, on my mother's, but she is clearly used to this reaction because, without losing her composure, she takes what look like two spherical pills out of one of her sleeves.
+“These two pills are what will allow you to do that”, she continues to explain as she lifts one of the pills. “This pill will allow you to breathe underwater and thus allow the liquid to affect your lungs. To do this, you have to swallow it just before submerging yourself in the liquid.”
+She then lifts the other pill and tells us “Later, when you come out of the tub, you have to quickly swallow this other pill, which will remove all the water from your body and allow you to breathe air again.”
+“After the treatment, you will be weak and sleepy for several days while your body adapts to the changes, but that is normal”, the old woman continues as she looks at us with the pills in her hand. “My final warning is that the last time someone died from this treatment, I was still a young girl, but that doesn't mean it's not dangerous, so it's your decision.”
+I hesitate, as the idea that a pill can make me breathe water is almost too fantastical, so I look at my mother to see if she seems convinced.
+My mother looks at me and, seeing my doubts, says “I trust that everything will be fine, as the Elder of the Yao clan says, because if they wanted to harm you and succeeded, their clan would have a hard time explaining it to the emperor. I think you should do it, but you are mature enough that I won't force you and you can make your own decision.”
+My gaze alternates between my mother and the Elder of the Yao clan, as my mother has called her, whose face remains unmoved by my mother's harsh statement. But I have to make a decision, and if my mother trusts that it will be safe and beneficial for me, it is better not to hesitate any longer, so I say “I am willing.”
+After my words, the Elder wastes no time and brings us to the tub, where, with my mother's help, they undress me and put me in the liquid, which, to my surprise, is warm.
+My mother holds me on the edge as I cannot stand up, and the Old Woman brings the pill that she says will help me breathe underwater to my mouth and puts it inside, so I swallow it.
+After swallowing the pill, she pushes my head down and I feel her holding me so I don't try to get out of the tub. I'm sure from the outside it looks like the Old Woman is trying to kill me by drowning me in the water.
+I can't help it and I hold my breath out of inertia, but I immediately start to feel short of breath, so I psych myself up by imagining I'm Bud Brigman in the movie The Abyss, to be exact in the scene where she puts on the liquid oxygen suit, and against all my instincts, I breathe.
+I feel the water entering my lungs as the air leaves, and after a brief moment of panic, I notice that the feeling of drowning is fading. It's true that it's a little hard for me to breathe, I guess because of the difference between liquid and air, but it's not too uncomfortable.
+I remember what the Old Woman told me and I force myself to keep my eyes open and start swallowing the liquid, which, unfortunately for me, tastes disgusting.
+After a while, and I suppose when she is convinced that I am not going to come out of the water, I notice that the Old Woman's hands stop holding me, and since I have no air in my lungs, I remain comfortably in the water without having to struggle to avoid coming to the surface.
+I soon lose track of time as I swallow some of the liquid from time to time and spend the rest of the time enjoying the sensation of being in the warm water, breathing water while swallowing some of the liquid from time to time, something that would be impossible in my previous world, but after an indeterminate amount of time, I feel weak and begin to fall asleep.
+I resist that feeling with the certainty that it would be bad to fall asleep when I feel someone grab my shoulders and arms. They pull me out of the water with one tug, and I quickly feel myself starting to choke, but someone I can't see due to my extreme weakness puts something in my mouth and pushes it down my throat while ordering me to “Swallow.”
+Fighting the feeling of drowning, I swallow what I assume is the pill to get rid of the liquid, and suddenly I find myself not only vomiting all the water from my lungs, which makes it painful to breathe, but also, to my embarrassment, I feel my bowels betray me and I soil myself.
+But none of that matters anymore when the drowsiness that overcame me when I was in the liquid returns with even greater force as I realize I am not in danger, and, unable to help myself, I fall asleep as I feel myself being wrapped in some kind of cloth.
+
+--- Chapter 25 Interlude 6 ---
+
+A few days after Sun Wen's departure into exile, the atmosphere in the secondary audience hall of the Imperial Palace was so tense you could cut it with a knife. Sun Hao, the Emperor of the Taijin Empire, sits on his throne with an unreadable expression as his eyes move among those present. Opposite him stood Taijian Li Ming, while behind him in a fan formation were Jiangjun Han Xin, Neingjun Liu Yan, and Yushi Dafu Zhang Wei.
+Sun Hao finally breaks the silence with a voice as sharp as steel “Taijian Li Ming, explain to me why you gave the order that Guifei Xiang and her daughter should not be accompanied by any maids beyond their Fei Yi.”
+Taijian Li Ming, a man accustomed to this type of interrogation, maintains his composure as he responds with a respectful bow “Your Majesty, I only followed what the law stipulates. According to the law, in cases of confinement or exile, only a limited number of servants are allowed to accompany the condemned.”
+Sun Hao's eyes flash with anger “I know that law, Taijian Li Ming. I also know that it has not been applied in centuries since the situation that motivated it was resolved. Why do you decide to enforce a law that almost no one remembers now?”
+Taijian Li Ming remains motionless, but his words show no doubt “My duty is to the law, Your Majesty. It is not my place to question its relevance, only to enforce it.”
+The silence that follows is almost palpable. Sun Hao looks at him with a mixture of frustration and disappointment, then sighs deeply, changing the conversation unexpectedly “Tell me, was your failure in the negotiations with the Zhang family so great that it caused you to forget your duties? Is the stain on your reputation so important that you decided to seek revenge against someone who wasn't even involved?”
+The change in conversation causes Taijian Li Ming to raise his head abruptly, fear showing in his eyes “Your Majesty, I don't understand what you mean. I have done nothing that could be interpreted that way.”
+“Really?” Sun Hao replies in a voice that could cut through steel. “I know about your maneuvers to obstruct the investigations into the assassination attempts on Zhāohuán Wen. And I also know about the reports you have been sending to my third son, Qiming.”
+Taijian Li Ming lowers his gaze as his face turns pale. The silence that follows is broken only by the accused's breathing, while the others present exchange furtive glances, aware of the gravity of the situation.
+Sun Hao continues speaking in a tone laden with disapproval "Because of a grudge from the past, you have betrayed one of your primary duties, which is the neutrality expected of you in court. To make matters worse, you have done so by supporting the Purity faction despite knowing my opinion of them. Taijian Li Ming, you have deeply disappointed me."
+Taijian Li Ming remains silent, his gaze fixed on the floor as the situation begins to grow uncomfortable.
+Finally, Sun Hao breaks the silence again with a calmer but firm voice “I should judge and execute you for what you have done, Taijian Li Ming. But in consideration of your years of loyal service and the fact that this is your only offense, despite its severity, I have decided to show mercy. You will not be executed, but you will lose your rank and become a simple Huànguān.”
+Li Ming flinches at the emperor's words, but does not protest. His body trembles slightly as he continues to stare at the floor while trying to process what has happened in the room. The others present look at him with a mixture of contempt and pity, aware of the humiliation he has just suffered.
+Sun Hao then turns his gaze to Neingjun Liu Yan and gives his next order with a wave of his hand “Take Li Ming to Shangshu to serve his sentence.”
+Neingjun Liu Yan steps forward without hesitation and grabs Li Ming by the arm with a firmness that makes it clear he will not tolerate any resistance. Li Ming struggles to his feet, still dazed, and allows himself to be escorted out of the room. Their footsteps echo on the floor until the door closes behind them, leaving Sun Hao and the other two men in the room.
+Without wasting any time, Sun Hao turns to Yushi Dafu Zhang Wei and gives him his next order “I want the Yushitai to search Li Ming's office to see what else they can find.”
+A smile of satisfaction crosses Yushi Dafu Zhang Wei's face as he bows deeply “As you command, Your Majesty.”
+Yushi Dafu Zhang Wei leaves the room, leaving Sun Hao and Han Xin alone in the audience chamber. Sun Hao watches the door close behind Yushi Dafu Zhang Wei before letting out a sigh, his face reflecting enormous fatigue.
+In the silence that follows, Han Xin, who had remained silent until then, steps forward and looks as if he is about to ask Sun Hao something, but Sun Hao stops him and says “Not here, let's go to my office. I need a drink after this.”Stolen from its rightful author, this tale is not meant to be on Amazon; report any sightings.
+Han Xin nods and waits for Sun Hao to get up and leave the room through a side door before following him. They walk silently through the side corridors of the imperial palace and finally arrive at the emperor's personal office.
+Sun Hao enters his office and, as soon as he enters, goes to the table where the drinks are and silently pours himself a drink while Han Xin enters.
+“You know”, Sun Hao says to Han Xin as he enters the office. “I never thought I'd say this about anyone, but I'm going to miss her these two years.”
+Han Xin also approaches the table with the drinks and pours himself a cup as he asks “Guifei Xiang?”
+“Yes”, Sun Hao replies. "She's the only one of my consorts who never sought to marry me and still believes that I shouldn't be and that doing so was a mistake. And despite that, or perhaps because of it, she is the only one who has not asked me for special privileges for her family or tried to insinuate her own agenda to me. When I am with her, it is one of the few times when I don't have to worry about maneuvers and conspiracies, and I can relax and just enjoy myself and hang out, even when we are not engaged in more... physical activities."
+Han Xin nods in understanding and says “I knew there had to be some reason why she was your favorite consort for so long, but that doesn't explain the whole Li Ming thing.”
+Sun Hao drinks from the cup he has poured himself and asks Han Xin in reply “Did you ever find out how Xiang became my consort?”
+“No, at that time I was in the south dealing with a flood of beasts. When I returned, you were already married, and I simply assumed that some clan had foisted her on you for some favor and didn't give it any more thought.”
+Sun Hao sits down in a nearby armchair and says to Han Xin “That's correct, but there's something else in between that is the cause of Li Ming's resentment.”
+Han Xin sits down in another armchair with his drink and takes a sip while waiting for Sun Hao to continue his story.
+“From what we know, it all started when the Xiang family, a small noble clan under the banner of the Zhang family, did them some kind of favor”, Sun Hao begins, playing with the cup in his hands. “And it seems that to repay that favor, the Xiang family asked them to marry one of their members to someone from the court, a noble, an official, or something like that.”
+Han Xin nods, imagining the scene, as such deals are common, but noticing the discrepancy, he asks “And how did the request of a nobleman become the emperor? That leap is too big.”
+“That is the reason for Li Ming's resentment”, Sun Hao replies with a sad smile.
+“At that time, we were in talks with the Zhang family over the transfer of a small, low-grade spirit stone mine that had been found near their property, and Li Ming had decided to personally take charge of the negotiations.” “The Zhang family was offering a significant amount for the mine, but Li Ming was determined to get as much as possible out of the deal”, Sun Hao continues as he takes a sip from his cup.
+“You can imagine how ecstatic Li Ming was when the Zhang family suddenly offered a marriage to the imperial family along with the payment.”
+Han Xin took a sip from his own cup and replied “I can imagine. The Zhangs have always refused to join the imperial family by blood, so for Li Ming, it would be like he had achieved the greatest accomplishment of his life.”
+“And that's how he thought at the time”, Sun Hao continues. “Eager to complete the deal as quickly as possible before they changed their minds, the treaty between the two parties was drafted as quickly as he could and was eventually signed in a grand ceremony, as he wanted to publicize his great achievement.”
+“And I can imagine what happened next”, Han Xin replies. “Was there some kind of trap in the treaty?”
+“Yes, a very simple one that he overlooked in his haste”, Sun Hao replies. “The treaty clearly states that the Zhang family would provide a woman from a noble family to be the emperor's consort.”
+Han Xin thinks for a moment about Sun Hao's words and finally realizes the problem, so he replies “I see, they say they will provide a woman from a noble family, but they don't specify that she must be from the Zhang family itself.”
+“Exactly”, Sun Hao replies. “But Li Ming, in his rush to close the deal, didn't notice such an obvious flaw in the wording, so you can imagine his face when he realized he had been cheated and the Zhang family presented a member of a lesser noble clan he had never heard of.”
+Han Xin sighs, knowing Li Ming's personality, and replies “It's a miracle he didn't kill himself right then and there because of his mistake.”
+Sun Hao nods and continues his story “Exactly. But he decided to channel all that anger toward the person he saw most often at court, and although he never did anything too scandalous, he did make Xiang's early years difficult.”
+“But as always happens, time calmed him down and he ended up letting go of his resentment”, Sun Hao continues. “Until Wen was born with her problem. And although this is my assumption, I think he blamed himself for what many considered a disgrace to the family because of his mistake and for allowing Xiang to marry me.”
+Han Xin nods in understanding at this assumption and replies “But there's a big difference between that and conspiring with the purity faction. Do you think someone is behind it?”
+Sun Hao snorts and says to Han Xin “It's clear that my father is the source of this whole problem, so I think it's time for me to pay him a visit at the sect.”
+Han Xin looks concerned and says to Sun Hao “Don't do anything too crazy. Even though you are now the emperor, he is an elder of the sect and has been for a long time.”
+Sun Hao smiles smugly and, raising his right hand and clenching it into a fist, it is suddenly engulfed in fire.
+Han Xin is surprised to see this and asks “Have you finally succeeded?”
+Sun Hao nods as the fire on his fist fades and says to Han Xin “The other day, I finally harmonized my elemental fire core, and so the time has come for me to pay a filial visit to my father and kindly ask him for some advice. I know that since he became an Elder, he has neglected his cultivation and training to enjoy his privileges, so I have to make it clear to him what the consequences will be if he doesn't leave my daughter alone."
+
+--- Chapter 46 ---
+
+I watch as the darkness in the room begins to fade, driven away by the light of dawn streaming through the window, since I haven’t slept a wink all night, when I hear the barely audible sound of the door opening very carefully and turn my head to check.
+When I look, I see Lianhua entering silently, gliding like a shadow in full ninja mode. For a moment, I wonder if I might be able to surprise her, but I quickly dismiss the idea, knowing she’s surely already realized I’m awake.
+As she approaches the bed, her lips part, but I stop her before she can say anything.
+“Grab my clothes and let’s go to another room”, I whisper as quietly as I can. “Xia just fell asleep.”
+I see her eyes briefly glance toward the side of the bed where Xia sleeps in the fetal position, before she looks back at me and nods without a word.
+After that, she moves silently and with great efficiency, gathering my folded clothes, then leaning over me and lifting me into her arms with the ease of someone who has done this hundreds of times.
+“Leave the chair for now”, I murmur in the softest voice I can manage. “It’ll be more discreet for what we have to do.”
+She nods again and, needing no further explanation, quickly crosses the threshold, after which I reach out a hand to help close the door behind us as gently as I can.
+In the hallway, everything is silent. Only the faint creak of the wood beneath Lianhua’s feet accompanies the sound of my breathing.
+“Lianhua”, I murmur softly as we begin to make our way down the hallway in search of a secluded room to hide in. “Why did you want Xia to find out about her brother that way? It’s clear that with your senses, you must have realized when she woke up and pretended to be asleep just to spy on us.”
+She doesn’t answer right away. Her pace doesn’t falter, but I notice a tension rising in her arms, and then, to my surprise and for the first time, a bitter grimace crosses her face like a dark cloud.
+“I would have preferred that she hadn’t noticed, Zhāohuán Wen”, she finally tells me in a low voice, tinged with unexpected bitterness. “But if you want to know why I did it, it was because if we had told her directly, she probably would have gone into denial and surely would have accused us of lying and of wanting to separate her from her brother.”
+As she speaks, she stops in front of a closed door, carefully kicks it open, and goes inside.
+“But since she overheard us, and we were talking about it after she’d gone to sleep”, she continues as she kicks the door shut behind us. “She thought we were keeping it from her so as not to worry her, so she believed us right away.”
+Hearing Lianhua’s reply and the tone of her voice, I wonder if there’s more to her answer than meets the eye, something in her past that Xia’s situation has brought back too vividly, but I decide not to probe a possible wound.
+“Aren’t you afraid that Xia, beyond the issue with her brother, might say something about the other topics we discussed last night?” I ask, seeing that we’re far from prying ears, while Lianhua sits me down in a chair and begins to change my clothes.
+Lianhua looks at me briefly before answering, without stopping her work.
+“You underestimate how attached Ling Xia is to you”, she tells me without hesitation as she adjusts my clothes with precision. “And you also underestimate the upbringing she must have received as the daughter of a prominent family. Even at her age, she must have already learned what it means to remain loyal to her family, or those she considers family, and to keep their secrets.”
+Her words bring back to my memory both the texts and the endless lectures from Jinshi Wenxue on loyalty, duty and obedience to elders, lectures that at the time seemed tedious to me and to which I didn’t pay much attention, but which now return with precision and clarity thanks to my blessing.
+“Now that you mention it”, I murmur in a barely audible whisper. “I remember receiving some lessons on that.”
+Lianhua sighs softly and says nothing more, but the sound carries with it a whole world of resignation.
+And wisely, I decide to change the subject by saying “Since I couldn’t sleep last night, a story came to mind, but I want to ask you something before I develop it.”
+“Whatever you wish, Zhāohuán Wen”, she replies as she finishes adjusting the last piece of my outfit.
+“That formation room, the one you found in the building”, I ask her. “If someone went to the trouble of demolishing a solid stone staircase to hide it, is it important enough that someone would kill to monopolize it?”
+Lianhua pauses for a moment as she watches the way the silk falls over my legs, and, seeming satisfied with the result, takes a seat in a chair right next to me.
+“I think I know where your story is going, Zhāohuán Wen”, she says slowly. “And yes. A family that could monopolize a formation of that size and those characteristics, even if only for a few days a year, would have a huge advantage. And not just that.”
+She leaned forward slightly, and her expression grew more serious than ever as she told me “If they could study it at their leisure, they might even try to replicate it elsewhere. And if they succeeded, that could completely shift the balance of the empire.”
+Her words echo like muffled thunder in the closed room, and with them, I feel the story that has been taking shape in my mind for hours come together and even gain momentum.
+“Okay, I’m going to tell you what I’ve come up with so you can tell my mother”, I say, breaking the brief silence that had settled between us. “And I hope that between the two of us we can come up with something believable because we don’t have time for anything else.”
+Her gaze meets mine instantly, and without interrupting me, she nods.
+“The beginning will be the same”, I begin in a controlled tone, since I’ve already rehearsed it in my head a hundred times. “That you found the pyramid-shaped building, that you went inside, that you discovered the second floor with the formation room and that later you found the staircase to the third floor and went up to investigate.”
+I pause briefly to make sure Lianhua is still paying attention, and she is, since she hasn’t blinked once.
+I sit up a little straighter, just enough to project seriousness in every word as I tell her “But that’s where the story starts to change.”If you encounter this tale on Amazon, note that it's taken without the author's consent. Report it.
+“When you returned to the second floor, you heard the sound of a fight. So you decided to hide and not intervene immediately”, I tell Lianhua. “You wanted to find out what was happening without drawing attention to yourself, so you cautiously crawled through the hole you’d made in the wall to the hidden staircase leading to the third floor and followed the sound of the fight.”
+Lianhua nods barely perceptibly, and I continue the story.
+"The noise was coming from the training hall. When you arrived, you found a group of people in the midst of a fight”, I tell Lianhua. "And aside from those who were fighting and shouting at each other, there were already several dead bodies on the floor. And among them, to your dismay, was the corpse of the Fifteenth Imperial Prince, Sun Chao."
+"That last part is the most important”, I tell her solemnly. "If he was already dead when you arrived, no one can ask you why you didn’t help him, and therefore any charges of dereliction of imperial duty are dismissed."
+She holds my gaze for a few seconds, and finally nods.
+"A wise decision”, she murmurs. "And a necessary one in the current climate."
+I take a deep breath, grateful for her approval, and then pick up the thread of the story.
+“After that, you stayed hidden to see if you could figure out what had happened”, I continue telling Lianhua. “And from what the fighters were shouting, you could easily deduce what happened, that seeing the layout of the hall, their greed got the better of them.”
+“First they decided to get rid of the prince and his most loyal men so the imperial family wouldn’t discover what they’d found, but as soon as they did, they turned on each other over the monopoly”, here I pause briefly in the story before continuing, wishing I had something to wet my whistle.
+“And right in the middle of that carnage is when you arrived”, I continue the story. “And you waited patiently, like the oriole hunting the mantis that thinks it has already caught the cicada. And when in the end only two remained, probably from the same family, you ambushed them, eliminating them for the crime of having murdered my brother.”
+When I finish, I let the silence envelop us with the echo of a completely made-up story with which I’m trying to cover up a totally different crime.
+Lianhua remains silent and pensive as she seems to ponder the story I’ve just told her and, I suppose, look for flaws and errors, something I imagine she was trained to do at the Yushitai.
+“The story itself is perfectly believable”, she says at last. “But it needs a couple of tweaks. Minor details, but important ones. If you’ll give me a few moments to think them through, Zhāohuán Wen.”
+“As long as you need”, I say with a wave of my hand.
+Silence returns, but as time passes, I start to get more and more nervous.
+I begin to hear muffled footsteps in the hallway and the whispering of the maids as they go about their morning chores. The day has begun, and it won’t be long before my mother emerges from her chambers.
+And I don’t know when my brother’s escort will start to find out about what happened at the Celestial Fragment, but at the very least they’ll learn of the orders he gave regarding Lianhua, so they’ll start demanding explanations, and before that happens, my mother needs a credible account from us.
+Lianhua, as if sensing my unease, lifts her head and says to me with complete calm “It’s settled. I think that with what I’ll tell your mother, no one will suspect a thing. Do you want me to tell her?”
+“There’s no time”, I reply instantly. “Pick me up and let’s go quickly. We have to get to her room before she comes out.”
+Lianhua picks me up with her usual efficiency and heads for the door, and I, suddenly remembering a small detail, stop her with a single word.
+“Wait”, I say, and she stops immediately despite my having told her just a moment ago that time is against us.
+“One last thing before we go”, I murmur. “Now that I think about it, I’m a minor. And you, even though you’re my Fei Yi, are under my mother’s supervision, aren’t you?”
+Lianhua shows no surprise and merely tilts her head slightly, acknowledging the reason for the question.
+“Yes, Zhāohuán Wen”, she replies calmly. “But that supervision is limited to certain aspects. Guifei Xiang can impose restrictions on me, such as the ones she’s placed on discussing cultivation with you, but beyond that, I’m only expected to act with discretion and my own judgment.”
+She pauses for a moment, as if carefully considering her next words.
+“She won’t like what I’ve done, of course”, she adds. “But she won’t be able to do anything about it, at least not without a formal reason.”
+I nod slowly as I take in her words. It makes sense, since in a structure as hierarchical as this one, everything must have a framework, including the restrictions. But even so, an idea begins to take shape in my mind.
+“All right”, I say. “Let’s keep going before the tiger catches us.”
+We cross the threshold of the room and begin to walk down the hallways as the first maids, whispering at the far ends of the corridors, watch us pass with curiosity as they open the windows and the palace begins to wake up.
+And as we approach my mother’s chambers, the seed planted by my earlier doubt blossoms.
+Lianhua has proven her loyalty to me time and time again. Right now, she’s doing it. But I can’t forget that, in the end, she has too many superiors. And as a member of the Yushitai, she answers to a hierarchy that neither I nor my mother can fully trust.
+Here, in the ass of the empire, that’s not a problem, but as soon as we return to court, it could become one, since surely in such a large institution there are individuals with their own agendas, and sooner or later they’ll try to use Lianhua for something.
+But I let a villainous smile creep onto my lips, since I think I have the solution to that and I just have to ask my mother if it’s possible, and I plan to do so by taking advantage of this visit and the problem we’re going to present to her, and if at all possible, I plan to snatch Lianhua right from under their noses.
+But I push my villainous thoughts aside when we reach the door to my mother’s chambers and Lianhua knocks.
+We wait a moment, but seeing that no one answers, she knocks a little harder.
+Suddenly, Lingxi’s annoyed voice comes from the other side as she asks “Who’s bothering Guifei Xiang so early?”
+“It’s me”, I reply firmly “and I need to speak with my mother urgently.”
+A brief silence follows my words, but soon the door opens, revealing Lingxi’s face, slightly contorted with surprise, and her eyes widen even more when she sees me in Lianhua’s arms instead of in my wheelchair.
+“Come in”, she says simply, stepping aside. “She’s in her inner room, she hasn’t gotten dressed yet.”
+We step into the rooms as I hear my mother’s voice coming from inside, tinged with obvious morning grogginess as she asks “Who is it so early?”
+“It’s me, Mother”, I reply, not letting Lingxi speak for me. “I need to talk to you, and it’s urgent.”
+There is a second of silence, and then her voice, this time with a mix of surprise, authority, and perhaps a touch of resignation, tells us “Come in.”
+Lianhua leads me into the inner room, and upon entering we see my mother, still in her nightgown, standing in front of a screen where, judging by the arrangement of several robes, it seems she was choosing what to wear today.
+When she sees us, she sighs, as if she already knows this isn’t just any ordinary visit, and then sits down with an air of resignation in a nearby chair.
+“I suppose you’ve come to tell me what you know about the cause of the unrest in the city”, she tells us bluntly, in a firm voice that leaves no doubt that she is convinced of what she is telling us.
+When I hear her words, I go blank for a few seconds as I try to process what she’s said.
+“How am I supposed to know the reason for the riots?” I finally reply, as a wave of tension runs down my spine. Although, to be honest with myself, I have a pretty clear idea of the reason, though I won’t be the one to tell her.
+She looks at me with a raised eyebrow as she says “If you’re here this early, it must be something urgent. And the only urgent thing I can think of right now is the riots.”
+Her words make me exhale the breath I didn’t realize I was holding, since that means she hasn’t been told about my half-brother’s disappearance yet.
+“Mother, I’m sorry to tell you that the riots are of no consequence and are the least of the problems we’re going to face”, I say.
+Her reaction is immediate, and she sits up abruptly in her chair as her expression grows serious.
+“What do you mean by that?” she asks, looking at me sternly. “What do you mean they’re insignificant? Sun Wen, what on earth have you done now!”
+I ignore her question for now and point to a nearby chair for Lianhua, saying “Sit me down there.”
+She obeys immediately and sits me down in the chair, after which she carefully settles me in while my mother watches us with a look as if she wants to force the answers out of us by any means necessary.
+“Mother”, I say with the solemnity the situation demands after sitting down. “Lianhua has prepared a report on what happened at the Celestial Fragment of the Sands. And I think it’s best if you hear it directly from her.”
+My mother watches us in silence for a few seconds, her eyes narrowed, but finally sighs and sits back down as she says “Then let her begin.”
+
+--- Chapter 47 ---
+
+Lianhua stands firmly in the center of the room, and I watch her closely as her eyes, serene as always, fix on my mother, who sits in the chair waiting for her to begin.
+And as I wait for her to begin, I can’t help but hold my breath, not only out of curiosity to hear the changes she claimed to have made to the story we’d agreed to tell, but also to hear my story as told by Lianhua.
+“Guifei Xiang”, Lianhua says to my mother with a formal bow of the head. “I beg you to allow this humble maid to give you an account of what happened in the Celestial Fragment of the Sands.”
+My mother nods as I watch one of her feet begin to shift, a reflection of her barely contained impatience.
+Without further ado, Lianhua begins in a firm, measured tone of voice that I think I might start calling her narrative mode.
+“It all began in one of the ruins of the Celestial Fragment that Zhāohuán Wen had tasked me with surveying, in fulfillment of the conditions she herself had imposed to grant me access to the Celestial Fragment”, she begins, her gaze fixed unwaveringly on my mother. “While I was examining some minor ruins, a small group of individuals, members of the Fifteenth Imperial Prince’s entourage, came upon me.”
+I make a small nod, almost imperceptible even to myself, since so far everything is going according to plan.
+“I tried to explain my presence there, but they gave me no chance”, she continues. “For as soon as they saw me, they attacked me.”
+A shiver runs down my spine as I hear it spoken aloud, even though I already knew the story, and I look at my mother, whose lips have tightened into a thin line of disapproval.
+“I was forced to defend myself”, Lianhua continues without raising her voice. “And in the confrontation, I ended their lives. It wasn’t the best outcome given their families’ standing, but I had no alternative given the situation.”
+And after a brief, perfectly calculated pause, she lets the weight of her next words fall upon the room “And in the final moments of one of them, I managed to extract a confession that the Fifteenth Prince himself had given orders to capture me the moment he saw me, so their attack was not a spontaneous act by a few undisciplined members, but a direct order.”
+Just as Lianhua seems ready to continue, my mother’s voice interrupts her, sharp and precise, while the look of disapproval I had adopted earlier still seems to linger on her face.
+“Before you continue”, my mother says to Lianhua “I have a few questions for you.”
+Lianhua bows slightly without losing her composure as she replies “Of course, Guifei Xiang. I will answer any questions you wish.”
+“First of all”, my mother asks, narrowing her eyes. “Why were you searching those ruins in the first place?”
+Without hesitation, Lianhua replied clearly, “Zhāohuán made it a condition that I must survey the ruins for her in exchange for her permission to enter the Celestial Fragment.”
+My mother shoots me a look that pierces me like a spear, so, alarmed, I mentally review all the conversations I’ve had with her recently and realize with horror that I never mentioned that small condition I imposed on Lianhua.
+I feel an uncomfortable heat rising to my cheeks, and in a reflexive act to break the oppressive silence, I cough softly a couple of times while trying to pretend it’s a natural reflex.
+My mother holds my gaze for a moment longer with a strange gleam in her eyes, before turning back to Lianhua.
+“Did you recognize anyone important among those nobles?” she then asks Lianhua, but this time her voice is sharp as a sword’s edge.
+“No, Guifei Xiang”, Lianhua replies with absolute certainty. “And none of the attackers wore high-ranking insignia. Furthermore, judging by their demeanor and equipment, I suppose they were the sons of minor officials or members of lesser branches of noble houses.”
+After hearing Lianhua’s reply, my mother nods slowly, as if processing every word while weighing it in some context I don’t understand and which I suppose has to do with the currents of the court.
+“Very well”, she finally says. “Continue.”
+Lianhua straightens up again, and her expression grows even more solemn.
+“Now I beg Guifei Xiang to allow me to recount the second part without interruption so that you may have a complete picture of what happened”, she requests with a slight bow. “When I am finished, I will answer any questions or concerns you may have.”
+My mother narrows her eyes, but grants permission with a brief wave of her hand.
+"All right, I grant your request”, she says impatiently. "Proceed."
+"Thank you, Guifei Xiang”, Lianhua replies, taking a brief breath before continuing.
+And after those words, I hear Lianhua begin to tell my mother the story I made up, but to my surprise, the part she decided to change is the ending, where she says that when it was all over and before leaving, she decided to carry the bodies down from the second floor and take them outside before leaving the building.
+But as Lianhua recounts her story, I watch my mother out of the corner of my eye, and although she is visibly striving to maintain a neutral expression, small changes in her features, small gestures like an arched eyebrow or a slight twitch at the corner of her lips, betray her growing dismay.
+Finally, Lianhua concludes her report as her last word hangs in the tension-filled air, and I watch her stand firm and unflappable in the center of the room, her hands clasped in front of her in a posture of respect, as she seems to await the inevitable questions I know my mother will not fail to ask her.
+I watch as my mother sighs heavily, followed by that slow, deep gesture I’ve seen so many times, bringing two fingers to her brow and rubbing it gently, in that automatic motion she only makes when I bring her a problem of considerable magnitude.
+At this point, it’s almost comforting because it feels so familiar.
+But she quickly regains her composure and elegantly lowers her hand as she looks up at Lianhua, who stands upright in the center of the room like a living statue, patiently awaiting the questioning.
+“Does anyone else know what you just told me?” she asks in a firm voice, without a hint of hesitation.
+Lianhua answers her question clearly and without hesitation “Only Zhāohuán and I know what I just told you, Guifei Xiang.”
+And the sigh that escapes my mother’s lips after hearing Lianhua’s answer is not one of exhaustion, but of relief. It is clear that this was her greatest concern, at least for the moment.
+But I continue to watch the scene in silence, and after a few moments of reflection, my mother asks Lianhua her second question “That room you found, how large was the formation that, according to you, was for harvesting? I need a precise idea to assess how significant it was in order to evaluate what happened.”
+“Perhaps I didn’t explain myself clearly enough, Guifei Xiang”, Lianhua gently corrects my mother upon hearing her question. “There wasn’t a formation in the room, since the entire room was the formation. The runes and energy lines were engraved all over the walls, ceiling, and floor.”This content has been unlawfully taken from Royal Road; report any instances of this story if found elsewhere.
+And I can see how those words have an immediate effect.
+My mother freezes as if something had short-circuited her mind and momentarily interrupted her ability to respond, her face going blank for just a few seconds, but long enough to notice. But she quickly takes a deep breath and exhales slowly.
+Suddenly, Lingxi, who is in a corner of the room and hadn’t been noticed until now, jumps at the implication of what Lianhua has just said.
+"If what you say is true, and I have no reason to believe you’re lying”, my mother says to Lianhua. “Then everything that happened afterward is self-explanatory, since no noble family could resist monopolizing and hoarding something like that."
+And here my mother pauses, I suppose to clarify her thoughts a little further.
+“And the existence of that room makes it even more complicated to handle everything related to the prince’s disappearance”, my mother continues after the pause. “Since something of such magnitude can only be mentioned to the emperor in person, as there may be people at court with similar ideas.”
+I swallow silently as I listen to my mother’s explanation of the room’s importance, which is clearly intended for me, since I doubt she’s offering it to Lianhua. When I asked Lianhua if anyone would kill for it, she already hinted at how important it was, which was the basis of my story, but hearing my mother say that even within the court itself, people might betray my father for her sake, makes the significance of the room take on a whole new dimension.
+But after that brief moment of unease, my mother looks back at Lianhua.
+“And this time, aside from the prince, did you recognize anyone else?” she asks, and it’s clear that this time every word is carefully measured.
+"Yes, Guifei Xiang”, Lianhua replies bluntly. "I recognized Wei Jian among them. Besides, one of the men was wearing the Zhang family symbols, and another bore the Gao family emblem, the rest seemed to be mere followers or minor officials."
+My mother closes her eyes as her expression shifts into a mosaic of resignation, calculation, and concern, despite her attempts to remain composed.
+“Three members of prominent families”, she murmurs as she counts them aloud. “And two of them even have consorts in the imperial harem.”
+The silence that follows is thick as my mother seems to try to decide what to do with that information.
+I see how, after a few long seconds, her face relaxes, she opens her eyes and fixes them on Lianhua again before asking her next question.
+“Why did you carry the bodies out of the building?” she asks, and I listen closely to the answer, since that’s something I want to know too, it’s the part of the story she added herself.
+“Understanding the importance of that room, I didn't want to leave any corpses behind that might attract scavengers or insects,” she explained calmly, without losing her composure. “I was afraid they might scratch the walls or build nests and end up damaging the formation over time, so I decided to move the bodies outside, where the risk of them affecting the chamber was lower during the years the Celestial Fragment was closed.”
+Upon hearing her explanation, my mother nods slowly with an expression that blends recognition and approval.
+For my part, I watch her with a mixture of amazement and admiration.
+In a simple, elegant, and perfectly credible way, she has turned the greatest weakness in our entire story, the fact that the bodies weren’t where they should have been, into a reasonable and even commendable precaution, so I can’t help but feel impressed.
+“It’s a shame you couldn’t bring the prince’s body”, my mother then remarks with a hint of regret while I’m admiring Lianhua.
+“I considered it”, Lianhua replied to my mother. “But carrying a corpse through the desert for a week was impractical. The risk of decomposition, of attracting the attention of other cultivators, or even of being attacked by spirit beasts was too high, so I had to give up on the idea.”
+My mother closes her eyes briefly, as if pondering what she’s just been told, and finally nods.
+“Yes, it was too much to ask”, my mother concedes without looking at anyone. “And given the circumstances, you made the right decision.”
+And then she sighs, a long sigh, deeper than the previous ones.
+“But now we have the big question”, she says as her gaze drifts for a moment into the void. “And though I don’t expect you to answer it, it is, what do we do now?”
+The silence left by my mother’s last sentence seems to reverberate off the walls of the room like a note suspended in the air as her voice fades, but I know this is the moment to put into action the plan that’s been on my mind, so I take a deep breath and raise my voice slightly from where I’m sitting.
+“I think I have a solution for that”, I tell her, letting my tone be firm enough to break the silence without sounding impertinent.
+My mother’s reaction is almost comical in its strangeness, as she looks at me in surprise, as if she hadn’t expected anyone to actually answer her question. After a few seconds in which she seems to be assessing whether she heard correctly, she raises an eyebrow.
+"And what brilliant plan has my clever little girl come up with this time?" she asks me, with that tone that’s somewhere between curiosity and caution she sometimes uses when she asks me questions. "What should I tell them when they come asking about what happened between your maid and the prince in the Celestial Fragment?"
+"Nothing”, I tell her, smiling at her with the utmost brazenness and calmness in the world.
+My mother blinks, completely confused by my answer.
+"What do you mean, nothing?" she exclaims, visibly bewildered.
+“It’s a little more complicated”, I clarify, stifling a laugh. “But the gist of it is basically, don’t tell them anything.”
+Before she can open her mouth again, I continue to explain the situation to my mother.
+"When the prince’s entourage comes asking for explanations, we’ll tell them the truth straight up”, I tell my mother with a smile. "That we know what happened in the Celestial Fragment, but that there are elements involved that are classified at a level too high for people of their rank to be authorized to know."
+My mother watches me with growing interest, so I seize the momentum to continue “So we can’t give them the report, and they’ll have to wait for someone of sufficiently high rank to come and receive it.”
+I pause, then smile mischievously at her as I continue “And that’s when we tell you that the only person with sufficient rank to receive that report is the emperor himself.”
+Her eyes narrow, but I notice it’s not out of disapproval, rather, she seems to be analyzing my proposal, so I wrap up my pitch by telling her “And if they consider retaliation, or accuse us of a cover-up, they can’t do anything either, since we are the Guifei and the Zhāohuán, meaning only the emperor can judge us. So in the end, it all comes down to the same person.”
+Silence returns for a moment, but this time it’s different, because in my mother’s expression I can see how she’s weighing my words and the feasibility of what I’ve proposed.
+"Another time”, she begins, choosing her words carefully. "Your plan would be much riskier. They might try to appeal to the provincial governor or seek support from the factions that control the city."
+"But now, with the chaos in the city, for whatever reason”, my mother continues. "And with his own skin on the line, since if the chaos drags on too long his own position would be in jeopardy, I don’t think the governor will get involved."
+Hearing her words, I look at her expectantly, full of hope.
+"If I can’t think of anything better before they come asking, I’ll go with your plan”, she concludes, looking at me.
+A satisfied smile spreads across my face when I see that she has accepted my idea, but it doesn’t last long because I know there’s a crack, though that crack is what I’ve been looking for from the start and my true plan.
+"But”, I say, choosing my words carefully. "There's a flaw in this whole business of hiding the truth."
+My mother frowns as she listens to me and asks “What is it?”
+“It’s Lianhua”, I reply seriously. “She’s part of the Yushitai. If someone with enough influence figures it out, they can summon her to their offices and make her disappear inside them, after which they can make up whatever story they want about what happened inside the Celestial Fragment.”
+After I speak, my mother and I slowly turn our heads toward the center of the room, where Lianhua continues to stand unperturbed, as if she were part of the furniture.
+“Good heavens”, my mother murmurs after a few seconds. “I had completely forgotten that Lianhua was still part of the Yushitai.”
+“I never forget”, I reply. “And I think at this point we should ask her the question.”
+I sit up a little in my seat and fix my gaze on Lianhua, who has not stopped watching us with that serene expression so characteristic of her.
+“Lianhua”, I ask her in a solemn tone “Are you willing to leave the Yushitai and become a permanent member of my staff as a Zhāohuán?”
+Lianhua kneels on one knee, clasps her hands in front of her, and bows her head toward me.
+“I am willing to do so without hesitation, Zhāohuán Wen”, she replies in a firm, clear voice, as serene as a windless night or as clear as a pond reflecting the moonlight.
+My smile becomes genuine and delighted, at last I can claim to be a princess with the loyalty of a ninja maid.
+But just as I’m savoring my triumph, a thought suddenly crosses my mind, and I turn my head toward my mother.
+“I can do this, right?” I ask her, a little worried that I’ve gotten ahead of myself.
+She looks at me amused, a slight, satisfied smile on her face.
+“It’s actually very simple”, she replies. “Since our guard commander is a Nei Baihu, with her present as a witness, you just need to draft some documents in which, as Zhāohuán, you order the transfer of Lianhua from the Yushitai to your personal service, after which we’d just have to send a copy of those papers to the court.”
+A sigh of relief escapes my lips as I listen to my mother.
+“Then we’d better do it as soon as possible and send them with the fastest messenger we can find”, I tell my mother with determination. “That way, they’ll arrive before any message from the prince’s delegation, and Lianhua will be safe from any investigation or reprisal under my authority as Zhāohuán.”
+
+--- Chapter 48 ---
+
+Finally, after an exhausting morning and a flurry of activity that I can only describe as stressful, I breathe a sigh of relief as I sit in one of the inner rooms of the Celestial Lotus Palace, where light streams in through a window and illuminates, a small lacquered wooden table, the breakfast carefully arranged on a tray and consisting of sweet rice buns, candied fruit, and a white porcelain teapot with the scent of jasmine.
+“I can’t believe this is the first thing I’m saying after all this morning”, I murmur as I take a rice cake. “Thank you, Lianhua. If you hadn’t shown up with this tray, I would have started devouring the table.”
+“I knew you’d be exhausted and hungry, Zhāohuán Wen”, she replies, bowing slightly. “It’s been a busy morning.”
+I can’t help but let out a quiet laugh.
+“Busy is putting it mildly”, I tell Lianhua. “Waiting for my mother to get dressed nearly wore out my patience, but the worst part was the mountain of paperwork. Why does a simple personnel transfer order have to involve so much red tape? It almost seems like they do it on purpose so no one wants to do it.”
+I almost think I see a smile flicker across Lianhua’s face as she replies “Watching you and your mother deal with the paperwork almost makes me thank you all over again for taking me into your service, since this way I won’t have to write another report for the Yushitai.”
+Hearing that, I widen my eyes dramatically, raising my arms while holding a half-eaten bun and exclaiming in jest “Good heavens, Lianhua just made a sarcastic remark! The world must be about to end.”
+Seeing my reaction, Lianhua simply narrows her eyes and says nothing, so I just keep eating the bun and, after taking a sip of tea, remark “And then there’s my mother’s order to the Nei Baihu to send copies of everything via the fastest Nei Wei, since that hadn’t occurred to me, I assumed there were messengers in the cities for such tasks.”
+“It’s not customary”, Lianhua tells me. “But it’s also not unusual for imperial troops to be tasked with delivering important messages to minimize the risk of them getting lost or intercepted.”
+“Well, all the better, that way there’s less risk for us”, I finally reply to Lianhua before continuing to eat breakfast in silence.
+And I’m just finishing breakfast when I hear voices and commotion coming from the palace’s main gates, and I raise an eyebrow, without even needing to look at Lianhua, knowing she’s already pricked up her ears.
+“And I suppose the moment we feared has arrived”, I murmur as I set the teacup I was drinking from back on its saucer. “It’s almost certain that all this commotion means my imperial brother’s entourage has arrived.”
+“Would you like to go to the entrance, Zhāohuán Wen?” Lianhua asks me as she approaches where I’m sitting.
+“There’s no reason for that”, I reply to Lianhua, shaking my head with a slight sigh. “We’ve already laid out the plan to follow, and no matter how high my rank as Zhāohuán may be, no one is going to take a nine-year-old girl seriously in the case of a prince’s disappearance, especially since, to top it all off, I had a fight with her. So you’d be more of a hindrance than a help to my mother. Besides, your presence could cause tempers to flare even more if they saw you.”
+Lianhua doesn’t answer, but I see her nod with that gesture only she has, full of silent approval.
+“The best we can do right now is take care of something truly important”, I add in a more serious tone. “Take me to my room, it’s not good to leave Xia alone with her thoughts for too long at a time like this.”
+Hearing me, she leans toward me, picking me up in her arms with a fluid motion, and as she carries me away from the commotion in the courtyard, we enter the palace while the noise gradually fades away.
+When we arrive, the door slides open gently, revealing a room barely lit by the dim light streaming through the window, which is covered by curtains. And on the bed, like a small porcelain statue, Xia remains in exactly the same position we left her in.
+And I can’t help but sigh when I see her, since it’s almost a repeat of how she was when we brought her here and her brother had to leave.
+“That won’t happen again if I can help it”, I declare with renewed resolve. “Lianhua, sit me in the wheelchair and then wake her up.”
+Without wasting any time, she skillfully settles me into the chair and approaches the bed.
+“Ling Xia”, she calls softly at first, but seeing that she doesn’t respond, she insists a little more firmly “Ling Xia, wake up.”
+The girl frowns, stirs slightly, and mutters irritably “Leave me alone.”
+“No”, I reply instantly, my voice firm. “Lianhua, if Xia doesn’t sit up in bed within the next minute, you have permission to do it for her.”
+“Understood, Zhāohuán Wen”, Lianhua replies in a voice loud enough for Xia to hear.
+Xia sits up abruptly with a look of annoyance as she says to me “That’s not fair! Using Lianhua to bully me! Today I wanted you to leave me alone.”
+“That’s not possible, Xia”, I tell her without hesitation. “There are only five months left until you turn eight. And if you want to be even halfway competent when you start cultivating, you must start training, since it was my mistake not to have started training you sooner.”
+“Train? I’ve never heard that you must train to cultivate”, Xia says suspiciously upon hearing my words.
+I smile and sit up straight in my chair with as much dignity as I can muster. “That’s because you haven’t heard of my unique and special method. You should know that I started practicing it when I was five years old.”
+Xia looks at me with narrowed, suspicious eyes as she asks “Aren’t you trying to scam me? Nobody starts cultivating at five years old.”
+I’m instantly taken aback by her words and start to say “I didn’t say cultivate, I said train! And my method is genuine and thoroughly proven! You should know that thanks to that method, in my first…”
+“Zhāohuán Wen”, Lianhua interrupts me in her calm voice. “I remind you that your mother and the emperor wish for that event to remain a secret.”
+I sighed resignedly at Lianhua’s interruption, realizing that I had let myself get carried away, once again, by my childishness.
+“You’re right, Lianhua”, and then I look at Xia, who is now watching me with eyes full of curiosity, which I assume is because the name of the emperor came up alongside the word secret, so I decide to take advantage of the moment.Unauthorized usage: this tale is on Amazon without the author's consent. Report any sightings.
+“I’ll tell you what happened”, I say, adopting my most serious tone. “But first you have to promise me that you’ll never tell anyone what I’m about to say. And although it may seem unfair to ask this now, I also have to ask you never to tell anyone what you heard last night, when you were pretending to sleep.”
+For a moment, Xia falls silent as her expression, which had been one of simple curiosity, briefly darkens, as if a shadow had passed over her eyes.
+Seeing that look, I don’t need her to say anything, since I know perfectly well that she’s remembering what she heard last night when she was pretending to sleep, when Lianhua spoke of her brother.
+But that veil of doubt doesn’t last, and like a gale sweeping away the clouds, her expression transforms into a look of determination. With her lips pressed together and her eyes steady, she looks me straight in the eye and nods.
+“I promise”, she tells me in a clear voice.
+Hearing her, I take a deep breath without letting it show. Not only because she has promised to keep silent, but because that means Lianhua wasn’t wrong about her. For Xia has chosen to keep our secrets, especially everything that happened in the Celestial Fragment.
+But I set those emotions aside, unnecessary now, and smile at her affectionately, searching her face for traces of the bright, stubborn girl who has always made me smile.
+“Very well”, I say in an almost festive voice. “So, let’s see if you can guess how long it took me to temper my skin when I first began cultivating.”
+Xia blinks, confused by the sudden question, and brings a finger to her lips thoughtfully, then murmurs in reply “Six months?”
+I burst out laughing, amused by her look of doubt and her attempt to appear confident.
+“Wrong!” I say dramatically “Try again. You’re way off.”
+Xia frowns as she tries again “Five months?”
+“Wrong again!” I reply, raising a finger in a gesture of denial.
+Before I can continue the game, Lianhua, who has been silent until now, interrupts in a calm but firm tone “Zhāohuán Wen, stop playing with Ling Xia. If you’re going to make her guess, you’ll be here all day. It’s completely impossible for anyone to guess.”
+I look at her with narrowed eyes, making no effort to hide my annoyance at her ruining the moment, but in the end I sigh. Lianhua, as always, is right.
+“All right… all right…” I concede with resignation and turn toward Xia, who has been watching both of us with growing curiosity, and I sit up straight in my chair as I tell Xia proudly. “The truth is, in my first cultivation session, I completed Skin Tempering in just under three periods.”
+Xia freezes completely, as if in shock, after hearing me, and blinks once. Then she blinks again, and her face is expressionless for a moment, but suddenly she frowns and her body tenses as her eyes fill with tears.
+“You don’t have to lie to me just because I’m a little girl!” she suddenly yells at me, her voice breaking with what seems like anger and helplessness. “I know that’s impossible! I had cousins a little older than me, and they always bragged to me about how hard it was! No one can do Skin Tempering in three periods!”
+And before I can react, Xia jumps out of bed and runs toward the door with determined steps.
+“Lianhua, stop her!” I shout, alarmed by her reaction.
+But she doesn’t need to say it, because Lianhua is already moving and in two strides catches up to her, lifting her into her arms before she can reach the door.
+Xia, in Lianhua’s arms, squirming and kicking in frustration, her tears already streaming freely down her cheeks.
+“The way you’re reacting right now is exactly one of the reasons why the emperor and my mother made me promise not to tell anyone”, I say seriously, fixing my eyes on hers. “Because no one would believe me. And if you still don’t believe me, we can go and have my mother confirm it for you later. Although that would probably get me punished for the rest of the year.”
+Xia stops immediately upon hearing me, and her body, still tense, gradually relaxes as she takes a deep breath and her tears stop. She looks at me from Lianhua’s arms, then turns her head toward her.
+“Lianhua, is what Wen says true?” she asks in a whisper.
+“It’s true”, she says gently. “I was there when it happened, and it really is just as Zhāohuán Wen has said.”
+Upon hearing their conversation, I feign exaggerated offense and cross my arms as I say to them “So now what Lianhua says is more credible than what I say, huh?”
+Xia looks at me with a frown, her cheeks still streaked with her recent tears, but with less anger and more bewilderment.
+“It’s just that what you’re saying is too unbelievable to be true”, she murmurs. “If anyone else had told me that, I wouldn’t have believed it either…”
+“I thought I’d have more credibility with you”, I reply as I let the joke fade and my expression softens. “But I understand.”
+“Lianhua”, I say as I regain my composure. “You can put Xia back in bed.”
+She nods without needing to say a word and, with her usual efficiency, tucks Xia back under the blankets. Xia doesn’t resist and simply wipes her tears with the sleeves of her pajamas, rubbing her face hard, as if she wanted to erase her moment of weakness.
+“Are you okay now?” I ask in a softer voice.
+Xia nods without looking directly at me as she says “Yes.”
+I nod at her, though inside I breathe a sigh of relief. I was afraid of another relapse, but it seems the storm has passed.
+“Good”, I say. “So, after breakfast, we’ll start training you using my method to help you progress faster.”
+Xia blinks in surprise, and her eyes regain a sparkle I hadn’t seen since before she started crying.
+“And with that method, will I be able to do the same as you?” she asks me hopefully.
+I stay silent for a second, hesitating, since I don’t want to give her false hope.
+“I don’t know”, I answer honestly. “As far as I know, I’m the only one who can do it, so I don’t have anyone to compare myself to.”
+“Excuse the interruption, Zhāohuán Wen”, Lianhua suddenly says in her usual tone before looking at Xia and telling her “Ling Xia, never try to compare yourself to Zhāohuán Wen when it comes to cultivation, because you’ll always end up getting frustrated.”
+I look at her, narrowing my eyes and unable to suppress a wry smile as I say “Lianhua, don’t you start too. I already have enough of my mother picking on me about that, so I don’t need you to start now as well.”
+Lianhua held my gaze unflinchingly as she said “I’m only saying this so Ling Xia doesn’t get her hopes up.”
+I sigh resignedly as I turn to Xia, who has been watching us intently, her eyes darting back and forth between us as if she were following a silent strategy game.
+When he sees that we’ve finished talking, he turns to Lianhua and asks with genuine curiosity, “So, is Wen like those protagonists in stories who always cultivate faster than everyone else?”
+Lianhua, her face impassive, replies without a second thought “Sometimes it’s even worse.”
+I narrow my eyes again, ready to retort, but Xia looks me straight in the eye and says firmly “Then I’m ready. But first, I’d like you to tell me what that method consists of.”
+I swallow the retort I was about to throw at Lianhua, thinking that it can wait and that this is more important right now.
+“The first thing you have to do”, I tell her, my tone now more serious. “Is forget everything you think you know about Qi and how it’s cultivated. Just do what I tell you, without questioning it.”
+Xia nods immediately and says “Okay.”
+“Good”, I continue. “The first step is for you to try to sense Qi, since that’s what every cultivator does at the beginning and is therefore essential. But since we don’t have any Qi-gathering training at the palace, my mother didn’t want to give me any, I don’t know how long it will take you.”
+“It usually takes seven days on average,” Lianhua interrupts me with a slight nod.
+“Thanks for the heads-up”, I say gratefully, after which I turn my attention back to Xia, who is listening to me with wide eyes.
+“Once you manage to see it, you’ll notice that the Qi looks like a stream of specks floating in the air”, I continued, speaking to Xia. “You’ll also notice that a few of them will give you strange sensations, but most won’t give you any sensation at all. Those are the important ones, and the ones you need to focus on.”
+Xia nods slowly, seeming focused as she processes every word.
+“And what do I do with them?” she asks after a moment.
+“The next part is simple and difficult at the same time”, I explain to Xia. “You have to use your mind to try to grab one of those specks. And most importantly, you must keep it still. Don’t move it, don’t pull it toward you, just keep it still where you’ve caught it.”
+Xia frowns as she listens to me.
+“I don’t have to draw it in?” she asks, visibly confused. “I’ve heard the opposite.”
+“Never”, I reply firmly. “That’s why I told you to forget what you’d heard. Drawing in Qi is the last thing you should do, since that would mean starting to cultivate. And you can’t do that yet because you’re not eight years old. And as long as you just hold it in the air, what you’ll be doing is training.”
+And I notice how Xia looks at me, confused, with clear doubts on her face, as she asks “And what good will that do when I start cultivating?”
+
+--- Chapter 49 ---
+
+“In and of itself, not at all”, I reply calmly, though inside I feel like bursting out laughing. “But it serves as practice for what I want to teach you.”
+Her expression doesn’t change much, so I lean forward slightly, hoping to make it clear that I’m completely serious.
+Xia opens her mouth slightly, but I raise a hand to signal her to let me continue.
+“But once you manage to keep it stable for long periods of time”, I say, emphasizing each word. “You’ll keep holding it while you try to grab a second one. And the key will be doing it without letting go of the first one.”
+Now she really interrupts me.
+“And what’s the point of that?” she asks, her voice thick with skepticism. “It sounds more like a mind game than cultivation training.”
+“When you cultivate, Xia, it’s not enough to just feel the Qi”, I tell her patiently. “You have to draw it toward you. And the more Qi you draw in at once, the faster you progress. That ability to grasp specks of Qi with your mind is crucial. The more you can grasp and draw toward you simultaneously, the faster you’ll be able to cultivate.”
+She lowers her gaze as she seems to reflect on my words.
+“I call this ability mental hands,’” I tell her with a slight smile. “Because that’s what it most resembles, invisible hands that you extend to catch the Qi.”
+“And how many mental hands can one have?” she asks without fully looking up, still seeming to ponder what I’ve told her.
+“The maximum you can have before you finish Skin Tempering is five”, I say, answering her question.
+I give her a second to take it in, but I see her expression grow even more serious.
+“And is that what you expect from me?” she asks, looking up and meeting my gaze directly.
+“Yes”, I say bluntly. “That’s the goal. I don’t want you to start absorbing Qi in earnest until you can grasp five specks at once, so you can start off on the same footing as me.”
+Xia bites her lip, as if she wants to say something but hesitates to do so, but finally she says to me “But you said you started training when you were five. I have five months left. Do you really think I’ll be able to do it?”
+“It’s not as dramatic as it sounds”, I reply honestly. “I did it starting at five, yes, but it was sporadic, something I’d do now and then when I was bored, so sometimes I’d go whole weeks without doing it.”
+I let my words sink in before adding “But you won’t be alone, and I’ll guide you every day, so it’ll be faster and easier.”
+And to myself, I think she’ll also have far fewer headaches from pushing herself too hard when she shouldn’t.
+Xia nods slowly, though a shadow of doubt lingers in her eyes, and after a pause, she asks me another question “You said the maximum before Skin Tempering is five. Does that mean you can have more mental hands afterward?”
+This time I let a touch of pride slip into my voice before answering “Right now I can maintain seven without any problem.”
+Xia looks at me as she asks again “Seven? And it doesn’t strain you?”
+“Not at all”, I say without hesitation. “As your Body Tempering increases, you can increase their number if you decide to continue your training.”
+She narrows her eyes, hesitant again as she asks me “So, if this is so useful, why doesn’t everyone do it? Why don’t they teach it from the beginning?”
+And there it is. The question I’ve asked myself so many times and to which I still have no answer.
+“I don’t know”, I admit, leaning back slightly in my chair. “Maybe they see it as a waste of time. Maybe not everyone has the patience or guidance to do it. Or maybe...”
+“Excuse the interruption, Guifei Xiang, Zhāohuán Wen”, Lianhua says suddenly. “Although Guifei Xiang doesn’t like me to tell her about cultivation beyond Body Tempering, in this case I don’t think she’ll mind if I clarify something.”
+Here Lianhua pauses as she looks at the two of us.
+“Once you finish the Body Tempering, you no longer need to grasp the Qi with your mind to cultivate”, Lianhua continues. “Another method is used. And although many end up grasping several specks, as Zhāohuán does, since I myself once attracted four specks, in the end, it’s irrelevant once you reach the Opening of the Gates.”
+Upon hearing Lianhua’s words, Xia blinks. I, on the other hand, look at her with narrowed eyes.
+“And why didn’t you tell me that before?” I ask her, perhaps a little too bluntly.
+Lianhua, without losing her composure, replies with exasperating calm “Because you never asked me. And as far as I knew, you could only catch five specks, just as you told the emperor when you turned eight. And I thought that was the end of it.”
+I run a hand over my forehead as I listen to Lianhua.
+“You’re right”, I murmur. “I brought this on myself.”
+I pause, but then a thought occurs to me and I look up again. “But if the issue of mental hands isn’t as important as you say, why does the limit only increase according to the Body Tempering level?”
+Lianhua falls silent, and for the first time, I see her hesitate.
+“I don’t know”, she finally replies. “I’m not an expert in cultivation.”
+“Well, then that settles it”, I say aloud. “The only way to clear up any doubts would be to ask an expert on the subject, and since, as far as I know, we don’t have any trustworthy experts in the city we can ask, we’ll stick with the plan, just in case.”
+I look at Xia, who has been listening to our conversation in silence, and say “Your training continues exactly as I planned. And not just that.”
+I turn to Lianhua and say “You have a task too. I want you to test how many specks you can catch. I want to know how many specks of Qi someone at your cultivation level can catch, so we can compare it to us.”
+After listening to me, Lianhua bows slightly as she says “As you say, Zhāohuán Wen.”
+“But that’s all for today”, I say as I stretch my arms above my head, feigning great fatigue. “We’ll continue talking tomorrow about Qi, specks, and other mysteries of cultivation. Today we have something more important to do.”
+Xia looks at me curiously, tilting her head.
+“We have to celebrate Lianhua’s return,” I say, turning to her with a knowing smile. “We haven’t even let her try the pizza or the burgers yet.”
+I see Xia’s eyes light up instantly, as if she’d just summoned the celestial spirit of cooking.
+“That’s right!” she exclaims, turning to Lianhua with renewed enthusiasm. “While you were away, we started experimenting with some recipes Wen had read in some really rare books, and we ended up making some incredible dishes. Seriously, incredible!”
+I see Lianhua blink with her characteristic serenity, but I can see a slight curve at the corner of her lips, as she knows Xia won’t stop now.
+“The pizza has a crispy crust, with spicy tomato sauce, and we put everything on top! Cheese, meat, even fruit if we’re feeling crazy. And the burgers”, and here she pauses dramatically. “They’re like Rou Jia Mo, and the meat is prepared differently, but it tastes really good.”This book was originally published on Royal Road. Check it out there for the real experience.
+But his expression suddenly changes, and he pouts.
+“It’s just that we can’t make them very often”, she murmurs sadly, slumping her shoulders. “Because Guifei Xiang didn’t like them at all. She says they’re in bad taste and only suitable for children. She didn’t even try them properly!”
+I’m about to reply when there’s a soft knock at the door.
+“Zhāohuán Wen”, a voice calls from the other side. “Guifei Xiang requests your presence in her office.”
+I sigh, making no attempt to hide my resignation at the thought of the conversation to come, and reply to the maid “Tell her we’ll be right there.”
+“As you command”, the maid replies, and I hear her footsteps as she walks away.
+“Well”, I say as I look at Xia and Lianhua. “We still have a little time before lunch, so let’s make the most of it.”
+I turn to Xia and say “Would you do me a favor and go to the kitchens to help the cooks prepare some pizzas and hamburgers? We’re going to throw a little welcome party for Lianhua, and I want her to try them properly.”
+“Yes!” Xia exclaims, almost jumping up. “I’ll go right now!”
+She dashes toward the door like an arrow, but just as she’s about to go through it, I say with a laugh “Remember to change your clothes before you go to the kitchen!”
+“Okay!” she shouts without stopping, and I hear her running down the hallway as if she were being chased by a hungry spirit beast.
+When silence returns, I turn to Lianhua and say “Take me to my mother’s office.”
+Lianhua nods with her usual composure and, with smooth, measured movements, begins to push my chair through the palace corridors.
+When we finally reach the door to my mother’s office, Lianhua stops and knocks softly with her knuckles.
+“Come in”, my mother’s firm voice is heard from the other side.
+Lianhua opens the door, and we enter to find my mother, as always, seated behind her desk while Lingxi stands beside her like a jade statue.
+As soon as we enter, I hear Lianhua carefully close the door behind us, so I say “If you sent for me, I suppose my imperial brother’s delegation has already left.”
+“That’s right”, my mother replies bluntly. “Jin Duwei Liang Zhen came to demand that we hand Lianhua over to him. He made every threat he could, even mentioning that he would take the matter to Tàishǒu Wu Zhānglóng, but I stuck to the plan we’d made, so there was little he could do.”
+I nod slowly, as the tone of her voice makes it clear that it wasn’t a pleasant conversation.
+“And what did he do when he saw he wasn’t going to get what he wanted?” I ask.
+“He had no choice but to turn around”, my mother replies. “As he walked away from the palace, we saw him heading with his men toward the governor’s palace.”
+I frown and look at her intently “And do you think he’ll succeed there? Or are things in the city still as bad as they were last night?”
+My mother narrows her eyes, as if recalling an unpleasant report.
+“Worse”, she replies. “Nei Baihu took advantage of this morning, when she sent the messengers we dispatched to the capital, to send some Nei Wei undercover to investigate. Upon their return, they reported that it appears many of the governor’s men and members of the families who entered the Celestial Fragment have not returned, and the city guard is forcibly interrogating the cultivators who left to find out what happened inside.”
+Here my mother pauses before continuing “And they’re taking it as a personal attack, so they’re resisting, and there are even starting to be deaths from the most serious clashes.”
+Her words hit me like a ton of bricks, but she continues “I very much doubt that, at this moment, the governor is in a position to help the delegation of the Fifteenth Imperial Prince.”
+I sigh and run a hand over my face, clenching my teeth to hold back the urge to curse Ling Tian. As grateful as I am that he saved Lianhua, what he’s left in his wake is nothing short of a political and military storm.
+“Thank you for updating me on how things are going”, I say to my mother, my voice calm even though a storm rages inside me. “And while we’re at it, I’d like to take this opportunity to tell you that I’m going to throw a small party to celebrate Lianhua’s return.”
+My mother nods without much reaction, though her gaze hardens as she tells me “I don’t mind. But for reasons that are more than obvious, you are forbidden from leaving the palace for the time being.”
+“I expected that”, I reply without resistance. “Is there anything else?”
+“No. That’s all for now”, my mother says, shaking her head.
+“Then, we’ll take our leave”, I say as I bow slightly. “Come on, Lianhua, take me to my room.”
+When we get back to my room, Lianhua pushes my chair up to the table as the breeze comes in through the half-open window and gently rustles the curtains, filling the air with the scent of flowers.
+“We still have time while Xia helps in the kitchens prepare the dishes for the party”, I say to Lianhua as I settle a little more comfortably into the chair. “So I think it’s a good time to take a look at the contents of the storage bag.”
+“Then I’ll have to go get it”, she says in her usual calm tone as she nods. “I have it in my room.”
+“Perfect. Then go get it”, I say, gesturing with my hand.
+Without waiting for further instructions, Lianhua turns and leaves the room as the door closes behind her with a soft click, leaving me alone with my thoughts, and with anticipation bubbling in my chest like a child waiting to open Christmas presents, making me forget all about Ling Tian and the unrest.
+Fortunately, it doesn’t take her long to return, and when the door opens again, she walks in with a steady stride, carrying a dark leather pouch that I recognize immediately.
+The storage bag.
+“Come on, don’t keep me in suspense, start taking out the contents already”, I urge her, unable to hide my excitement.
+Lianhua gives me a faint, fleeting, but genuine smile. Then, she stands next to the table and begins to open the bag with expert familiarity, after which she reaches her arm inside and starts pulling out its contents.
+But the first thing she pulls out leaves me a little bewildered, as it is a garment. Made of lightweight fabric, with a geometric cut, gold trim, and motifs that remind me of the frescoes of Ancient Egypt.
+And after that garment, another, and yet another. And not just a few.
+In no time at all, I watch in disbelief as robes, skirts, shawls, and headdresses pile up. And it’s all a mix of styles, ranging from ceremonial to practical everyday wear. Who carries all this around and decides to stash it in a magic bag as if it were the most precious thing in the world?
+Fortunately, Lianhua seems to pull out what appear to be the last items of clothing, which, unfortunately, turn out to be underwear, and I notice Lianhua’s ears flush slightly as she realizes what they are, and she begins to pull out other kinds of objects.
+Next is a varnished wooden case, which she opens to reveal a dozen pieces of jewelry. Bracelets, rings, and pendants made of gold and silver, all inlaid with malachite, turquoise, and emeralds. All unmistakably Egyptian-inspired, though with variations I don’t quite recognize. After showing them to me, she sets the box aside on the table, creating a sparkling corner.
+Then, she takes out two small lapis lazuli tablets with inscriptions engraved in hieroglyphs of meticulous detail. She places them carefully on the table in front of me, followed by several scrolls that she sets down beside them, with the same care.
+Next, I see her take out a small glass jar filled with what looks like sand, a brilliant golden color that glitters in the light streaming through the window, and she sets it on the table next to the tablets.
+“And now I need a bowl”, she says suddenly.
+“A bowl?” I repeat, raising an eyebrow, but she’s already heading toward the door.
+She opens it just enough to step out, making sure to close it gently behind her so no one can peek inside the room.
+It doesn’t take her long to return, and when she does, she’s holding a glazed ceramic bowl the size of a medium-sized basin. She places it in the center of the table with the utmost care and, without a word, opens the bag, turns it over, and places it upside down right on top of the bowl.
+After that, a stream of shiny stones, all the size of a small marble, I estimate about a centimeter in diameter, begins to pour out of the bag and fall into the bowl with a dull clatter for a while.
+But eventually they stop falling, and when the last stone lands, Lianhua removes the bag in a single motion.
+“That’s all there is”, she tells me calmly.
+I remain silent for a moment, looking at the bowl, the objects on the table, the jewelry, and finally at my clothes.
+I steel myself, knowing that all of this, as interesting as it may be from an academic standpoint, isn’t of much use to me here, and there’s too much of it to hide, especially considering that I want to keep the storage bag a secret.
+“Lianhua”, I say, turning my head slightly toward her. “Would you be able to get rid of the clothes discreetly and without drawing attention?”
+She nods with that calm efficiency that always conveys confidence. “Yes. I can handle it without a problem.”
+“Then put it away and do it as soon as you can”, I tell her before I can change my mind.
+Lianhua puts the garments back into the bag one by one, folding them as if she were packing a suitcase and not disposing of a potential archaeological treasure.
+Meanwhile, I look over the rest, and finally pick up one of the pendants and spin it, watching it sparkle in the light streaming through the window.
+“For the jewelry”, I say as I watch the sparkles. “We’ll tell my mother you found them in the strange building along with the papers. It would be odd if you hadn’t found anything in the ruined room.”
+“That’s a good decision, Zhāohuán Wen”, Lianhua replies, a hint of approval in her voice.
+I look away from the pendant and set it down next to the other jewelry to point out the tablets, the jar of sand, and the bowl.
+“And those? Do you know what they are?” I ask Lianhua. “Because I sense something. I can’t explain it. There’s a kind of light pressure. As if they were emitting an energy I don’t know how to interpret.”
+“The stones, yes. The tablets, I suspect so, and as for the jar, I have no idea, Zhāohuán Wen”, Lianhua tells me.
+“Then tell me what you know or suspect”, I say to Lianhua, with a mixture of curiosity and tension.
+“The stones are spirit stones”, she tells me calmly.
+My eyes widen as I pick one up from the bowl and hold it up to my eyes.
+“This?” I ask, incredulous. “When I read about them, I thought they were much bigger. Or at least different.”
+The stone emits a faint warmth on my fingers, barely perceptible. I return it to the bowl and look at the glittering mountain piled up inside as I say to Lianhua “And this amount? Isn’t it excessive? I thought they were scarce and very valuable.”
+“They are”, Lianhua tells me without batting an eye. “The amount in that bowl is a small fortune. With it, one could buy a minor noble title in many provinces.”

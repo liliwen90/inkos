@@ -1,0 +1,9 @@
+| Field | Value |
+|-------|-------|
+| Current Chapter | 2 |
+| Current Location | The Scrapyard's preparation bay within Typhon Freeport, a mechanical graveyard filled with salvaged mechs and the persistent smell of hydraulic fluid and ozone. |
+| MC Status | Physically exhausted from six hours of intensive mech training, with critically depleted Qi reserves after using spiritual energy to repair the Grunt's fusion core. Emotionally transitioning from initial neural interface shock to growing confidence in his cultivation-mech integration approach. Has learned basic mech piloting and combat maneuvers. Possesses only his clothes and jade pendant. His Cultivation remains at late stage **Qi Condensation**, now at dangerously low energy levels. |
+| Current Goal | Survive the midnight three-way mech battle in the Scrapyard arena against experienced pilots Kozlov and Reaper. Win to secure food, shelter, and credits for continued survival. |
+| Current Limitations | Dangerously low Qi reserves from the fusion core repair. Zero combat experience in mech battles. Piloting a inferior, salvaged mech against superior opponents with better equipment and years of experience. Still learning galactic society and technology. |
+| Allies & Enemies | **Potential Allies:** Lysandra (mech fight promoter, providing training and opportunity). **Enemies:** Voss and the dock workers. **Combat Opponents:** Kozlov (veteran pilot, predictable but experienced) and Reaper (unknown newcomer with modified mech). **Unknown:** The entity that destroyed the Sanctuary. |
+| Active Conflict | Immediate survival challenge in the upcoming mech battle. Internal development of cultivation-technology integration. Man vs. Environment (hostile station). The philosophical challenge of adapting ancient cultivation principles to modern galactic warfare. |

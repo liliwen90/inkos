@@ -1,20 +1,20 @@
 {
-  "avgSentenceLength": 83,
-  "sentenceLengthStdDev": 86.4,
-  "avgParagraphLength": 2498,
+  "avgSentenceLength": 115.7,
+  "sentenceLengthStdDev": 129.2,
+  "avgParagraphLength": 1748,
   "paragraphLengthRange": {
-    "min": 30,
-    "max": 9029
+    "min": 8,
+    "max": 9966
   },
-  "vocabularyDiversity": 0.003,
+  "vocabularyDiversity": 0.001,
   "topPatterns": [
-    "Th...(42次)",
-    "He...(32次)",
-    "Sh...(24次)",
-    "# ...(18次)",
-    "No...(17次)"
+    "Th...(64次)",
+    "# ...(42次)",
+    "He...(41次)",
+    "Sh...(27次)",
+    "No...(18次)"
   ],
   "rhetoricalFeatures": [],
-  "sourceName": "Ivaline Chronicle _ A Record of an Unbroken Will [royalroad].txt, Reincarnated as a Brewer (Against My Better judgement) [royalroad].txt, The Solitary Path to Divinity [royalroad].txt",
-  "analyzedAt": "2026-03-19T19:10:51.829Z"
+  "sourceName": "Dao of Language (English) [royalroad].txt, Ivaline Chronicle _ A Record of an Unbroken Will [royalroad].txt, Quentin Rowanoak and the Golden Mice_ The Story of How a Wil [royalroad].txt, Reincarnated as a Brewer (Against My Better judgement) [royalroad].txt, Second Rate Necromancer [royalroad].txt, The Demon King's Reincarnation [royalroad].txt, The Solitary Path to Divinity [royalroad].txt",
+  "analyzedAt": "2026-03-20T16:26:10.052Z"
 }

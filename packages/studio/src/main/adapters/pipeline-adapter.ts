@@ -173,11 +173,9 @@ export class PipelineAdapter extends EventEmitter {
   // ===== 章节大纲规划 (需 LLM) =====
 
   async planNextChapter(bookId: string): Promise<PlanEntry> {
-    this.emitProgress('architect', '正在规划下一章大纲...')
+    // Core runner 内部已通过 onProgress 回调发射 architect/architect-done 事件
     try {
-      const result = await this.getRunner().planNextChapter(bookId)
-      this.emitProgress('architect-done', `第${result.chapter}章大纲已生成，待审核`)
-      return result
+      return await this.getRunner().planNextChapter(bookId)
     } catch (err) {
       this.emitProgress('architect-error', `大纲规划失败: ${(err as Error).message}`)
       throw err
@@ -185,11 +183,9 @@ export class PipelineAdapter extends EventEmitter {
   }
 
   async replanChapter(bookId: string, chapterNumber: number, feedback: string): Promise<PlanEntry> {
-    this.emitProgress('architect', `正在重新规划第${chapterNumber}章大纲...`)
+    // Core runner 内部已通过 onProgress 回调发射 architect/architect-done 事件
     try {
-      const result = await this.getRunner().replanChapter(bookId, chapterNumber, feedback)
-      this.emitProgress('architect-done', `第${chapterNumber}章大纲v${result.version}已重新生成`)
-      return result
+      return await this.getRunner().replanChapter(bookId, chapterNumber, feedback)
     } catch (err) {
       this.emitProgress('architect-error', `大纲重新规划失败: ${(err as Error).message}`)
       throw err

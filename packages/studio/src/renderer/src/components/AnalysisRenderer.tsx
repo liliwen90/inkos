@@ -28,7 +28,7 @@ const GENRE_KEYWORDS: Record<string, string> = {
 }
 
 const PLATFORM_KEYWORDS: Record<string, string> = {
-  '番茄': 'tomato', '起点': 'qidian', '飞卢': 'feilu',
+  '七猫': 'qimao', '番茄': 'tomato', '起点': 'qidian', '飞卢': 'feilu',
   'Royal Road': 'royalroad', 'RoyalRoad': 'royalroad',
   'Kindle': 'kindle', 'KU': 'kindle', 'Kindle/KU': 'kindle', 'Kindle Unlimited': 'kindle',
   'Patreon': 'patreon',
