@@ -122,10 +122,6 @@ export function initAgentChatHandler(config: AgentChatConfig): void {
   _config = config
 }
 
-export function getCurrentAgent(): string | null {
-  return _currentAgent
-}
-
 /**
  * Handle a user message from the chat panel.
  * Routes to the correct agent, streams response back via IPC.
