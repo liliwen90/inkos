@@ -6,4 +6,7 @@ dist/
 *.tgz
 .DS_Store
 coverage/
+
+# User project data — contains API keys
+my-novel/task-routing.json
 .turbo/
