@@ -151,6 +151,46 @@ export default function AgentChatPanel(): JSX.Element {
     }
   }
 
+  // Toolbar actions
+  const handleUploadStyleBook = useCallback(async () => {
+    const files = await window.hintos.selectStyleBookFiles()
+    if (!files || files.length === 0) return
+    addMessage({
+      type: 'data-card',
+      content: `📎 已选择${files.length}本参考书`,
+      richData: { files } as never,
+    })
+    // Inject file info into next agent context
+    window.hintos.sendAgentChat(`[系统] 用户上传了${files.length}本参考书: ${files.map(f => f.split(/[/\\]/).pop()).join(', ')}`, `upload-${Date.now()}`)
+  }, [addMessage])
+
+  const handleTrending = useCallback(async () => {
+    addMessage({ type: 'system-info', content: '📊 正在获取热榜数据...' })
+    try {
+      const platforms = await window.hintos.getTrendingPlatforms()
+      if (platforms.length === 0) {
+        addMessage({ type: 'system-info', content: '暂无可用热榜源' })
+        return
+      }
+      // Auto-fetch from first platform, first list
+      const p = platforms[0]
+      const data = await window.hintos.fetchTrending(p.id, p.lists[0].type, false)
+      addMessage({
+        type: 'data-card',
+        agentName: 'radar',
+        content: `📊 ${p.name} · ${p.lists[0].label} 热榜数据已获取`,
+        richData: data as never,
+      })
+    } catch (err) {
+      addMessage({ type: 'system-info', content: `❌ 热榜获取失败: ${(err as Error).message}` })
+    }
+  }, [addMessage])
+
+  const handleSearch = useCallback(() => {
+    // Prompt user for search query via the input box
+    setInputText('🔍 ')
+  }, [])
+
   // Streaming check
   const isStreaming = messages.some((m) => m.isStreaming)
 
@@ -243,13 +283,13 @@ export default function AgentChatPanel(): JSX.Element {
 
       {/* Toolbar */}
       <div className="flex items-center gap-1.5 px-3 py-1.5 border-t border-zinc-800/50 shrink-0">
-        <button className="p-1 text-zinc-600 hover:text-zinc-300" title="上传参考书">
+        <button onClick={handleUploadStyleBook} className="p-1 text-zinc-600 hover:text-zinc-300" title="上传参考书">
           <Paperclip className="w-3.5 h-3.5" />
         </button>
-        <button className="p-1 text-zinc-600 hover:text-zinc-300" title="热榜">
+        <button onClick={handleTrending} className="p-1 text-zinc-600 hover:text-zinc-300" title="热榜">
           <BarChart3 className="w-3.5 h-3.5" />
         </button>
-        <button className="p-1 text-zinc-600 hover:text-zinc-300" title="搜索">
+        <button onClick={handleSearch} className="p-1 text-zinc-600 hover:text-zinc-300" title="搜索">
           <Search className="w-3.5 h-3.5" />
         </button>
         <div className="ml-auto">
