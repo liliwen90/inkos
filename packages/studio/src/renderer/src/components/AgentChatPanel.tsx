@@ -1,8 +1,69 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { MessageSquare, Minimize2, Maximize2, X, Send, Settings, Search, Paperclip, BarChart3 } from 'lucide-react'
-import { useAgentChatStore, type InteractionMode } from '../stores/agent-chat-store'
+import { useAgentChatStore, AGENT_DEFS, type InteractionMode } from '../stores/agent-chat-store'
 import AgentMessage from './AgentMessage'
 import PipelineMiniMap from './PipelineMiniMap'
+
+// === @Mention Autocomplete ===
+
+const MENTION_ENTRIES = Object.entries(AGENT_DEFS).map(([key, def]) => ({
+  key,
+  label: def.displayName,
+  icon: def.icon,
+  color: def.color,
+}))
+
+const SLASH_COMMANDS = [
+  { cmd: '/写下一章', desc: '触发写手Agent创作下一章', icon: '✍️' },
+  { cmd: '/审计', desc: '审计最近一章', icon: '🔍' },
+  { cmd: '/润色', desc: '润色最近一章', icon: '💎' },
+  { cmd: '/搜索', desc: '搜索网络信息', icon: '🔍' },
+  { cmd: '/热榜', desc: '获取热榜数据', icon: '📊' },
+  { cmd: '/清空', desc: '清空对话记录', icon: '🗑️' },
+]
+
+interface MentionDropdownProps {
+  query: string
+  onSelect: (value: string) => void
+  type: '@' | '/'
+}
+
+function MentionDropdown({ query, onSelect, type }: MentionDropdownProps): JSX.Element | null {
+  const items = type === '@'
+    ? MENTION_ENTRIES.filter(e => !query || e.label.includes(query) || e.key.includes(query.toLowerCase()))
+    : SLASH_COMMANDS.filter(c => !query || c.cmd.includes(query))
+
+  if (items.length === 0) return null
+
+  return (
+    <div className="absolute bottom-full left-0 mb-1 w-full bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl py-1 z-50 max-h-48 overflow-y-auto">
+      {type === '@' && items.map((item) => {
+        const e = item as typeof MENTION_ENTRIES[0]
+        return (
+          <button key={e.key}
+            onClick={() => onSelect(`@${e.label} `)}
+            className="w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-700/50 flex items-center gap-2">
+            <span>{e.icon}</span>
+            <span className={e.color}>{e.label}</span>
+            <span className="text-zinc-600 text-[10px]">{e.key}</span>
+          </button>
+        )
+      })}
+      {type === '/' && items.map((item) => {
+        const c = item as typeof SLASH_COMMANDS[0]
+        return (
+          <button key={c.cmd}
+            onClick={() => onSelect(c.cmd + ' ')}
+            className="w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-700/50 flex items-center gap-2">
+            <span>{c.icon}</span>
+            <span className="text-zinc-300">{c.cmd}</span>
+            <span className="text-zinc-600 text-[10px]">{c.desc}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
 
 // === Drag & Resize hook ===
 
@@ -107,6 +168,7 @@ export default function AgentChatPanel(): JSX.Element {
   const markRead = useAgentChatStore((s) => s.markRead)
 
   const [inputText, setInputText] = useState('')
+  const [showMention, setShowMention] = useState<{ type: '@' | '/'; query: string } | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const handleRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -138,17 +200,56 @@ export default function AgentChatPanel(): JSX.Element {
   const handleSend = useCallback(() => {
     const text = inputText.trim()
     if (!text) return
+    setShowMention(null)
+
+    // Handle slash commands locally
+    if (text === '/清空') {
+      useAgentChatStore.getState().clearMessages()
+      window.hintos.clearAgentChat()
+      setInputText('')
+      return
+    }
+
     const msgId = addMessage({ type: 'user-text', content: text })
     setInputText('')
     // Route through IPC → Agent Chat Handler → LLM
     window.hintos.sendAgentChat(text, msgId)
   }, [inputText, addMessage])
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    const val = e.target.value
+    setInputText(val)
+
+    // Detect @mention or /command trigger
+    const lastAt = val.lastIndexOf('@')
+    const lastSlash = val.lastIndexOf('/')
+    if (lastAt >= 0 && lastAt === val.length - 1) {
+      setShowMention({ type: '@', query: '' })
+    } else if (lastAt >= 0 && !val.slice(lastAt).includes(' ')) {
+      setShowMention({ type: '@', query: val.slice(lastAt + 1) })
+    } else if (lastSlash === 0 && !val.includes(' ')) {
+      setShowMention({ type: '/', query: val })
+    } else {
+      setShowMention(null)
+    }
+  }
+
+  const handleMentionSelect = (value: string): void => {
+    if (showMention?.type === '@') {
+      const lastAt = inputText.lastIndexOf('@')
+      setInputText(inputText.slice(0, lastAt) + value)
+    } else {
+      setInputText(value)
+    }
+    setShowMention(null)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent): void => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
     }
+    if (e.key === 'Escape') setShowMention(null)
   }
 
   // Toolbar actions
@@ -298,12 +399,15 @@ export default function AgentChatPanel(): JSX.Element {
       </div>
 
       {/* Input */}
-      <div className="flex items-end gap-2 px-3 py-2 border-t border-zinc-800 shrink-0">
+      <div className="relative flex items-end gap-2 px-3 py-2 border-t border-zinc-800 shrink-0">
+        {showMention && (
+          <MentionDropdown type={showMention.type} query={showMention.query} onSelect={handleMentionSelect} />
+        )}
         <textarea
           value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder={pendingGate ? '回复 Agent...' : '给 Agent 说点什么...'}
+          placeholder={pendingGate ? '回复 Agent...' : '@ 选择Agent / 输入消息'}
           rows={1}
           className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-600 resize-none focus:outline-none focus:border-violet-500 max-h-24 overflow-y-auto"
         />
