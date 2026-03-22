@@ -48,6 +48,8 @@ export interface ChatMessage {
   isStreaming?: boolean
   isComplete?: boolean
   landmark?: ChapterLandmarkData
+  /** Gate stage identifier — used for resolving gate decisions */
+  stage?: string
 }
 
 export type PanelState = 'minimized' | 'normal' | 'maximized'

@@ -878,6 +878,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       content: payload.summary,
       actions: payload.actions,
       richData: payload.data,
+      stage: payload.stage,
     })
     appendLog('ACTIVITY', `Agent gate fired: ${payload.stage} — ${payload.summary}`)
   })

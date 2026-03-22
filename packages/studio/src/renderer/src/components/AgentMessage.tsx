@@ -61,7 +61,7 @@ function ChapterLandmark({ data }: { data: ChapterLandmarkData }): JSX.Element {
 
 // === Action Buttons ===
 
-function ActionButtons({ actions, messageId }: { actions: ChatAction[]; messageId: string }): JSX.Element {
+function ActionButtons({ actions, messageId, stage }: { actions: ChatAction[]; messageId: string; stage?: string }): JSX.Element {
   const respondToGate = useAgentChatStore((s) => s.resolveGate)
 
   const variantClass = (v: ChatAction['variant']): string =>
@@ -74,7 +74,7 @@ function ActionButtons({ actions, messageId }: { actions: ChatAction[]; messageI
       {actions.map((a) => (
         <button key={a.id}
           onClick={() => {
-            window.hintos.respondToGate(a.id, a.id, '')
+            window.hintos.respondToGate(stage ?? a.id, a.id, '')
             respondToGate()
           }}
           className={`px-2 py-1 text-[11px] rounded ${variantClass(a.variant)} transition-colors`}>
@@ -165,7 +165,7 @@ export default function AgentMessage({ message }: { message: ChatMessage }): JSX
       <RichDataSection data={message.richData} />
       {/* Action buttons */}
       {message.actions && message.actions.length > 0 && (
-        <ActionButtons actions={message.actions} messageId={message.id} />
+        <ActionButtons actions={message.actions} messageId={message.id} stage={message.stage} />
       )}
     </div>
   )

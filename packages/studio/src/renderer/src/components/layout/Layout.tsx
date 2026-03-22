@@ -50,18 +50,20 @@ export default function Layout(): JSX.Element {
       }
     })
     const unsubMsg = window.hintos.onAgentChatMessage((event: unknown) => {
-      const msg = event as { type: string; agentName?: string; content?: string; actions?: unknown[]; richData?: unknown; landmark?: unknown }
-      const def = msg.agentName ? useAgentChatStore.getState().pipelineStages.find(s => s.agent === msg.agentName) : null
-      store().addMessage({
+      const msg = event as { type: string; agentName?: string; content?: string; actions?: unknown[]; richData?: unknown; landmark?: unknown; stage?: string }
+      const msgId = store().addMessage({
         type: msg.type as 'agent-text',
         agentName: msg.agentName,
-        agentIcon: def?.icon,
-        agentColor: def?.color,
         content: msg.content ?? '',
         actions: msg.actions as never,
         richData: msg.richData as never,
         landmark: msg.landmark as never,
+        stage: msg.stage,
       })
+      // Set pending gate state for UI indicators
+      if (msg.type === 'agent-gate' && msg.stage && msg.agentName) {
+        store().setPendingGate({ stage: msg.stage, agentName: msg.agentName, messageId: msgId })
+      }
     })
     return () => { unsubStream(); unsubMsg() }
   }, [])
